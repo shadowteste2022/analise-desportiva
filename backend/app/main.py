@@ -10,9 +10,9 @@ from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from app import analysis, backtest, db
+from app import analysis, backtest, db, sports
 from app.config import ROOT, settings
-from app.data import football_data as fd, odds_api, odds_api_io
+from app.data import odds_api, odds_api_io
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 log = logging.getLogger("app")
@@ -66,31 +66,32 @@ def health():
             "admin": bool(settings.admin_token)}
 
 
-@app.get("/api/leagues")
-def leagues():
-    return [{"code": c, "name": fd.LEAGUE_NAMES.get(c, c)} for c in settings.league_list]
-
-
 @app.get("/api/fixtures")
 def fixtures(league: str | None = Query(None, pattern=LEAGUE_RE)):
+    """Football from football-data plus the other sports from The Odds API (when ODDS_API_KEY is set)."""
     if league:
         check_league(league)
     try:
         items, meta = analysis.list_fixtures(league)
     except (RuntimeError, ValueError) as e:
         raise _unavailable(e)
-    return {"fixtures": items, "source": meta}
+    if not league:
+        items += [analysis.summarize(r) for r in sports.reports()]
+    return {"fixtures": items, "source": meta, "odds_api": odds_api.quota}
 
 
 @app.get("/api/match")
 def match(key: str = Query(..., max_length=200)):
-    try:
-        row, meta = analysis.find_fixture(key)
-    except (RuntimeError, ValueError) as e:
-        raise _unavailable(e)
-    if row is None:
+    if not sports.is_other_sport(key):
+        try:
+            row, meta = analysis.find_fixture(key)
+        except (RuntimeError, ValueError) as e:
+            raise _unavailable(e)
+        report = analysis.analyze(row, meta) if row is not None else None
+    else:
+        report = sports.find(key)
+    if report is None:
         raise HTTPException(404, "Jogo não encontrado nos próximos jogos")
-    report = analysis.analyze(row, meta)
     report["alerts"] = db.odds_moves(key)
     return report
 

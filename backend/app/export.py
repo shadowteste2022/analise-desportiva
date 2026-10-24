@@ -8,7 +8,7 @@ import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 
-from app import analysis, backtest, db
+from app import analysis, backtest, db, sports
 from app.config import ROOT, settings
 from app.data import football_data as fd, odds_api, odds_api_io
 
@@ -34,17 +34,17 @@ def export(out: Path) -> dict:
     fx = fx[fx.Div.isin(settings.league_list)]
     odds_api_io.prefetch([r for _, r in fx.iterrows()])
     summaries = []
-    for _, row in fx.iterrows():
-        report = analysis.analyze(row, meta)  # also logs the prediction and odds snapshot, like the API
+    # both log the prediction and odds snapshot, like the API; football first so it gets the Odds API budget first
+    for report in [analysis.analyze(row, meta) for _, row in fx.iterrows()] + sports.reports():
         report["alerts"] = db.odds_moves(report["key"])
         _write(data / "match" / f"{slug(report['key'])}.json", report)
         summaries.append(analysis.summarize(report))
     db.prune_snapshots()
     generated = datetime.now(timezone.utc).isoformat(timespec="seconds")
-    live = {"enabled": odds_api.enabled(), **{k: odds_api.quota[k] for k in ("used", "remaining", "budget", "allowed_now")},
+    live = {"enabled": odds_api.enabled(),
+            **{k: odds_api.quota.get(k) for k in ("used", "remaining", "budget", "allowed_now", "error")},
             "skipped": sorted(set(odds_api.quota["skipped"]))}
     _write(data / "fixtures.json", {"fixtures": summaries, "source": meta, "generated_at": generated, "odds_api": live})
-    _write(data / "leagues.json", [{"code": c, "name": fd.LEAGUE_NAMES.get(c, c)} for c in settings.league_list])
     _write(data / "history.json", analysis.settled_history(5000))
     _write(data / "alerts.json", db.odds_moves())
     _write(data / "backtests.json", backtest.load_all())

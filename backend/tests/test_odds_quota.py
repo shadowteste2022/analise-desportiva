@@ -27,7 +27,7 @@ def test_period_fraction():
 
 
 def test_spending_is_paced(quota):
-    mid = datetime(2026, 10, 16, 12, tzinfo=timezone.utc)  # half the budget (250) earned + one full refresh (2)
+    mid = datetime(2026, 10, 16, 12, tzinfo=timezone.utc)  # half the budget (250) earned; T0 has no Odds API sport, so no slack
     quota.update(used=240, remaining=260)
     assert odds_api.can_spend(2, mid)
     quota.update(used=251, remaining=249)
@@ -40,15 +40,32 @@ def test_unknown_usage_never_spends(quota):
     assert not odds_api.can_spend(2)
 
 
+def test_quota_read_failure_is_tried_once_and_hides_key(monkeypatch):
+    import httpx
+    monkeypatch.setattr(settings, "odds_api_key", "SECRETKEY123")
+    q = {"remaining": None, "used": None, "budget": None, "allowed_now": None, "skipped": [], "error": None}
+    monkeypatch.setattr(odds_api, "quota", q)
+    calls = []
+
+    def fake_get(url, **kw):
+        calls.append(url)
+        req = httpx.Request("GET", url)
+        return httpx.Response(401, request=req, text='{"message": "API key SECRETKEY123 is not valid"}')
+    monkeypatch.setattr(odds_api.httpx, "get", fake_get)
+    assert not odds_api.can_spend(2) and not odds_api.can_spend(2)
+    assert len(calls) == 1  # not retried for every fixture
+    assert q["error"].startswith("HTTP 401") and "SECRETKEY123" not in q["error"]
+
+
 def test_skipped_league_reuses_saved_odds(quota, monkeypatch):
     monkeypatch.setattr(settings, "odds_api_key", "test")
-    odds_api._cache.pop("E0", None)
-    path = odds_api._disk("E0")
+    odds_api._cache.pop("soccer_epl", None)
+    path = odds_api._disk("soccer_epl")  # cache is keyed by the Odds API sport
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps({"fetched_at": time.time() - 5 * 3600, "events": [{"id": "x"}]}), encoding="utf-8")
     quota.update(used=500, remaining=0)  # budget exhausted
     assert odds_api.fetch("E0") == [{"id": "x"}]  # 5 h old: past the 1 h TTL but within ODDS_MAX_AGE_HOURS
-    assert quota["skipped"] == ["E0"]
+    assert quota["skipped"] == ["soccer_epl"]
     path.write_text(json.dumps({"fetched_at": time.time() - 72 * 3600, "events": [{"id": "x"}]}), encoding="utf-8")
     assert odds_api.fetch("E0") == []  # too old to show
 

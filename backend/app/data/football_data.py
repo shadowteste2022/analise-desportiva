@@ -3,6 +3,7 @@ import io
 import logging
 import time
 from datetime import date, datetime, timezone
+from zoneinfo import ZoneInfo
 
 import httpx
 import pandas as pd
@@ -12,12 +13,17 @@ from app.config import settings
 log = logging.getLogger(__name__)
 BASE = "https://www.football-data.co.uk"
 SOURCE = "football-data.co.uk"
+LOCAL_TZ = ZoneInfo("Europe/Lisbon")
 
 LEAGUE_NAMES = {
-    "E0": "Inglaterra — Premier League", "E1": "Inglaterra — Championship", "SP1": "Espanha — La Liga",
-    "I1": "Itália — Serie A", "D1": "Alemanha — Bundesliga", "F1": "França — Ligue 1",
-    "P1": "Portugal — Primeira Liga", "N1": "Países Baixos — Eredivisie", "B1": "Bélgica — Pro League",
-    "SC0": "Escócia — Premiership", "T1": "Turquia — Süper Lig", "G1": "Grécia — Super League",
+    "E0": "Inglaterra — Premier League", "E1": "Inglaterra — Championship", "E2": "Inglaterra — League One",
+    "E3": "Inglaterra — League Two", "EC": "Inglaterra — National League",
+    "SP1": "Espanha — La Liga", "SP2": "Espanha — Segunda División",
+    "I1": "Itália — Serie A", "I2": "Itália — Serie B", "D1": "Alemanha — Bundesliga", "D2": "Alemanha — 2. Bundesliga",
+    "F1": "França — Ligue 1", "F2": "França — Ligue 2", "P1": "Portugal — Primeira Liga",
+    "N1": "Países Baixos — Eredivisie", "B1": "Bélgica — Pro League", "T1": "Turquia — Süper Lig",
+    "G1": "Grécia — Super League", "SC0": "Escócia — Premiership", "SC1": "Escócia — Championship",
+    "SC2": "Escócia — League One", "SC3": "Escócia — League Two",
 }
 # Named bookmakers in the CSVs (Max/Avg are market aggregates, BFE is an exchange before commission).
 BOOKMAKERS = {"B365": "Bet365", "BFD": "Betfred", "BV": "BetVictor", "BW": "Betway",
@@ -102,10 +108,24 @@ def load_results(league: str, today: date | None = None, seasons: int | None = N
     return df, meta
 
 
+def kickoffs(df: pd.DataFrame) -> pd.Series:
+    """Kick-off as an aware timestamp. football-data times are UK time, which matches Lisbon all year."""
+    when = df.Date.dt.strftime("%Y-%m-%d") + " " + df.get("Time", pd.Series(index=df.index, dtype=object)).fillna("23:59")
+    return pd.to_datetime(when, errors="coerce").dt.tz_localize(LOCAL_TZ, ambiguous=True, nonexistent="shift_forward")
+
+
+def upcoming(df: pd.DataFrame, now: pd.Timestamp | None = None, grace_hours: float = 2) -> pd.DataFrame:
+    """Drop matches that kicked off more than `grace_hours` ago: fixtures.csv is only republished about twice a
+    week and keeps played matches until then."""
+    now = now if now is not None else pd.Timestamp.now(tz=LOCAL_TZ)
+    k = kickoffs(df)
+    return df[k.isna() | (k > now - pd.Timedelta(hours=grace_hours))]
+
+
 def load_fixtures() -> tuple[pd.DataFrame, dict]:
     """Upcoming matches (next days) for all covered leagues, with pre-match odds."""
     df, meta = _fetch(f"{BASE}/fixtures.csv", "fixtures.csv", settings.fixtures_ttl_hours)
-    return clean(df).sort_values(["Date", "Time"]).reset_index(drop=True), meta
+    return upcoming(clean(df)).sort_values(["Date", "Time"]).reset_index(drop=True), meta
 
 
 AGGREGATES = {"Max": "Máximo do mercado", "Avg": "Média do mercado"}

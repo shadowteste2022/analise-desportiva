@@ -23,10 +23,13 @@ COST_PER_CALL = 2  # markets (h2h, totals) x regions (eu)
 SPORTS = {"E0": "soccer_epl", "SP1": "soccer_spain_la_liga", "I1": "soccer_italy_serie_a",
           "D1": "soccer_germany_bundesliga", "F1": "soccer_france_ligue_one",
           "P1": "soccer_portugal_primeira_liga", "N1": "soccer_netherlands_eredivisie",
-          "E1": "soccer_efl_champ", "B1": "soccer_belgium_first_div", "SC0": "soccer_spl",
+          "E1": "soccer_efl_champ", "E2": "soccer_england_league1", "E3": "soccer_england_league2",
+          "SP2": "soccer_spain_segunda_division", "I2": "soccer_italy_serie_b", "D2": "soccer_germany_bundesliga2",
+          "F2": "soccer_france_ligue_two", "B1": "soccer_belgium_first_div", "SC0": "soccer_spl",
           "T1": "soccer_turkey_super_league", "G1": "soccer_greece_super_league"}
 _cache: dict[str, tuple[float, list]] = {}
-quota = {"remaining": None, "used": None, "budget": None, "allowed_now": None, "skipped": []}
+active: list[str] = []  # sport keys the API reports as in season, from /sports
+quota = {"remaining": None, "used": None, "budget": None, "allowed_now": None, "skipped": [], "error": None}
 
 
 def enabled() -> bool:
@@ -39,16 +42,33 @@ def _read_headers(r: httpx.Response) -> None:
         quota["remaining"] = int(float(r.headers.get("x-requests-remaining", 0)))
 
 
+def _error(e: httpx.HTTPError) -> str:
+    """Status and the API's own message (e.g. an invalid key), never the request URL, which carries the key."""
+    if isinstance(e, httpx.HTTPStatusError):
+        text = e.response.text[:200]
+        if settings.odds_api_key:
+            text = text.replace(settings.odds_api_key, "***")  # the message ends up on the public site
+        return f"HTTP {e.response.status_code}: {text}"
+    return type(e).__name__
+
+
 def _refresh_quota() -> None:
-    """Current usage from /sports, which costs no credits. Done once per process."""
-    if quota["used"] is not None:
+    """Current usage from /sports, which costs no credits. Tried once per process, even if it fails."""
+    if quota.get("checked"):
         return
+    quota["checked"] = True
     try:
         r = httpx.get(BASE, params={"apiKey": settings.odds_api_key}, timeout=20)
         r.raise_for_status()
         _read_headers(r)
-    except httpx.HTTPError as e:
-        log.warning("The Odds API: não foi possível ler a quota (%s)", type(e).__name__)
+        active[:] = [s["key"] for s in r.json() if s.get("active")]  # used to find live tennis tournaments
+    except (httpx.HTTPError, ValueError, KeyError, TypeError) as e:
+        if not isinstance(e, httpx.HTTPError):
+            quota["error"] = f"resposta inesperada de /sports ({type(e).__name__})"
+            log.warning("The Odds API: %s", quota["error"])
+            return
+        quota["error"] = _error(e)
+        log.warning("The Odds API: não foi possível ler a quota (%s)", quota["error"])
 
 
 def period_fraction(now: datetime, reset_day: int) -> float:
@@ -68,7 +88,7 @@ def can_spend(cost: int, now: datetime | None = None) -> bool:
     if quota["used"] is None:
         return False  # usage unknown: do not risk going over the plan
     budget = settings.odds_api_monthly_budget
-    slack = COST_PER_CALL * len(settings.league_list)  # one full refresh
+    slack = COST_PER_CALL * sum(lg in SPORTS for lg in settings.league_list)  # one full refresh
     allowed = budget * period_fraction(now or datetime.now(timezone.utc), settings.odds_api_reset_day) + slack
     quota.update(budget=budget, allowed_now=round(min(allowed, budget)))
     return (quota["used"] + cost <= min(allowed, budget)
@@ -88,19 +108,25 @@ def _load_disk(league: str) -> tuple[float, list] | None:
 
 
 def fetch(league: str) -> list[dict]:
-    """Raw events for a league: fresh cache, else a paced API call, else the last saved odds if not too old."""
+    """Raw events for a football-data league code (see fetch_sport)."""
     sport = SPORTS.get(league)
-    if not enabled() or not sport:
+    return fetch_sport(sport) if sport else []
+
+
+def fetch_sport(sport: str) -> list[dict]:
+    """Raw events for an Odds API sport key: fresh cache, else a paced API call, else the last saved odds if not
+    too old."""
+    if not enabled():
         return []
-    hit = _cache.get(league) or _load_disk(league)
+    hit = _cache.get(sport) or _load_disk(sport)
     age_h = (time.time() - hit[0]) / 3600 if hit else None
     if hit and age_h < settings.fixtures_ttl_hours:
         return hit[1]
     stale = hit[1] if hit and age_h < settings.odds_max_age_hours else []
     if not can_spend(COST_PER_CALL):
-        quota["skipped"].append(league)
+        quota["skipped"].append(sport)
         log.info("The Odds API: %s adiado para respeitar o orçamento (%s/%s créditos usados)",
-                 league, quota["used"], quota["budget"])
+                 sport, quota["used"], quota["budget"])
         return stale
     try:
         r = httpx.get(URL.format(sport=sport), timeout=20, params={
@@ -108,12 +134,15 @@ def fetch(league: str) -> list[dict]:
         _read_headers(r)
         r.raise_for_status()
         events = r.json()
-    except (httpx.HTTPError, ValueError) as e:
-        log.warning("The Odds API indisponível para %s: %s", league, type(e).__name__)  # never log the key
+    except httpx.HTTPError as e:
+        log.warning("The Odds API indisponível para %s: %s", sport, _error(e))
         return stale
-    _cache[league] = (time.time(), events)
-    _disk(league).parent.mkdir(parents=True, exist_ok=True)
-    _disk(league).write_text(json.dumps({"fetched_at": time.time(), "events": events}), encoding="utf-8")
+    except ValueError as e:
+        log.warning("The Odds API: resposta inválida para %s (%s)", sport, type(e).__name__)
+        return stale
+    _cache[sport] = (time.time(), events)
+    _disk(sport).parent.mkdir(parents=True, exist_ok=True)
+    _disk(sport).write_text(json.dumps({"fetched_at": time.time(), "events": events}), encoding="utf-8")
     return events
 
 

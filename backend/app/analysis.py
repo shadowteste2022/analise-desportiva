@@ -289,7 +289,8 @@ def summarize(r: dict) -> dict:
     top = next((c for c in (mk.VALOR, mk.INCONCLUSIVO, mk.SEM_VALOR) if c in cats), mk.SEM_DADOS)
     return {"key": r["key"], **r["identification"], "category": top,
             "confidence": (r.get("data_status") or {}).get("confidence"),
-            "probs_1x2": (r["predictions"] or {}).get("probabilities", {}).get("1X2"),
+            "probs_1x2": ((r["predictions"] or {}).get("probabilities", {}).get("1X2")
+                          or (r["predictions"] or {}).get("probabilities", {}).get("Vencedor")),
             "best": best and {k: best[k] for k in ("market", "selection", "best_odds", "ev", "category")},
             "value_count": cats.count(mk.VALOR)}
 
@@ -306,7 +307,7 @@ def settled_history(limit: int = 500) -> list[dict]:
     """Logged predictions with the real outcome once the match is in the results feed."""
     rows = db.history(limit)
     results = {}
-    for lg in {r["league"] for r in rows}:
+    for lg in {r["league"] for r in rows if "_" not in r["league"]}:  # other sports (basketball_nba…) have no results feed yet
         try:
             df, _ = fd.load_results(lg)
         except RuntimeError:

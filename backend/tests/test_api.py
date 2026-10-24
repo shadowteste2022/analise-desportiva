@@ -86,6 +86,15 @@ def test_odds_api_matching():
     assert odds_api.match_odds(events, "Benfica", "Braga") == ({}, None)
 
 
+def test_played_fixtures_are_hidden():
+    df = pd.DataFrame({"Date": pd.to_datetime(["2026-10-23", "2026-10-24", "2026-10-24", "2026-10-25"]),
+                       "Time": ["20:00", "12:30", "17:30", None]})
+    now = pd.Timestamp("2026-10-24 15:00", tz=fd.LOCAL_TZ)
+    kept = fd.upcoming(df, now)
+    # yesterday's game is gone, 12:30 kicked off 2.5 h ago, 17:30 is still to come, no time -> kept
+    assert kept.Time.tolist()[:1] == ["17:30"] and len(kept) == 2
+
+
 def test_clean_rejects_bad_rows():
     raw = pd.DataFrame({"Div": ["P1", "P1"], "Date": ["07/08/2026", "bad"], "HomeTeam": ["A", "B"],
                         "AwayTeam": ["C", "D"], "FTHG": ["1", "x"], "B365H": ["0.5", "2.0"]})

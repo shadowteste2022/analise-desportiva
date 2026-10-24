@@ -19,8 +19,11 @@ class Settings(BaseSettings):
     odds_api_io_bookmakers: str = "Betano PT,Betclic PT,Bwin PT"
     admin_token: str | None = None  # required for POST /api/admin/*; admin disabled if unset
 
+    # Other sports via The Odds API (market consensus only). Entries ending in "_" are prefixes: every active
+    # tournament with that prefix is included (tennis keys change with each tournament).
+    other_sports: str = "basketball_nba,basketball_euroleague,icehockey_nhl,baseball_mlb,tennis_atp_,tennis_wta_"
     data_dir: Path = ROOT / "data"
-    leagues: str = "E0,SP1,I1,D1,F1,P1,N1"
+    leagues: str = "P1,E0,SP1,I1,D1,F1,N1,B1,T1,G1,SC0,E1,SP2,I2,D2,F2,E2,E3,EC,SC1,SC2"
     seasons_back: int = 3
 
     results_ttl_hours: float = 12
