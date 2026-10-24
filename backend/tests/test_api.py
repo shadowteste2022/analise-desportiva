@@ -49,6 +49,21 @@ def test_static_export(client, tmp_path):
     assert (site / "static" / "risk.js").exists()
 
 
+def test_report_with_live_lines_and_blend(client, monkeypatch):
+    """A fixture with live odds for a goal line the CSVs lack (OU3.5) must blend with the O/U 2.5 weights."""
+    from app.models import blend
+    monkeypatch.setattr(blend, "load", lambda: {"weights": {"1X2": {"a": 0.0, "b": 1.04}, "OU2.5": {"a": 0.0, "b": 1.04}}})
+    live = {"OU3.5": {"A · live": {"Mais": 3.0, "Menos": 1.40}, "B · live": {"Mais": 2.8, "Menos": 1.45}}}
+    real = analysis._fixture_odds
+    monkeypatch.setattr(analysis, "_fixture_odds", lambda row, lg, meta: (lambda o, s: ({**o, **live}, s))(*real(row, lg, meta)))
+    fx = client.get("/api/fixtures").json()["fixtures"][0]
+    r = client.get("/api/match", params={"key": fx["key"]}).json()
+    assert "OU3.5" in r["predictions"]["blend"]["markets"]
+    assert r["predictions"]["blend"]["weights"]["OU3.5"] == {"a": 0.0, "b": 1.04}
+    ou35 = next(m for m in r["markets"] if m["market"] == "OU3.5" and m["selection"] == "Menos")
+    assert ou35["market_prob_no_vig"] is not None and abs(ou35["model_prob"] - ou35["market_prob_no_vig"]) < 0.05
+
+
 def test_stale_odds_are_dropped(league):
     row = league.iloc[-1]
     odds, src = analysis._fixture_odds(row, "T0", {"fetched_at": "2020-01-01T00:00:00+00:00", "stale": True})

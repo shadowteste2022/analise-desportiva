@@ -302,7 +302,8 @@ def analyze(row, fx_meta: dict, log: bool = True) -> dict:
     report["predictions"] = {
         "expected_goals": {home: round(lam, 2), away: round(mu, 2)}, "probabilities": probs,
         "model_probabilities": model_probs,
-        "blend": {"markets": blended, "weights": {k: bw["weights"][k] for k in blended}} if blended else None,
+        "blend": {"markets": blended, "weights": {k: blend.weights_for(bw["weights"], k) for k in blended}}
+        if blended else None,
         "top_scores": [{"score": s, "prob": round(p, 4)} for p, s in top],
         "matrix": np.round(m[:6, :6], 4).tolist(),
         "method": "Dixon-Coles com decaimento temporal (ξ=%.4f/dia), peso do xG %.0f%%, treinado em %d jogos até %s"
