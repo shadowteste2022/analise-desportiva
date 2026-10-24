@@ -211,7 +211,9 @@ def recommend(rows: list[dict], home: str, away: str, sport: str = "Futebol") ->
                         f"{b['ev']:+.1%}. É uma estimativa, não uma garantia: use stakes pequenas."}
     if priced:
         b = max(priced, key=lambda r: r["ev"])
-        why = b["reasons"][-1] if b["reasons"] else ""
+        # the classification reason, not the EV figure itself or the licensing note appended after it
+        main_reasons = [x for x in b["reasons"] if not x.startswith("EV estimado") and "SRIJ" not in x]
+        why = (main_reasons or b["reasons"] or [""])[0]
         return {**out, "kind": "nenhuma", "label": label(b), "odds": b["best_odds"], "bookmaker": b["bookmaker"],
                 "ev": b["ev"], "prob": b["model_prob"],
                 "text": f"Nenhuma aposta recomendada neste jogo. A opção mais perto de ter valor é {label(b)} "

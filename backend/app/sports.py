@@ -67,8 +67,8 @@ def event_odds(ev: dict) -> tuple[dict, str | None]:
                     else {"1": prices.get(home), "2": prices.get(away)}
             elif m.get("key") == "totals":
                 points = {o.get("point") for o in m.get("outcomes", [])}
-                if len(points) != 1:
-                    continue
+                if len(points) != 1 or not isinstance(next(iter(points)), (int, float)) or next(iter(points)) % 1 != 0.5:
+                    continue  # whole lines can push (stake returned), which the EV maths does not model
                 key, sel = f"OU{points.pop()}", {"Mais": prices.get("Over"), "Menos": prices.get("Under")}
             else:
                 continue

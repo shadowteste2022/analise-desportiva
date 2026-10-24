@@ -187,7 +187,8 @@ def match_odds(events: list[dict], home: str, away: str) -> tuple[dict, str | No
                                                "2": prices[ev["away_team"]]}
                 elif mk["key"] == "totals":
                     pts = {o.get("point") for o in mk["outcomes"]}
-                    if len(pts) == 1 and {"Over", "Under"} <= prices.keys():
+                    half = len(pts) == 1 and isinstance(next(iter(pts)), (int, float)) and next(iter(pts)) % 1 == 0.5
+                    if half and {"Over", "Under"} <= prices.keys():  # whole lines can push; not modelled
                         out.setdefault(f"OU{pts.pop()}", {})[bk["title"]] = {
                             "Mais": prices["Over"], "Menos": prices["Under"]}
         return out, last
