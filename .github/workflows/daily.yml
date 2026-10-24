@@ -30,7 +30,10 @@ jobs:
       ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}                       # live odds (free plan: 500 credits/month)
       ODDS_API_MONTHLY_BUDGET: ${{ vars.ODDS_API_MONTHLY_BUDGET || '500' }}
       ODDS_API_RESET_DAY: ${{ vars.ODDS_API_RESET_DAY || '1' }}
-      ODDS_API_IO_KEY: ${{ secrets.ODDS_API_IO_KEY }}                 # optional: SRIJ-licensed odds
+      ODDS_API_IO_KEY: ${{ secrets.ODDS_API_IO_KEY }}                 # optional: SRIJ-licensed odds (paid)
+      ODDSPAPI_KEY: ${{ secrets.ODDSPAPI_KEY }}                       # SRIJ-licensed Betano PT / Bwin PT (free plan)
+      ODDSPAPI_RESET_DAY: ${{ vars.ODDSPAPI_RESET_DAY || '1' }}
+      PT_ONLY: ${{ vars.PT_ONLY || 'false' }}                         # only bookmakers licensed in Portugal
     steps:
       - uses: actions/checkout@v4
 
@@ -46,6 +49,7 @@ jobs:
           path: |
             state/app.db
             state/odds_api
+            state/oddspapi
             state/cache
           key: state-${{ github.run_id }}
           restore-keys: state-
@@ -73,6 +77,7 @@ jobs:
           path: |
             state/app.db
             state/odds_api
+            state/oddspapi
             state/cache
           key: state-${{ github.run_id }}
 

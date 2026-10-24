@@ -9,7 +9,7 @@ import pandas as pd
 
 from app import db, markets as mk
 from app.config import settings
-from app.data import football_data as fd, odds_api, odds_api_io, srij
+from app.data import football_data as fd, odds_api, odds_api_io, oddspapi, srij
 from app.models import blend, dixon_coles
 
 MODEL_VERSION = "dixon-coles-v1"
@@ -200,6 +200,12 @@ def _fixture_odds(row, league: str, fx_meta: dict) -> tuple[dict, list[dict]]:
             odds.setdefault(market, {}).update(books)
         sources.append({"source": "odds-api.io", "fetched_at": last,
                         "note": "operadores licenciados SRIJ" if pt else "jogo não encontrado nos operadores portugueses"})
+    if oddspapi.enabled():
+        pt, last = oddspapi.match_odds(row["HomeTeam"], row["AwayTeam"], row["Date"])
+        for market, books in pt.items():
+            odds.setdefault(market, {}).update({b: dict(s) for b, s in books.items()})
+        sources.append({"source": "OddsPapi", "fetched_at": last,
+                        "note": "Betano PT e Bwin PT (licenciadas SRIJ)" if pt else "jogo sem odds da Betano PT / Bwin PT"})
     return odds, sources
 
 

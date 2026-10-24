@@ -11,7 +11,7 @@ from pathlib import Path
 
 from app import analysis, backtest, db, sports
 from app.config import ROOT, settings
-from app.data import football_data as fd, odds_api, odds_api_io
+from app.data import football_data as fd, odds_api, odds_api_io, oddspapi
 
 FRONTEND = ROOT / "frontend"
 log = logging.getLogger(__name__)
@@ -38,18 +38,24 @@ def export(out: Path) -> dict:
     summaries = []
     # both log the prediction and odds snapshot, like the API. Other sports first: they get the scarce Odds API
     # credits before football-data leagues, which already carry odds from six bookmakers in their CSVs.
+    try:
+        others = sports.reports()
+    except Exception:  # one failing source must not stop the whole site from being published
+        log.exception("Falha ao analisar as outras modalidades")
+        others = []
     football = []
     for _, row in fx.iterrows():
         try:
             football.append(analysis.analyze(row, meta))
-        except Exception:  # one bad fixture must not stop the whole site from being published
+        except Exception:  # same reason: one bad fixture is skipped
             log.exception("Falha ao analisar %s – %s (%s)", row.get("HomeTeam"), row.get("AwayTeam"), row.get("Div"))
-    try:
-        others = sports.reports()
-    except Exception:  # same reason: football must still be published
-        log.exception("Falha ao analisar as outras modalidades")
-        others = []
-    for report in others + football:
+    portuguese = []  # games only the Portuguese books list; after the others, which take the games they share
+    for f in oddspapi.unmatched():
+        try:
+            portuguese.append(sports.from_oddspapi(f))
+        except Exception:
+            log.exception("Falha ao analisar %s – %s (OddsPapi)", f.get("home"), f.get("away"))
+    for report in others + football + portuguese:
         report["alerts"] = analysis.public_alerts(db.odds_moves(report["key"]))
         _write(data / "match" / f"{slug(report['key'])}.json", report)
         summaries.append(analysis.summarize(report))
@@ -58,7 +64,10 @@ def export(out: Path) -> dict:
     live = {"enabled": odds_api.enabled(),
             **{k: odds_api.quota.get(k) for k in ("used", "remaining", "budget", "allowed_now", "error")},
             "skipped": sorted(set(odds_api.quota["skipped"]))}
-    legal = {"pt_only": settings.pt_only, "sources": [n for n, on in (("odds-api.io", odds_api_io.enabled()),) if on]}
+    legal = {"pt_only": settings.pt_only,
+             "sources": [n for n, on in (("odds-api.io", odds_api_io.enabled()),
+                                         ("OddsPapi (Betano PT, Bwin PT)", oddspapi.enabled())) if on],
+             "oddspapi": {k: oddspapi.state[k] for k in ("used", "limit", "error", "skipped")}}
     _write(data / "fixtures.json", {"fixtures": summaries, "source": meta, "generated_at": generated, "odds_api": live,
                                     "legal": legal})
     _write(data / "history.json", analysis.settled_history(5000))

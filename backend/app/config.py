@@ -17,6 +17,10 @@ class Settings(BaseSettings):
     # odds-api.io: the only feed found with SRIJ-licensed books (Betano PT, Betclic PT, Bwin PT)
     odds_api_io_key: str | None = None
     odds_api_io_bookmakers: str = "Betano PT,Betclic PT,Bwin PT"
+    # OddsPapi: free plan (250 requests/month) with SRIJ-licensed Betano PT and Bwin PT
+    oddspapi_key: str | None = None
+    oddspapi_monthly_budget: int = 250
+    oddspapi_reset_day: int = Field(1, ge=1, le=28)
     admin_token: str | None = None  # required for POST /api/admin/*; admin disabled if unset
 
     # Other sports via The Odds API (market consensus only). "*" = every in-season sport and competition the API
@@ -46,7 +50,7 @@ class Settings(BaseSettings):
     odds_outlier: float = 0.15  # best odds this far above the market's fair odds -> data error/stale, inconclusive
     odds_move_alert: float = 0.08  # relative odds move that triggers an alert
 
-    @field_validator("odds_api_key", "odds_api_io_key", "admin_token", mode="before")
+    @field_validator("odds_api_key", "odds_api_io_key", "oddspapi_key", "admin_token", mode="before")
     @classmethod
     def _clean_secret(cls, v):
         """Keys pasted into GitHub secrets or .env often carry a newline, spaces or quotes, which the APIs reject."""

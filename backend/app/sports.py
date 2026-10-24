@@ -13,7 +13,7 @@ import pandas as pd
 
 from app import analysis, db, markets as mk
 from app.config import settings
-from app.data import odds_api
+from app.data import odds_api, oddspapi
 from app.data.football_data import AGGREGATES, LOCAL_TZ
 
 MODEL_VERSION = "consenso-mercado-v1"
@@ -130,8 +130,40 @@ def analyze(ev: dict, sport_key: str, log: bool = True) -> dict:
     sport, competition = describe(sport_key)
     home, away = ev["home_team"], ev["away_team"]
     kick = pd.Timestamp(ev["commence_time"]).tz_convert(LOCAL_TZ)
-    key = f"{sport_key}|{kick.date().isoformat()}|{home}|{away}"
     odds, last = event_odds(ev)
+    sources = [{"source": "the-odds-api.com", "fetched_at": last,
+                "note": f"odds de {len(odds.get('Vencedor', {}))} casas internacionais" if odds else
+                "sem odds nesta atualização (orçamento de créditos ou casas ainda sem preço)"}]
+    if sport == "Futebol" and oddspapi.enabled():  # same game at the Portuguese books
+        pt, updated = oddspapi.match_odds(home, away, kick)
+        for market, books in _app_markets(pt).items():
+            odds.setdefault(market, {}).update(books)
+        if pt:
+            sources.append({"source": "OddsPapi", "fetched_at": updated, "note": "Betano PT e Bwin PT (licenciadas SRIJ)"})
+    return build(sport_key, sport, competition, home, away, kick, odds, sources, NOTES, log)
+
+
+def _app_markets(odds: dict) -> dict:
+    """OddsPapi names the match result "1X2"; in this module it is "Vencedor", as for the other sports. Copied,
+    because consensus() adds the average book to the dicts it gets and these come from a shared cache."""
+    return {("Vencedor" if m == "1X2" else m): {b: dict(s) for b, s in books.items()} for m, books in odds.items()}
+
+
+def from_oddspapi(f: dict, log: bool = True) -> dict:
+    """A game only the Portuguese books list (e.g. Liga Portugal 2, Liga BPI): probabilities from the no-vig
+    consensus of Betano PT and Bwin PT."""
+    kick = f["kickoff"].tz_convert(LOCAL_TZ)
+    sources = [{"source": "OddsPapi", "fetched_at": f.get("updated"), "note": "Betano PT e Bwin PT (licenciadas SRIJ)"}]
+    notes = NOTES[:2] + ["Odds só de casas licenciadas pelo SRIJ (Betano PT e Bwin PT): com 2 casas, o consenso é "
+                         "uma referência mais fraca do que a média de muitas casas."]
+    return build(f"oddspapi_{f['tournament']}", "Futebol", f["competition"], f["home"], f["away"], kick,
+                 _app_markets(f["odds"]), sources, notes, log)
+
+
+def build(sport_key: str, sport: str, competition: str, home: str, away: str, kick, odds: dict, sources: list,
+          notes: list, log: bool) -> dict:
+    key = f"{sport_key}|{kick.date().isoformat()}|{home}|{away}"
+    last = max((s["fetched_at"] or "" for s in sources), default="") or None
     n_books = len(odds.get("Vencedor", {}))
     probs = consensus(odds)
     conf = confidence(n_books)
@@ -144,17 +176,14 @@ def analyze(ev: dict, sport_key: str, log: bool = True) -> dict:
                            "away": away, "date": kick.date().isoformat(), "time": kick.strftime("%H:%M"),
                            "kickoff": kick.isoformat(),
                            "venue": "—" if sport in INDIVIDUAL else f"Casa de {home} (pavilhão/estádio não indicado)"},
-        "data_status": {"odds": [{"source": "the-odds-api.com", "fetched_at": last,
-                                  "note": f"odds de {n_books} casas" if n_books else
-                                  "sem odds nesta atualização (orçamento de créditos ou casas ainda sem preço)"}],
-                        "bookmakers": n_books, "confidence": conf, "model_validation": validation,
+        "data_status": {"odds": sources, "bookmakers": n_books, "confidence": conf, "model_validation": validation,
                         "analysed_at": datetime.now(timezone.utc).isoformat(timespec="seconds")},
         "statistics": None,
         "predictions": {"probabilities": probs, "model_probabilities": None, "blend": None, "expected_goals": None,
                         "matrix": None, "top_scores": [],
                         "method": f"Consenso do mercado sem margem (Shin) — média de {n_books} casas"}
         if probs else None,
-        "markets": rows, "odds": analysis.public_odds(odds), "conclusion": analysis._conclusion(rows, conf, list(NOTES)),
+        "markets": rows, "odds": analysis.public_odds(odds), "conclusion": analysis._conclusion(rows, conf, list(notes)),
         "recommendation": analysis.recommend(rows, home, away, sport)}
     if log and rows:
         db.log_predictions([{"match_key": key, "league": sport_key, "match_date": kick.date().isoformat(),

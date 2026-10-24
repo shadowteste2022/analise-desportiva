@@ -4,6 +4,7 @@
 /site/
 state/cache/
 state/odds_api/
+state/oddspapi/
 __pycache__/
 .pytest_cache/
 .claude-flow/
