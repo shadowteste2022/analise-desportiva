@@ -55,6 +55,32 @@ def test_classify(p, odds, conf, market_p, expected):
     assert mk.classify(p, odds, conf, market_p)[0] == expected
 
 
+def _row(market, sel, p, odds, ev, cat, reasons=("motivo",)):
+    return {"market": market, "selection": sel, "model_prob": p, "best_odds": odds, "bookmaker": "Bk", "ev": ev,
+            "category": cat, "reasons": list(reasons)}
+
+
+def test_recommendation_only_with_value():
+    from app.analysis import recommend
+    rows = [_row("1X2", "1", 0.62, 1.55, -0.04, mk.SEM_VALOR), _row("1X2", "X", 0.22, 4.6, 0.012, mk.INCONCLUSIVO,
+            ["EV estimado +1.2%", "abaixo da margem de segurança de 3%"]), _row("1X2", "2", 0.16, 5.5, -0.12, mk.SEM_VALOR)]
+    r = recommend(rows, "Benfica", "Porto")
+    assert r["kind"] == "nenhuma" and r["label"] == "Empate" and "margem de segurança" in r["text"]
+    assert r["most_likely"] == {"label": "Vitória Benfica", "prob": 0.62}  # likely, but not recommended
+    rows.append(_row("OU2.5", "Mais", 0.58, 1.9, 0.10, mk.INCONCLUSIVO))  # higher EV but not valid value
+    rows.append(_row("BTTS", "Sim", 0.55, 1.95, 0.0725, mk.VALOR))
+    r = recommend(rows, "Benfica", "Porto")
+    assert r["kind"] == "valor" and r["label"] == "Ambas marcam" and r["odds"] == 1.95
+    assert recommend([], "A", "B")["kind"] == "sem_dados"
+
+
+def test_pick_labels():
+    from app.analysis import pick_label
+    assert pick_label("OU2.5", "Mais", "A", "B") == "Mais de 2.5 golos"
+    assert pick_label("OU220.5", "Menos", "A", "B", "Basquetebol") == "Menos de 220.5 pontos"
+    assert pick_label("Vencedor", "2", "Lakers", "Celtics", "Basquetebol") == "Vitória Celtics"
+
+
 def test_confidence_thresholds():
     assert mk.confidence(5, 50) is None
     assert mk.confidence(15, 50) == "baixa"

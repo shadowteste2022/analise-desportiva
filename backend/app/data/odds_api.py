@@ -48,6 +48,8 @@ def _error(e: httpx.HTTPError) -> str:
         text = e.response.text[:200]
         if settings.odds_api_key:
             text = text.replace(settings.odds_api_key, "***")  # the message ends up on the public site
+        if e.response.status_code == 401 and settings.odds_api_key:  # helps spot a wrong value without showing it
+            text += f" [a chave recebida tem {len(settings.odds_api_key)} caracteres; as da The Odds API têm 32]"
         return f"HTTP {e.response.status_code}: {text}"
     return type(e).__name__
 

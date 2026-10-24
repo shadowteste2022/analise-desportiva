@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -40,6 +40,12 @@ class Settings(BaseSettings):
     max_market_divergence: float = 0.12  # |model - no-vig market| above this -> inconclusive
     odds_outlier: float = 0.15  # best odds this far above the market's fair odds -> data error/stale, inconclusive
     odds_move_alert: float = 0.08  # relative odds move that triggers an alert
+
+    @field_validator("odds_api_key", "odds_api_io_key", "admin_token", mode="before")
+    @classmethod
+    def _clean_secret(cls, v):
+        """Keys pasted into GitHub secrets or .env often carry a newline, spaces or quotes, which the APIs reject."""
+        return v.strip().strip("'\"").strip() or None if isinstance(v, str) else v
 
     @property
     def league_list(self) -> list[str]:

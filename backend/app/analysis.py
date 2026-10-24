@@ -179,6 +179,47 @@ def _fixture_odds(row, league: str, fx_meta: dict) -> tuple[dict, list[dict]]:
     return odds, sources
 
 
+def pick_label(market: str, sel: str, home: str, away: str, sport: str = "Futebol") -> str:
+    """Human wording for a selection: team names instead of 1/X/2, "Mais de 2.5 golos"."""
+    if market in ("1X2", "Vencedor"):
+        return {"1": f"Vitória {home}", "X": "Empate", "2": f"Vitória {away}"}.get(sel, sel)
+    if market == "BTTS":
+        return "Ambas marcam" if sel == "Sim" else "Não marcam ambas"
+    if market.startswith("OU"):
+        unit = "golos" if sport in ("Futebol", "Hóquei no gelo") else "pontos" if sport == "Basquetebol" else \
+            "jogos" if sport == "Ténis" else "corridas" if sport == "Basebol" else ""
+        return f"{sel} de {market[2:]} {unit}".strip()
+    return f"{market} {sel}"
+
+
+def recommend(rows: list[dict], home: str, away: str, sport: str = "Futebol") -> dict:
+    """The answer to "what should I bet on here?": a pick only when the value rules are met; otherwise an explicit
+    no-bet with the option closest to value and why it falls short. The most likely outcome is shown apart, because a
+    likely outcome is not a good bet unless the price pays more than its probability."""
+    def label(r):
+        return pick_label(r["market"], r["selection"], home, away, sport)
+    priced = [r for r in rows if r["ev"] is not None]
+    value = [r for r in priced if r["category"] == mk.VALOR]
+    main = [r for r in rows if r["market"] in ("1X2", "Vencedor")]
+    likely = max(main, key=lambda r: r["model_prob"]) if main else None
+    out = {"most_likely": likely and {"label": label(likely), "prob": likely["model_prob"]}}
+    if value:
+        b = max(value, key=lambda r: r["ev"])
+        return {**out, "kind": "valor", "label": label(b), "odds": b["best_odds"], "bookmaker": b["bookmaker"],
+                "ev": b["ev"], "prob": b["model_prob"],
+                "text": f"Aposta com valor potencial: {label(b)} @ {b['best_odds']} ({b['bookmaker']}), EV estimado "
+                        f"{b['ev']:+.1%}. É uma estimativa, não uma garantia: use stakes pequenas."}
+    if priced:
+        b = max(priced, key=lambda r: r["ev"])
+        why = b["reasons"][-1] if b["reasons"] else ""
+        return {**out, "kind": "nenhuma", "label": label(b), "odds": b["best_odds"], "bookmaker": b["bookmaker"],
+                "ev": b["ev"], "prob": b["model_prob"],
+                "text": f"Nenhuma aposta recomendada neste jogo. A opção mais perto de ter valor é {label(b)} "
+                        f"@ {b['best_odds']} ({b['bookmaker']}), com EV estimado {b['ev']:+.1%}, mas não cumpre os "
+                        f"critérios ({why})."}
+    return {**out, "kind": "sem_dados", "text": "Sem odds ou dados suficientes: não há recomendação para este jogo."}
+
+
 def _conclusion(rows: list[dict], conf: str | None, notes: list[str]) -> dict:
     value = [r for r in rows if r["category"] == mk.VALOR]
     no_value = sorted({f"{r['market']} {r['selection']}" for r in rows if r["category"] == mk.SEM_VALOR})
@@ -268,6 +309,7 @@ def analyze(row, fx_meta: dict, log: bool = True) -> dict:
     report["markets"] = rows
     report["odds"] = odds
     report["conclusion"] = _conclusion(rows, conf, notes)
+    report["recommendation"] = recommend(rows, home, away)
     if log:
         db.log_predictions([{"match_key": key, "league": league, "match_date": when.date().isoformat(),
                              "home": home, "away": away, "market": r["market"], "selection": r["selection"],
@@ -292,7 +334,9 @@ def summarize(r: dict) -> dict:
     best = max((x for x in r["markets"] if x["ev"] is not None), key=lambda x: x["ev"], default=None)
     cats = [x["category"] for x in r["markets"]]
     top = next((c for c in (mk.VALOR, mk.INCONCLUSIVO, mk.SEM_VALOR) if c in cats), mk.SEM_DADOS)
+    rec = r.get("recommendation") or {}
     return {"key": r["key"], **r["identification"], "category": top,
+            "pick": {k: rec[k] for k in ("label", "odds", "ev")} if rec.get("kind") == "valor" else None,
             "confidence": (r.get("data_status") or {}).get("confidence"),
             "probs_1x2": ((r["predictions"] or {}).get("probabilities", {}).get("1X2")
                           or (r["predictions"] or {}).get("probabilities", {}).get("Vencedor")),
