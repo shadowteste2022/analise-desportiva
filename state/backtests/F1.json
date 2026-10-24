@@ -1,0 +1,723 @@
+{
+ "league": "F1",
+ "competition": "França — Ligue 1",
+ "run_at": "2026-10-24T12:31:03+00:00",
+ "params": {
+  "test_seasons": 8,
+  "xi": 0.0019,
+  "xg_weight": 0.0,
+  "devig": "shin",
+  "ev_margin": 0.03,
+  "max_market_divergence": 0.12,
+  "min_team_matches": 10,
+  "blend": "pool logarítmico modelo × mercado pré-jogo; pesos de cada época ajustados só com épocas anteriores (todas as ligas); 1.ª época de teste usada só para treino",
+  "odds": "melhor odd pré-jogo entre casas nomeadas (sem Betfair Exchange/agregados); stake fixa 1u"
+ },
+ "period": {
+  "from": "2020-08-21",
+  "to": "2026-10-18"
+ },
+ "predictions": 2027,
+ "accuracy": {
+  "1X2": {
+   "model": {
+    "brier": 0.5864,
+    "log_loss": 0.9842,
+    "n": 2027
+   },
+   "model_same_matches": {
+    "brier": 0.5864,
+    "log_loss": 0.9842,
+    "n": 2027
+   },
+   "dixon_coles_only": {
+    "brier": 0.6001,
+    "log_loss": 1.0048,
+    "n": 2027
+   },
+   "market_prematch_no_vig": {
+    "brier": 0.5864,
+    "log_loss": 0.9843,
+    "n": 2027
+   },
+   "market_closing_no_vig": {
+    "brier": 0.5861,
+    "log_loss": 0.9835,
+    "n": 2027
+   }
+  },
+  "OU2.5": {
+   "model": {
+    "brier": 0.4836,
+    "log_loss": 0.6765,
+    "n": 2027
+   },
+   "model_same_matches": {
+    "brier": 0.4836,
+    "log_loss": 0.6765,
+    "n": 2027
+   },
+   "dixon_coles_only": {
+    "brier": 0.497,
+    "log_loss": 0.6907,
+    "n": 2027
+   },
+   "market_prematch_no_vig": {
+    "brier": 0.4837,
+    "log_loss": 0.6766,
+    "n": 2027
+   },
+   "market_closing_no_vig": {
+    "brier": 0.4783,
+    "log_loss": 0.671,
+    "n": 2027
+   }
+  },
+  "BTTS": {
+   "model": {
+    "brier": 0.5019,
+    "log_loss": 0.6953,
+    "n": 2027
+   }
+  }
+ },
+ "by_season": {
+  "2020/21": {
+   "n": 360,
+   "final": 0.9947,
+   "dixon_coles": 1.025,
+   "prematch": 0.9943,
+   "closing": 0.9902
+  },
+  "2021/22": {
+   "n": 361,
+   "final": 0.9991,
+   "dixon_coles": 1.0092,
+   "prematch": 0.9991,
+   "closing": 1.0013
+  },
+  "2022/23": {
+   "n": 360,
+   "final": 0.9707,
+   "dixon_coles": 0.9871,
+   "prematch": 0.9707,
+   "closing": 0.9695
+  },
+  "2023/24": {
+   "n": 296,
+   "final": 1.0107,
+   "dixon_coles": 1.0344,
+   "prematch": 1.0106,
+   "closing": 1.0111
+  },
+  "2024/25": {
+   "n": 306,
+   "final": 0.9569,
+   "dixon_coles": 0.9775,
+   "prematch": 0.9575,
+   "closing": 0.955
+  },
+  "2025/26": {
+   "n": 295,
+   "final": 0.9691,
+   "dixon_coles": 0.9956,
+   "prematch": 0.9692,
+   "closing": 0.9718
+  },
+  "2026/27": {
+   "n": 49,
+   "final": 0.9988,
+   "dixon_coles": 1.0027,
+   "prematch": 0.999,
+   "closing": 0.9863
+  }
+ },
+ "calibration": [
+  {
+   "bin": "0.0-0.1",
+   "predicted": 0.0723,
+   "observed": 0.0823,
+   "n": 158
+  },
+  {
+   "bin": "0.1-0.2",
+   "predicted": 0.1579,
+   "observed": 0.1448,
+   "n": 905
+  },
+  {
+   "bin": "0.2-0.3",
+   "predicted": 0.257,
+   "observed": 0.2655,
+   "n": 2497
+  },
+  {
+   "bin": "0.3-0.4",
+   "predicted": 0.355,
+   "observed": 0.3697,
+   "n": 1661
+  },
+  {
+   "bin": "0.4-0.5",
+   "predicted": 0.4546,
+   "observed": 0.4543,
+   "n": 3898
+  },
+  {
+   "bin": "0.5-0.6",
+   "predicted": 0.5439,
+   "observed": 0.5441,
+   "n": 3694
+  },
+  {
+   "bin": "0.6-0.7",
+   "predicted": 0.6381,
+   "observed": 0.6059,
+   "n": 1076
+  },
+  {
+   "bin": "0.7-0.8",
+   "predicted": 0.7364,
+   "observed": 0.7479,
+   "n": 238
+  },
+  {
+   "bin": "0.8-0.9",
+   "predicted": 0.8322,
+   "observed": 0.7719,
+   "n": 57
+  },
+  {
+   "bin": "0.9-1.0",
+   "predicted": 0.908,
+   "observed": 1.0,
+   "n": 5
+  }
+ ],
+ "betting": {
+  "overall": {
+   "bets": 29,
+   "won": 6,
+   "lost": 23,
+   "profit_units": 8.7,
+   "yield": 0.3,
+   "yield_ci95": [
+    -0.6138,
+    1.3105
+   ],
+   "max_drawdown_units": 10.0,
+   "avg_odds": 7.14,
+   "avg_clv": -0.0006,
+   "clv_pinnacle_n": 29,
+   "avg_clv_pinnacle": -0.004,
+   "median_clv_pinnacle": -0.0222,
+   "clv_pinnacle_ci95": [
+    -0.0491,
+    0.0459
+   ],
+   "share_beating_pinnacle": 0.4138
+  },
+  "by_market": {
+   "1X2": {
+    "bets": 29,
+    "won": 6,
+    "lost": 23,
+    "profit_units": 8.7,
+    "yield": 0.3,
+    "yield_ci95": [
+     -0.6138,
+     1.3105
+    ],
+    "max_drawdown_units": 10.0,
+    "avg_odds": 7.14,
+    "avg_clv": -0.0006,
+    "clv_pinnacle_n": 29,
+    "avg_clv_pinnacle": -0.004,
+    "median_clv_pinnacle": -0.0222,
+    "clv_pinnacle_ci95": [
+     -0.0491,
+     0.0459
+    ],
+    "share_beating_pinnacle": 0.4138
+   }
+  },
+  "equity": [
+   -1.0,
+   -2.0,
+   -3.0,
+   0.2,
+   -0.8,
+   2.7,
+   10.2,
+   9.2,
+   8.2,
+   7.2,
+   6.2,
+   5.2,
+   4.2,
+   3.2,
+   2.2,
+   1.2,
+   0.2,
+   7.7,
+   6.7,
+   5.7,
+   4.7,
+   3.7,
+   2.7,
+   1.7,
+   7.7,
+   6.7,
+   10.7,
+   9.7,
+   8.7
+  ]
+ },
+ "bets": [
+  {
+   "date": "2020-09-13",
+   "match": "Paris SG - Marseille",
+   "score": "0-1",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 5.0,
+   "bookmaker": "Betway",
+   "model_prob": 0.2072,
+   "ev": 0.0362,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.11142764046751097,
+   "clv_pinnacle": -0.1308650133657704
+  },
+  {
+   "date": "2020-09-13",
+   "match": "Lille - Metz",
+   "score": "1-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 7.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1391,
+   "ev": 0.0434,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.10009280458709857,
+   "clv_pinnacle": -0.12137231577596008
+  },
+  {
+   "date": "2020-09-27",
+   "match": "Reims - Paris SG",
+   "score": "0-2",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 13.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.0803,
+   "ev": 0.0442,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.20527033245080706,
+   "clv_pinnacle": -0.21398555973943612
+  },
+  {
+   "date": "2020-10-25",
+   "match": "Montpellier - Reims",
+   "score": "0-4",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 4.2,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2528,
+   "ev": 0.0617,
+   "won": true,
+   "profit": 3.2,
+   "clv": -0.06609484708134317,
+   "clv_pinnacle": -0.07229948771294314
+  },
+  {
+   "date": "2020-11-01",
+   "match": "Monaco - Bordeaux",
+   "score": "4-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 4.2,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2479,
+   "ev": 0.0413,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.088964306816957,
+   "clv_pinnacle": -0.0954014868337415
+  },
+  {
+   "date": "2020-11-22",
+   "match": "Reims - Nimes",
+   "score": "0-1",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 4.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2314,
+   "ev": 0.0413,
+   "won": true,
+   "profit": 3.5,
+   "clv": -0.046378417042981956,
+   "clv_pinnacle": -0.05624143215211752
+  },
+  {
+   "date": "2020-11-28",
+   "match": "Paris SG - Bordeaux",
+   "score": "2-2",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 8.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1232,
+   "ev": 0.0472,
+   "won": true,
+   "profit": 7.5,
+   "clv": 0.030266064604275833,
+   "clv_pinnacle": 0.03875030742426677
+  },
+  {
+   "date": "2020-11-28",
+   "match": "Paris SG - Bordeaux",
+   "score": "2-2",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 17.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.0614,
+   "ev": 0.0444,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.06295681931701935,
+   "clv_pinnacle": 0.0990263886078111
+  },
+  {
+   "date": "2020-11-29",
+   "match": "Monaco - Nimes",
+   "score": "3-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 9.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1198,
+   "ev": 0.0778,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.03541356087300329,
+   "clv_pinnacle": -0.00487723035277321
+  },
+  {
+   "date": "2020-12-13",
+   "match": "Lille - Bordeaux",
+   "score": "2-1",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 5.75,
+   "bookmaker": "Betway",
+   "model_prob": 0.1821,
+   "ev": 0.0473,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.14215703737415364,
+   "clv_pinnacle": -0.20579456265787954
+  },
+  {
+   "date": "2020-12-19",
+   "match": "Nice - Lyon",
+   "score": "1-4",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 6.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1733,
+   "ev": 0.1265,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.011914660125652787,
+   "clv_pinnacle": -0.022244959110603202
+  },
+  {
+   "date": "2020-12-20",
+   "match": "Lille - Paris SG",
+   "score": "0-0",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 4.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2588,
+   "ev": 0.0354,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.081884212839608,
+   "clv_pinnacle": 0.07757080828048424
+  },
+  {
+   "date": "2020-12-20",
+   "match": "Dijon - Monaco",
+   "score": "0-1",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 6.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1659,
+   "ev": 0.078,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.13061068112997454,
+   "clv_pinnacle": -0.11871965359839765
+  },
+  {
+   "date": "2020-12-20",
+   "match": "St Etienne - Nimes",
+   "score": "2-2",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 6.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1673,
+   "ev": 0.0872,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.13547930417880683,
+   "clv_pinnacle": -0.09004426170017632
+  },
+  {
+   "date": "2020-12-23",
+   "match": "Rennes - Metz",
+   "score": "1-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 6.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1613,
+   "ev": 0.0483,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.08462429467271937,
+   "clv_pinnacle": -0.07915438522670126
+  },
+  {
+   "date": "2021-02-03",
+   "match": "Paris SG - Nimes",
+   "score": "3-0",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 15.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.0707,
+   "ev": 0.0601,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.467566633724678,
+   "clv_pinnacle": 0.44499612497661123
+  },
+  {
+   "date": "2021-02-07",
+   "match": "Montpellier - Dijon",
+   "score": "4-2",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 4.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2594,
+   "ev": 0.0377,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.016255404770730397,
+   "clv_pinnacle": 0.005396059543962162
+  },
+  {
+   "date": "2021-02-13",
+   "match": "Lyon - Montpellier",
+   "score": "1-2",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 8.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1238,
+   "ev": 0.0519,
+   "won": true,
+   "profit": 7.5,
+   "clv": 0.06670479144515395,
+   "clv_pinnacle": 0.05772019275174989
+  },
+  {
+   "date": "2021-02-13",
+   "match": "Paris SG - Nice",
+   "score": "2-1",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 8.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1298,
+   "ev": 0.0382,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.29829547269297807,
+   "clv_pinnacle": 0.27446595253337014
+  },
+  {
+   "date": "2021-02-20",
+   "match": "St Etienne - Reims",
+   "score": "1-1",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 4.0,
+   "bookmaker": "Betway",
+   "model_prob": 0.2581,
+   "ev": 0.0324,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.0157945304194822,
+   "clv_pinnacle": -0.020222060524344165
+  },
+  {
+   "date": "2021-03-03",
+   "match": "Nice - Nimes",
+   "score": "2-1",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 5.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2074,
+   "ev": 0.0369,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.03925154315181967,
+   "clv_pinnacle": 0.004236696857081723
+  },
+  {
+   "date": "2021-03-12",
+   "match": "Reims - Lyon",
+   "score": "1-1",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 7.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1374,
+   "ev": 0.0306,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.0559089504501038,
+   "clv_pinnacle": 0.10746227606004899
+  },
+  {
+   "date": "2021-04-18",
+   "match": "Nantes - Lyon",
+   "score": "1-2",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 6.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1599,
+   "ev": 0.0391,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.1235336957934785,
+   "clv_pinnacle": -0.10392381645612847
+  },
+  {
+   "date": "2021-05-16",
+   "match": "Marseille - Angers",
+   "score": "3-2",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 8.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.136,
+   "ev": 0.0882,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.017658191350532704,
+   "clv_pinnacle": -0.06141292340843174
+  },
+  {
+   "date": "2021-05-23",
+   "match": "Nantes - Montpellier",
+   "score": "1-2",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 7.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1612,
+   "ev": 0.1284,
+   "won": true,
+   "profit": 6.0,
+   "clv": 0.13912048288929002,
+   "clv_pinnacle": 0.0840585039007038
+  },
+  {
+   "date": "2021-05-23",
+   "match": "Brest - Paris SG",
+   "score": "0-2",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 12.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.0861,
+   "ev": 0.0331,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.02448876951665646,
+   "clv_pinnacle": 0.12280893335919574
+  },
+  {
+   "date": "2021-09-26",
+   "match": "Marseille - Lens",
+   "score": "2-3",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 5.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2075,
+   "ev": 0.0377,
+   "won": true,
+   "profit": 4.0,
+   "clv": -0.021734849981362547,
+   "clv_pinnacle": -0.04884320801093889
+  },
+  {
+   "date": "2022-02-20",
+   "match": "Bordeaux - Monaco",
+   "score": "1-1",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 5.75,
+   "bookmaker": "Betway",
+   "model_prob": 0.1804,
+   "ev": 0.037,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.015267576682764794,
+   "clv_pinnacle": -0.06374503621665117
+  },
+  {
+   "date": "2023-12-08",
+   "match": "Montpellier - Lens",
+   "score": "0-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 2.3,
+   "bookmaker": "Betway",
+   "model_prob": 0.4524,
+   "ev": 0.0404,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.0685515361280793,
+   "clv_pinnacle": 0.07683072105827704
+  }
+ ],
+ "data": {
+  "source": "football-data.co.uk",
+  "last_result": "2026-10-18"
+ },
+ "warnings": [
+  "Resultados históricos simulados não garantem desempenho futuro.",
+  "Amostra de 29 apostas é pequena: conclusões sobre rentabilidade não são fiáveis.",
+  "O intervalo de confiança de 95% do yield inclui zero ou valores negativos: não há evidência estatística de rentabilidade.",
+  "O modelo é menos preciso do que as odds de fecho sem margem (log loss 1X2): vantagens aparentes são provavelmente ruído ou erro do modelo."
+ ]
+}

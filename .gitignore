@@ -1,0 +1,10 @@
+.venv/
+.env
+/data/
+/site/
+state/cache/
+state/odds_api/
+__pycache__/
+.pytest_cache/
+.claude-flow/
+.impeccable/

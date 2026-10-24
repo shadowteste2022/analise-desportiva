@@ -1,0 +1,46 @@
+from pathlib import Path
+
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+ROOT = Path(__file__).resolve().parents[2]
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=ROOT / ".env", extra="ignore")
+
+    # Optional external services. Without them the app still works on football-data.co.uk.
+    odds_api_key: str | None = None
+    odds_api_min_remaining: int = 20  # stop calling The Odds API below this quota
+    odds_api_monthly_budget: int = 500  # credits per billing period (free plan = 500)
+    odds_api_reset_day: int = Field(1, ge=1, le=28)  # day of the month the plan renews
+    # odds-api.io: the only feed found with SRIJ-licensed books (Betano PT, Betclic PT, Bwin PT)
+    odds_api_io_key: str | None = None
+    odds_api_io_bookmakers: str = "Betano PT,Betclic PT,Bwin PT"
+    admin_token: str | None = None  # required for POST /api/admin/*; admin disabled if unset
+
+    data_dir: Path = ROOT / "data"
+    leagues: str = "E0,SP1,I1,D1,F1,P1,N1"
+    seasons_back: int = 3
+
+    results_ttl_hours: float = 12
+    fixtures_ttl_hours: float = 1
+    odds_max_age_hours: float = 48  # older odds -> "SEM DADOS SUFICIENTES"
+    refresh_minutes: int = 0  # background refresh of fixtures/odds; 0 = off
+
+    # Model / decision parameters
+    time_decay_xi: float = 0.0019  # per day, Dixon & Coles (1997) ~ half-life of one year
+    xg_weight: float = 0.0  # share of xG in the fitting target (0 = goals only); see README backtest
+    min_team_matches: int = 10
+    ev_margin: float = 0.03  # minimum EV per unit for "VALOR POTENCIAL"
+    devig_method: str = "shin"  # proportional | power | shin; Shin corrects the favourite-longshot bias
+    max_market_divergence: float = 0.12  # |model - no-vig market| above this -> inconclusive
+    odds_outlier: float = 0.15  # best odds this far above the market's fair odds -> data error/stale, inconclusive
+    odds_move_alert: float = 0.08  # relative odds move that triggers an alert
+
+    @property
+    def league_list(self) -> list[str]:
+        return [x.strip() for x in self.leagues.split(",") if x.strip()]
+
+
+settings = Settings()

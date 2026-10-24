@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Análise Desportiva</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="static/risk.js"></script>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--fg:#1b1f24;--muted:#5f6b7a;--line:#e3e6ea;--accent:#1f6feb;
+  --ok:#1a7f37;--okbg:#dafbe1;--warn:#9a6700;--warnbg:#fff8c5;--no:#57606a;--nobg:#eef1f4;--bad:#cf222e;--badbg:#ffebe9;--onaccent:#fff}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--card:#161b22;--fg:#e6edf3;--muted:#8d96a0;--line:#30363d;
+  --accent:#58a6ff;--ok:#3fb950;--okbg:#12261a;--warn:#d29922;--warnbg:#2b2111;--no:#8d96a0;--nobg:#21262d;--bad:#f85149;--badbg:#2d1214;--onaccent:#0d1117}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:var(--card);border-bottom:1px solid var(--line);padding:12px 16px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+header h1{font-size:17px;margin:0}
+nav{display:flex;gap:4px;flex-wrap:wrap}
+nav a{padding:6px 10px;border-radius:6px;color:var(--muted);text-decoration:none}
+nav a.on{background:var(--nobg);color:var(--fg);font-weight:600}
+main{max-width:1200px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px}
+.card h2{font-size:15px;margin:0 0 12px}
+.card h3{font-size:13px;margin:16px 0 6px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+input,select,button{font:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--fg)}
+button{cursor:pointer;background:var(--accent);color:var(--onaccent);border:0}
+.tbl{width:100%;overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--muted);font-weight:600;font-size:12px}
+tr.click{cursor:pointer} tr.click:hover{background:var(--nobg)}
+.badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600}
+.b-VALOR{background:var(--okbg);color:var(--ok)} .b-INC{background:var(--warnbg);color:var(--warn)}
+.b-SEM{background:var(--nobg);color:var(--no)} .b-DADOS{background:var(--badbg);color:var(--bad)}
+.muted{color:var(--muted)} .small{font-size:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.kv div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dashed var(--line);padding:3px 0}
+.warn{background:var(--warnbg);color:var(--warn);padding:10px 12px;border-radius:8px;margin:8px 0}
+.heat td{text-align:center;width:44px;font-size:12px}
+.best{font-weight:700;color:var(--ok)}
+ul{margin:4px 0;padding-left:20px}
+#gate{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:16px;z-index:9}
+#gate .card{max-width:480px}
+canvas{max-height:300px}
+</style>
+</head>
+<body>
+<div id="gate"><div class="card"><h2>Aviso — maiores de 18 anos</h2>
+<p>Esta ferramenta faz análise estatística e simulação. Não efetua apostas e não garante resultados nem lucros.
+As probabilidades são estimativas com erro. Apostar envolve risco de perda. Se o jogo deixou de ser diversão, procure ajuda
+(em Portugal: <b>SICAD — 1414</b>).</p>
+<button id="gate-ok">Tenho 18 anos ou mais e compreendo</button></div></div>
+
+<header><h1>Análise Desportiva · Futebol</h1>
+<nav id="nav"><a href="#/">Jogos</a><a href="#/history">Histórico</a><a href="#/backtest">Backtesting</a><a href="#/risk">Risco</a><a href="#/about">Metodologia</a></nav></header>
+<main id="app"><p class="muted">A carregar…</p></main>
+
+<script>
+const $app = document.getElementById('app');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pct = (x, d = 1) => x == null ? '—' : (x * 100).toFixed(d) + '%';
+const num = (x, d = 2) => x == null ? '—' : Number(x).toFixed(d);
+const sign = x => x == null ? '—' : (x >= 0 ? '+' : '') + (x * 100).toFixed(1) + '%';
+const badge = c => `<span class="badge b-${{'VALOR POTENCIAL':'VALOR','VALOR INCONCLUSIVO':'INC','SEM VALOR IDENTIFICADO':'SEM','SEM DADOS SUFICIENTES':'DADOS'}[c]||'SEM'}">${esc(c)}</span>`;
+const store = {get(k){try{return localStorage.getItem(k)}catch{return null}}, set(k,v){try{localStorage.setItem(k,v)}catch{}}};
+let charts = [];
+// Static site (GitHub Pages): the same API answers, precomputed by backend/app/export.py into relative JSON files.
+const slug = k => k.replace(/[^A-Za-z0-9]+/g, '_').replace(/^_+|_+$/g, '');  // same rule as export.slug
+function staticPath(path) {
+  const u = new URL(path, 'http://x');
+  if (u.pathname === '/api/match') return `data/match/${slug(u.searchParams.get('key'))}.json`;
+  return `data/${u.pathname.replace('/api/', '')}.json`;
+}
+async function api(path, opts) {
+  const r = await fetch(window.STATIC ? staticPath(path) : path, opts);
+  if (window.STATIC && r.status === 404) throw new Error('Este jogo já não está na lista atual (os dados são atualizados de hora a hora).');
+  const body = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(body.detail ? JSON.stringify(body.detail) : r.statusText);
+  return body;
+}
+function chart(el, cfg) { charts.push(new Chart(el, cfg)); }
+const err = e => `<div class="card warn">Erro: ${esc(e.message)}</div>`;
+
+if (!store.get('age-ok')) document.getElementById('gate').style.display = 'flex';
+document.getElementById('gate-ok').onclick = () => { store.set('age-ok', '1'); document.getElementById('gate').style.display = 'none'; };
+
+// ---------- Jogos ----------
+function oddsApiNote(q) {
+  if (!q || !q.enabled) return '';
+  if (q.used == null) return 'Odds ao vivo: quota da The Odds API indisponível, a usar as últimas odds guardadas. ';
+  return `Odds ao vivo (The Odds API): ${q.used} de ${q.budget} créditos usados neste período${q.skipped.length ? `; adiadas para respeitar o orçamento: ${q.skipped.map(esc).join(', ')} (mostram as últimas odds guardadas)` : ''}. `;
+}
+let fixturesCache = null;
+async function viewFixtures() {
+  const [leagues, data] = await Promise.all([api('/api/leagues'), fixturesCache || api('/api/fixtures')]);
+  fixturesCache = data;
+  const f = JSON.parse(store.get('filters') || '{}');
+  $app.innerHTML = `<div class="card"><h2>Próximos jogos</h2>
+    <div class="filters">
+      <select id="f-league"><option value="">Todas as ligas</option>${leagues.map(l => `<option value="${esc(l.code)}">${esc(l.name)}</option>`).join('')}</select>
+      <select id="f-cat"><option value="">Todas as categorias</option>${['VALOR POTENCIAL','VALOR INCONCLUSIVO','SEM VALOR IDENTIFICADO','SEM DADOS SUFICIENTES'].map(c => `<option>${c}</option>`).join('')}</select>
+      <input id="f-q" placeholder="Pesquisar equipa">
+      <select id="f-sort"><option value="date">Ordenar por data</option><option value="ev">Ordenar por EV</option></select>
+    </div><div class="tbl" id="fx"></div>
+    <p class="small muted">${data.generated_at ? `<b>Análises atualizadas ${esc(new Date(data.generated_at).toLocaleString('pt-PT'))}</b> (de hora a hora). ` : ''}${oddsApiNote(data.odds_api)}Fonte: ${esc(data.source.source)} · obtido ${esc(new Date(data.source.fetched_at).toLocaleString('pt-PT'))}${data.source.stale ? ' · <b>cache desatualizada</b>' : ''}.
+    A categoria mostrada é a melhor entre os mercados do jogo. Confiança = robustez da amostra, não probabilidade do resultado.</p></div>
+    <div class="card"><h2>Alertas de variação de odds</h2><div id="alerts" class="small muted">A carregar…</div></div>`;
+  for (const k of ['league','cat','q','sort']) { const el = document.getElementById('f-' + k); if (f[k]) el.value = f[k]; el.oninput = render; }
+  function render() {
+    const s = {league: v('league'), cat: v('cat'), q: v('q').toLowerCase(), sort: v('sort')};
+    store.set('filters', JSON.stringify(s));
+    let rows = data.fixtures.filter(x => (!s.league || x.league === s.league) && (!s.cat || x.category === s.cat)
+      && (!s.q || (x.home + ' ' + x.away).toLowerCase().includes(s.q)));
+    if (s.sort === 'ev') rows.sort((a, b) => (b.best?.ev ?? -9) - (a.best?.ev ?? -9));
+    document.getElementById('fx').innerHTML = rows.length ? `<table><tr><th>Data</th><th>Liga</th><th>Jogo</th><th>1 / X / 2 (modelo)</th>
+      <th>Melhor EV</th><th>Categoria</th><th>Confiança</th></tr>${rows.map(x => `<tr class="click" data-key="${esc(x.key)}">
+      <td>${esc(x.date)} ${esc(x.time || '')}</td><td>${esc(x.league)}</td><td><b>${esc(x.home)}</b> – <b>${esc(x.away)}</b></td>
+      <td>${x.probs_1x2 ? `${pct(x.probs_1x2['1'],0)} / ${pct(x.probs_1x2.X,0)} / ${pct(x.probs_1x2['2'],0)}` : '—'}</td>
+      <td>${x.best ? `${esc(x.best.market)} ${esc(x.best.selection)} @ ${num(x.best.best_odds)} (${sign(x.best.ev)})` : '—'}</td>
+      <td>${badge(x.category)}</td><td>${esc(x.confidence || '—')}</td></tr>`).join('')}</table>` : '<p class="muted">Sem jogos para estes filtros.</p>';
+    document.querySelectorAll('tr.click').forEach(tr => tr.onclick = () => location.hash = '#/match/' + encodeURIComponent(tr.dataset.key));
+  }
+  const v = k => document.getElementById('f-' + k).value;
+  render();
+  api('/api/alerts').then(a => document.getElementById('alerts').innerHTML = a.length ? `<table><tr><th>Jogo</th><th>Mercado</th><th>Casa</th><th>Odd inicial → atual</th><th>Variação</th></tr>
+    ${a.map(r => `<tr><td>${esc(r.match_key.split('|').slice(2).join(' – '))}</td><td>${esc(r.market)} ${esc(r.selection)}</td><td>${esc(r.bookmaker)}</td>
+    <td>${num(r.first_odds)} → ${num(r.last_odds)}</td><td>${sign(r.change)}</td></tr>`).join('')}</table>` : 'Sem variações significativas registadas.');
+}
+
+// ---------- Jogo ----------
+function formTable(obj, title) {
+  const teams = Object.keys(obj);
+  return `<h3>${title}</h3><div class="tbl"><table><tr><th>Equipa</th><th>J</th><th>Forma</th><th>Pts/J</th><th>GM</th><th>GS</th><th>xG</th><th>xGA</th></tr>
+  ${teams.map(t => { const s = obj[t]; return `<tr><td>${esc(t)}</td><td>${s.matches}</td><td>${esc(s.form || '—')}</td><td>${num(s.points_per_game)}</td>
+  <td>${num(s.goals_for)}</td><td>${num(s.goals_against)}</td><td>${num(s.xg_for)}</td><td>${num(s.xg_against)}</td></tr>`; }).join('')}</table></div>`;
+}
+async function viewMatch(key) {
+  const r = await api('/api/match?key=' + encodeURIComponent(key));
+  const id = r.identification, ds = r.data_status || {}, st = r.statistics, pr = r.predictions, c = r.conclusion;
+  const [home, away] = [id.home, id.away];
+  let html = `<p><a href="#/">← Jogos</a></p><div class="card"><h2>A. ${esc(home)} – ${esc(away)}</h2><div class="grid kv">
+    <div><span>Modalidade</span><b>${esc(id.sport)}</b></div><div><span>Competição</span><b>${esc(id.competition)}</b></div>
+    <div><span>Data / hora</span><b>${esc(id.date)} ${esc(id.time || '')}</b></div><div><span>Local</span><b>${esc(id.venue)}</b></div>
+    <div><span>Confiança estatística</span><b>${esc(ds.confidence || 'insuficiente')}</b></div>
+    <div><span>Último resultado nos dados</span><b>${esc(ds.results?.last_result || '—')}</b></div></div>
+    ${ds.model_validation ? `<div class="${ds.model_validation.validated ? 'small muted' : 'warn'}">Validação do modelo: ${esc(ds.model_validation.reason)}${ds.model_validation.market_log_loss ? ` (log loss 1X2 modelo ${num(ds.model_validation.model_log_loss, 4)} vs mercado ${num(ds.model_validation.market_log_loss, 4)})` : ''}</div>` : ''}
+    ${ds.error ? `<div class="warn">${esc(ds.error)}</div>` : ''}
+    <p class="small muted">${ds.results ? `Resultados: ${esc(ds.results.source)}, ${ds.results.matches} jogos, obtido ${esc(new Date(ds.results.fetched_at).toLocaleString('pt-PT'))}. ` : ''}
+    ${(ds.odds || []).map(o => `Odds: ${esc(o.source)} (${esc(o.note)}${o.fetched_at ? ', ' + esc(new Date(o.fetched_at).toLocaleString('pt-PT')) : ''}).`).join(' ')}
+    Análise gerada ${esc(ds.analysed_at ? new Date(ds.analysed_at).toLocaleString('pt-PT') : '—')}.</p></div>`;
+  if (st) {
+    html += `<div class="card"><h2>B. Análise estatística</h2>${formTable(st.form, 'Forma recente (últimos 5)')}
+      ${formTable({[home + ' (casa)']: st.home_away[home], [away + ' (fora)']: st.home_away[away]}, 'Casa / fora (últimos 10)')}
+      <div class="grid"><div><h3>Força (1 = média da liga)</h3><div class="kv">${st.ratings ? Object.entries(st.ratings).map(([t, x]) =>
+        `<div><span>${esc(t)}</span><span>ataque ${num(x.attack)} · defesa ${num(x.defence)} <span class="muted small">(maior = sofre mais)</span></span></div>`).join('') : '<div>—</div>'}
+        <div><span>Vantagem casa (multiplicador)</span><span>${num(st.home_advantage)}</span></div>
+        <div><span>Dias de descanso</span><span>${esc(home)}: ${st.rest_days[home] ?? '—'} · ${esc(away)}: ${st.rest_days[away] ?? '—'}</span></div></div></div>
+      <div><h3>Confrontos diretos</h3>${st.h2h.length ? `<ul>${st.h2h.map(g => `<li>${esc(g.date)}: ${esc(g.home)} ${esc(g.score)} ${esc(g.away)}</li>`).join('')}</ul>` : '<p class="muted">Sem confrontos no período.</p>'}</div></div>
+      <h3>Limitações dos dados</h3><ul>${c.uncertainties.map(u => `<li>${esc(u)}</li>`).join('')}</ul></div>`;
+  }
+  if (pr) {
+    const m = pr.matrix, mx = Math.max(...m.flat());
+    html += `<div class="card"><h2>C. Previsões do modelo</h2><p class="small muted">${esc(pr.method)}.
+      ${pr.blend ? `Combinado com o mercado pré-jogo em ${pr.blend.markets.map(esc).join(', ')} (pesos validados fora da amostra: ${Object.entries(pr.blend.weights).map(([k, w]) => `${esc(k)} modelo ${num(w.a)} · mercado ${num(w.b)}`).join('; ')});
+      só Dixon-Coles 1X2: ${Object.entries(pr.model_probabilities['1X2']).map(([k, p]) => `${esc(k)} ${pct(p)}`).join(' · ')}.` : 'Sem combinação com o mercado (sem pesos validados ou sem odd média).'}</p><div class="grid">
+      <div><h3>Golos esperados</h3><div class="kv">${Object.entries(pr.expected_goals).map(([t, g]) => `<div><span>${esc(t)}</span><b>${num(g)}</b></div>`).join('')}</div>
+      <h3>Probabilidades</h3><div class="kv">${Object.entries(pr.probabilities).map(([mk, s]) => `<div><span>${esc(mk)}</span><span>${Object.entries(s).map(([k, p]) => `${esc(k)} ${pct(p)}`).join(' · ')}</span></div>`).join('')}</div></div>
+      <div><h3>Distribuição de resultados (linhas: ${esc(home)}, colunas: ${esc(away)})</h3><table class="heat"><tr><th></th>${m.map((_, j) => `<th>${j}</th>`).join('')}</tr>
+      ${m.map((row, i) => `<tr><th>${i}</th>${row.map(p => `<td style="background:rgba(31,111,235,${(p / mx * .8).toFixed(2)})">${(p * 100).toFixed(1)}</td>`).join('')}</tr>`).join('')}</table>
+      <p class="small muted">Mais prováveis: ${pr.top_scores.slice(0, 5).map(s => `${esc(s.score)} (${pct(s.prob)})`).join(', ')}</p></div></div></div>`;
+  }
+  if (r.markets?.length) {
+    html += `<div class="card"><h2>D. Comparação de odds e valor esperado</h2><div class="tbl"><table><tr><th>Mercado</th><th>Seleção</th><th>Prob. modelo</th><th>Odd justa</th>
+      <th>Melhor odd</th><th>Casa</th><th>Prob. implícita</th><th>Mercado s/ margem</th><th>Margem casa</th><th>EV</th><th>Categoria</th><th>Motivos</th></tr>
+      ${r.markets.map(x => `<tr><td>${esc(x.market)}</td><td>${esc(x.selection)}</td><td>${pct(x.model_prob)}</td><td>${num(x.fair_odds)}</td>
+      <td>${num(x.best_odds)}</td><td>${esc(x.bookmaker || '—')}${x.bookmaker ? (x.licensed_pt ? ' <span class="badge b-VALOR">SRIJ</span>' : ' <span class="badge b-DADOS">sem licença PT</span>') : ''}</td><td>${pct(x.implied_prob)}</td><td>${pct(x.market_prob_no_vig)}</td>
+      <td>${pct(x.bookmaker_margin)}</td><td>${sign(x.ev)}</td><td>${badge(x.category)}</td><td class="small">${esc(x.reasons.join('; '))}</td></tr>`).join('')}</table></div>
+      ${Object.entries(r.odds || {}).filter(([, b]) => Object.keys(b).length).map(([mk, books]) => {
+        // selection order and "best" come from the markets table: JS objects reorder numeric keys ("1","2" before "X")
+        const rows = r.markets.filter(x => x.market === mk), sels = rows.map(x => x.selection);
+        const best = Object.fromEntries(rows.map(x => [x.selection, x.best_odds]));
+        return `<h3>Odds por operador — ${esc(mk)}</h3><div class="tbl"><table><tr><th>Operador</th>${sels.map(s => `<th>${esc(s)}</th>`).join('')}</tr>
+        ${Object.entries(books).map(([b, s]) => `<tr><td>${esc(b)}</td>${sels.map(k => `<td class="${s[k] === best[k] ? 'best' : ''}">${num(s[k])}</td>`).join('')}</tr>`).join('')}</table></div>`; }).join('')}
+      <p class="small muted">"Melhor odd" escolhe primeiro entre operadores licenciados pelo SRIJ (únicos legais em Portugal); só sem esses usa uma odd internacional, marcada "sem licença PT", como referência.
+      Exclui agregados (máximo/média do mercado) e a Betfair Exchange (odds antes de comissão). Mercados sem odd ficam como SEM DADOS SUFICIENTES.</p>
+      ${r.alerts?.length ? `<div class="warn">Variações de odds: ${r.alerts.map(a => `${esc(a.market)} ${esc(a.selection)} ${esc(a.bookmaker)} ${num(a.first_odds)}→${num(a.last_odds)}`).join('; ')}</div>` : ''}</div>`;
+  }
+  html += `<div class="card"><h2>E. Conclusão</h2><p><b>${esc(c.summary)}</b></p>
+    ${c.for.length ? `<h3>A favor</h3><ul>${c.for.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
+    ${c.against.length ? `<h3>Contra</h3><ul>${c.against.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
+    <h3>Incertezas</h3><ul>${c.uncertainties.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+    ${c.markets_without_value.length ? `<h3>Sem valor identificado</h3><p class="small">${c.markets_without_value.map(esc).join(', ')}</p>` : ''}</div>`;
+  $app.innerHTML = html;
+}
+
+// ---------- Histórico ----------
+async function viewHistory() {
+  const rows = await api('/api/history');
+  const settled = rows.filter(r => r.won != null && r.category === 'VALOR POTENCIAL' && r.odds);
+  const profit = settled.reduce((s, r) => s + (r.won ? r.odds - 1 : -1), 0);
+  $app.innerHTML = `<div class="card"><h2>Histórico de previsões</h2>
+    <p class="small muted">Todas as previsões geradas ficam registadas (append-only) e são confrontadas com o resultado real quando este chega à fonte.
+    Previsões "VALOR POTENCIAL" já resolvidas: ${settled.length} · resultado simulado com stake 1u: ${num(profit)}u. Amostras pequenas não permitem conclusões.</p>
+    <div class="tbl"><table><tr><th>Jogo</th><th>Data</th><th>Mercado</th><th>Prob.</th><th>Odd</th><th>EV</th><th>Categoria</th><th>Resultado</th><th>Acerto</th></tr>
+    ${rows.map(r => `<tr><td>${esc(r.home)} – ${esc(r.away)}</td><td>${esc(r.match_date)}</td><td>${esc(r.market)} ${esc(r.selection)}</td><td>${pct(r.model_prob)}</td>
+    <td>${num(r.odds)}</td><td>${sign(r.ev)}</td><td>${badge(r.category)}</td><td>${esc(r.result || 'pendente')}</td><td>${r.won == null ? '—' : r.won ? '✔' : '✘'}</td></tr>`).join('')}</table></div></div>`;
+}
+
+// ---------- Backtesting ----------
+async function viewBacktest() {
+  const list = await api('/api/backtests');
+  if (!list.length) { $app.innerHTML = `<div class="card"><h2>Backtesting</h2><p>Ainda não há backtests. Execute <code>python -m app.backtest</code> na pasta backend, ou use o endpoint de administração.</p></div>`; return; }
+  $app.innerHTML = list.map((b, k) => { const o = b.betting.overall;
+    const ll = x => x ? num(x.log_loss, 4) : '—';
+    const acc = Object.entries(b.accuracy).map(([mk, a]) => `<tr><td>${esc(mk)}</td><td><b>${ll(a.model_same_matches || a.model)}</b></td><td>${ll(a.dixon_coles_only)}</td>
+      <td>${ll(a.market_prematch_no_vig)}</td><td>${ll(a.market_closing_no_vig)}</td><td>${(a.model_same_matches || a.model).n}</td></tr>`).join('');
+    const seasons = Object.entries(b.by_season || {}).map(([s, x]) => `<tr><td>${esc(s)}</td><td><b>${num(x.final, 4)}</b></td><td>${num(x.dixon_coles, 4)}</td>
+      <td>${num(x.prematch, 4)}</td><td>${num(x.closing, 4)}</td><td>${x.n}</td></tr>`).join('');
+    return `<div class="card"><h2>${esc(b.competition)} · ${esc(b.period.from)} a ${esc(b.period.to)}</h2>
+    ${b.warnings.map(w => `<div class="warn">${esc(w)}</div>`).join('')}
+    <div class="grid kv"><div><span>Previsões</span><b>${b.predictions}</b></div><div><span>Apostas simuladas</span><b>${o.bets}</b></div>
+      <div><span>Ganhas / perdidas</span><b>${o.won ?? 0} / ${o.lost ?? 0}</b></div><div><span>Lucro (stake 1u)</span><b>${num(o.profit_units)}u</b></div>
+      <div><span>Yield / ROI por aposta</span><b>${sign(o.yield)}</b></div><div><span>IC 95% yield</span><b>${o.yield_ci95 ? sign(o.yield_ci95[0]) + ' a ' + sign(o.yield_ci95[1]) : '—'}</b></div>
+      <div><span>Drawdown máximo</span><b>${num(o.max_drawdown_units)}u</b></div><div><span>CLV vs média de fecho</span><b>${sign(o.avg_clv)}</b></div>
+      <div><span>CLV vs fecho Pinnacle (${o.clv_pinnacle_n || 0} apostas)</span><b>${sign(o.avg_clv_pinnacle)}</b></div>
+      <div><span>IC 95% CLV Pinnacle</span><b>${o.clv_pinnacle_ci95 ? sign(o.clv_pinnacle_ci95[0]) + ' a ' + sign(o.clv_pinnacle_ci95[1]) : '—'}</b></div>
+      <div><span>Apostas acima do fecho Pinnacle</span><b>${pct(o.share_beating_pinnacle)}</b></div></div>
+    <h3>Log loss (menor = melhor), mesmos jogos — fora da amostra</h3><div class="tbl"><table><tr><th>Mercado</th><th>Final (modelo + mercado)</th><th>Só Dixon-Coles</th><th>Mercado pré-jogo</th><th>Mercado fecho</th><th>N</th></tr>${acc}</table></div>
+    ${seasons ? `<h3>1X2 por época</h3><div class="tbl"><table><tr><th>Época</th><th>Final</th><th>Só Dixon-Coles</th><th>Pré-jogo</th><th>Fecho</th><th>N</th></tr>${seasons}</table></div>` : ''}
+    ${b.betting.by_market ? `<h3>Por mercado</h3><div class="tbl"><table><tr><th>Mercado</th><th>Apostas</th><th>Yield</th><th>IC 95%</th><th>Lucro</th></tr>${Object.entries(b.betting.by_market).map(([mk, s]) =>
+      `<tr><td>${esc(mk)}</td><td>${s.bets}</td><td>${sign(s.yield)}</td><td>${s.yield_ci95 ? sign(s.yield_ci95[0]) + ' a ' + sign(s.yield_ci95[1]) : '—'}</td><td>${num(s.profit_units)}u</td></tr>`).join('')}</table></div>` : ''}
+    <div class="grid"><div><h3>Calibração</h3><canvas id="cal${k}"></canvas></div><div><h3>Lucro acumulado (u)</h3><canvas id="eq${k}"></canvas></div></div>
+    <p class="small muted">Executado ${esc(b.run_at)} · ${esc(b.params.odds)} · margem EV ${pct(b.params.ev_margin, 0)} · ξ ${b.params.xi}</p></div>`; }).join('');
+  list.forEach((b, k) => {
+    chart(document.getElementById('cal' + k), {type: 'scatter', data: {datasets: [
+      {label: 'Modelo', data: b.calibration.map(c => ({x: c.predicted, y: c.observed})), pointRadius: b.calibration.map(c => Math.min(12, 3 + Math.sqrt(c.n) / 4))},
+      {label: 'Perfeita', type: 'line', data: [{x: 0, y: 0}, {x: 1, y: 1}], pointRadius: 0, borderDash: [4, 4]}]},
+      options: {scales: {x: {min: 0, max: 1, title: {display: true, text: 'Prevista'}}, y: {min: 0, max: 1, title: {display: true, text: 'Observada'}}}}});
+    chart(document.getElementById('eq' + k), {type: 'line', data: {labels: (b.betting.equity || []).map((_, i) => i + 1),
+      datasets: [{label: 'Lucro acumulado', data: b.betting.equity || [], pointRadius: 0}]}});
+  });
+}
+
+// ---------- Risco ----------
+function viewRisk() {
+  $app.innerHTML = `<div class="card"><h2>Simulação de risco (Monte Carlo)</h2>
+    <p class="small muted">Simula sequências de apostas independentes com stake fixa em % da banca. Mostra sempre o cenário em que o modelo não tem vantagem.</p>
+    <div class="filters"><label>Banca <input id="r-bankroll" type="number" value="100" min="1"></label>
+      <label>Stake % <input id="r-stake" type="number" value="1" step="0.5" min="0.1" max="50"></label>
+      <label>Nº apostas <input id="r-n" type="number" value="500" min="1" max="5000"></label>
+      <label>Prob. estimada % <input id="r-p" type="number" value="36" step="0.5" min="1" max="99"></label>
+      <label>Odd <input id="r-odds" type="number" value="3" step="0.05" min="1.01"></label><button id="r-go">Simular</button></div>
+    <div id="r-out"></div></div>`;
+  document.getElementById('r-go').onclick = async () => {
+    const g = id => Number(document.getElementById(id).value);
+    try {
+      const r = simulateRisk({bankroll: g('r-bankroll'), stake_pct: g('r-stake') / 100, n_bets: g('r-n'), prob: g('r-p') / 100, odds: g('r-odds')});
+      const sc = Object.entries(r.scenarios);
+      document.getElementById('r-out').innerHTML = `${r.warnings.map(w => `<div class="warn">${esc(w)}</div>`).join('')}
+        <div class="tbl"><table><tr><th>Cenário</th><th>EV</th><th>Banca final P5 / mediana / P95</th><th>P(perda)</th><th>P(perder 50%)</th><th>P(perder 90%)</th><th>Drawdown mediano</th><th>Pior série de derrotas (mediana / P95)</th></tr>
+        ${sc.map(([n, s]) => `<tr><td>${esc(n)}</td><td>${sign(s.ev_per_unit)}</td><td>${num(s.final_p5)} / ${num(s.final_median)} / ${num(s.final_p95)}</td>
+        <td>${pct(s.prob_loss)}</td><td>${pct(s.prob_lose_half)}</td><td>${pct(s.prob_ruin_90)}</td><td>${pct(s.max_drawdown_median)}</td>
+        <td>${s.longest_losing_streak_median} / ${s.longest_losing_streak_p95}</td></tr>`).join('')}</table></div><div class="grid">${sc.map((_, k) => `<div><h3>${esc(sc[k][0])}</h3><canvas id="rc${k}"></canvas></div>`).join('')}</div>`;
+      sc.forEach(([, s], k) => chart(document.getElementById('rc' + k), {type: 'line', data: {labels: s.sample_paths[0].map((_, i) => i),
+        datasets: s.sample_paths.map(p => ({data: p, pointRadius: 0, borderWidth: 1}))}, options: {plugins: {legend: {display: false}}}}));
+    } catch (e) { document.getElementById('r-out').innerHTML = err(e); }
+  };
+}
+
+function viewAbout() {
+  $app.innerHTML = `<div class="card"><h2>Metodologia e limitações</h2>
+  <h3>Modelo</h3><p>Dixon-Coles: golos de cada equipa seguem Poisson com força de ataque, defesa e vantagem de casa, com correção para resultados baixos (0-0, 1-0, 0-1, 1-1)
+  e decaimento temporal. Daí sai a distribuição completa de resultados, de onde derivam 1X2, totais e ambas marcam de forma consistente.
+  No 1X2 e no O/U 2,5, a probabilidade final combina o modelo com o mercado pré-jogo (pool logarítmico), com pesos validados fora da amostra em 8 épocas.
+  O backtest dá peso praticamente zero ao modelo: as odds pré-jogo já contêm o que ele sabe.</p>
+  <h3>Fórmulas</h3><ul><li>Probabilidade implícita = 1 / odd</li><li>Odd justa = 1 / probabilidade estimada</li><li>EV por unidade = probabilidade × odd − 1</li>
+  <li>Mercado sem margem: método de Shin aplicado à odd média (corrige o viés favorito-azarão; mais preciso do que a normalização proporcional no backtest)</li></ul>
+  <h3>Classificação</h3><ul><li><b>VALOR POTENCIAL</b>: EV ≥ margem de segurança, confiança média/alta e modelo não muito afastado do mercado</li>
+  <li><b>VALOR INCONCLUSIVO</b>: EV positivo mas pequeno, amostra fraca ou divergência excessiva com o mercado</li>
+  <li><b>SEM VALOR IDENTIFICADO</b>: EV ≤ 0</li><li><b>SEM DADOS SUFICIENTES</b>: sem odd, sem histórico ou fonte indisponível</li></ul>
+  <h3>Limitações</h3><ul><li>Sem dados de lesões, suspensões, onzes e meteorologia.</li><li>Só jogos do campeonato.</li>
+  <li>Equipas recém-promovidas ficam sem análise até acumularem jogos.</li><li>O backtest mostra que este modelo, sozinho, não supera as odds de fecho — use-o como ponto de partida, não como oráculo.</li></ul></div>`;
+}
+
+async function route() {
+  charts.forEach(c => c.destroy()); charts = [];
+  const h = location.hash || '#/';
+  document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('on', a.getAttribute('href') === h || (h.startsWith('#/match') && a.getAttribute('href') === '#/')));
+  $app.innerHTML = '<p class="muted">A carregar…</p>';
+  try {
+    if (h.startsWith('#/match/')) await viewMatch(decodeURIComponent(h.slice(8)));
+    else if (h === '#/history') await viewHistory();
+    else if (h === '#/backtest') await viewBacktest();
+    else if (h === '#/risk') viewRisk();
+    else if (h === '#/about') viewAbout();
+    else await viewFixtures();
+  } catch (e) { $app.innerHTML = err(e); }
+}
+window.onhashchange = route;
+route();
+</script>
+</body>
+</html>

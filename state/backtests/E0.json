@@ -1,0 +1,611 @@
+{
+ "league": "E0",
+ "competition": "Inglaterra — Premier League",
+ "run_at": "2026-10-24T12:30:56+00:00",
+ "params": {
+  "test_seasons": 8,
+  "xi": 0.0019,
+  "xg_weight": 0.0,
+  "devig": "shin",
+  "ev_margin": 0.03,
+  "max_market_divergence": 0.12,
+  "min_team_matches": 10,
+  "blend": "pool logarítmico modelo × mercado pré-jogo; pesos de cada época ajustados só com épocas anteriores (todas as ligas); 1.ª época de teste usada só para treino",
+  "odds": "melhor odd pré-jogo entre casas nomeadas (sem Betfair Exchange/agregados); stake fixa 1u"
+ },
+ "period": {
+  "from": "2020-07-01",
+  "to": "2026-10-18"
+ },
+ "predictions": 2342,
+ "accuracy": {
+  "1X2": {
+   "model": {
+    "brier": 0.5733,
+    "log_loss": 0.965,
+    "n": 2342
+   },
+   "model_same_matches": {
+    "brier": 0.5733,
+    "log_loss": 0.965,
+    "n": 2342
+   },
+   "dixon_coles_only": {
+    "brier": 0.5852,
+    "log_loss": 0.9839,
+    "n": 2342
+   },
+   "market_prematch_no_vig": {
+    "brier": 0.5732,
+    "log_loss": 0.965,
+    "n": 2342
+   },
+   "market_closing_no_vig": {
+    "brier": 0.5701,
+    "log_loss": 0.9607,
+    "n": 2342
+   }
+  },
+  "OU2.5": {
+   "model": {
+    "brier": 0.4829,
+    "log_loss": 0.6758,
+    "n": 2342
+   },
+   "model_same_matches": {
+    "brier": 0.4829,
+    "log_loss": 0.6758,
+    "n": 2342
+   },
+   "dixon_coles_only": {
+    "brier": 0.4926,
+    "log_loss": 0.686,
+    "n": 2342
+   },
+   "market_prematch_no_vig": {
+    "brier": 0.4826,
+    "log_loss": 0.6755,
+    "n": 2342
+   },
+   "market_closing_no_vig": {
+    "brier": 0.4818,
+    "log_loss": 0.6746,
+    "n": 2342
+   }
+  },
+  "BTTS": {
+   "model": {
+    "brier": 0.4961,
+    "log_loss": 0.6894,
+    "n": 2342
+   }
+  }
+ },
+ "by_season": {
+  "2020/21": {
+   "n": 436,
+   "final": 0.9949,
+   "dixon_coles": 1.0073,
+   "prematch": 0.9958,
+   "closing": 0.9886
+  },
+  "2021/22": {
+   "n": 370,
+   "final": 0.9271,
+   "dixon_coles": 0.946,
+   "prematch": 0.9271,
+   "closing": 0.9279
+  },
+  "2022/23": {
+   "n": 370,
+   "final": 0.9685,
+   "dixon_coles": 1.0074,
+   "prematch": 0.9685,
+   "closing": 0.9649
+  },
+  "2023/24": {
+   "n": 370,
+   "final": 0.9105,
+   "dixon_coles": 0.931,
+   "prematch": 0.9108,
+   "closing": 0.9025
+  },
+  "2024/25": {
+   "n": 370,
+   "final": 0.971,
+   "dixon_coles": 0.9832,
+   "prematch": 0.9705,
+   "closing": 0.967
+  },
+  "2025/26": {
+   "n": 369,
+   "final": 1.0094,
+   "dixon_coles": 1.0216,
+   "prematch": 1.0086,
+   "closing": 1.0047
+  },
+  "2026/27": {
+   "n": 57,
+   "final": 0.9862,
+   "dixon_coles": 1.0017,
+   "prematch": 0.9869,
+   "closing": 0.9852
+  }
+ },
+ "calibration": [
+  {
+   "bin": "0.0-0.1",
+   "predicted": 0.0703,
+   "observed": 0.0737,
+   "n": 312
+  },
+  {
+   "bin": "0.1-0.2",
+   "predicted": 0.1565,
+   "observed": 0.1639,
+   "n": 1165
+  },
+  {
+   "bin": "0.2-0.3",
+   "predicted": 0.2544,
+   "observed": 0.2602,
+   "n": 2748
+  },
+  {
+   "bin": "0.3-0.4",
+   "predicted": 0.3574,
+   "observed": 0.3739,
+   "n": 2094
+  },
+  {
+   "bin": "0.4-0.5",
+   "predicted": 0.4527,
+   "observed": 0.4507,
+   "n": 4080
+  },
+  {
+   "bin": "0.5-0.6",
+   "predicted": 0.5464,
+   "observed": 0.5479,
+   "n": 3942
+  },
+  {
+   "bin": "0.6-0.7",
+   "predicted": 0.6376,
+   "observed": 0.6088,
+   "n": 1539
+  },
+  {
+   "bin": "0.7-0.8",
+   "predicted": 0.7371,
+   "observed": 0.6931,
+   "n": 391
+  },
+  {
+   "bin": "0.8-0.9",
+   "predicted": 0.8396,
+   "observed": 0.8632,
+   "n": 117
+  },
+  {
+   "bin": "0.9-1.0",
+   "predicted": 0.9089,
+   "observed": 1.0,
+   "n": 6
+  }
+ ],
+ "betting": {
+  "overall": {
+   "bets": 21,
+   "won": 2,
+   "lost": 19,
+   "profit_units": -15.3,
+   "yield": -0.7286,
+   "yield_ci95": [
+    -1.0,
+    -0.281
+   ],
+   "max_drawdown_units": 15.3,
+   "avg_odds": 7.22,
+   "avg_clv": 0.0586,
+   "clv_pinnacle_n": 20,
+   "avg_clv_pinnacle": 0.0568,
+   "median_clv_pinnacle": 0.0481,
+   "clv_pinnacle_ci95": [
+    0.0123,
+    0.1086
+   ],
+   "share_beating_pinnacle": 0.65
+  },
+  "by_market": {
+   "1X2": {
+    "bets": 20,
+    "won": 1,
+    "lost": 19,
+    "profit_units": -16.3,
+    "yield": -0.815,
+    "yield_ci95": [
+     -1.0,
+     -0.445
+    ],
+    "max_drawdown_units": 16.3,
+    "avg_odds": 7.48,
+    "avg_clv": 0.0546,
+    "clv_pinnacle_n": 19,
+    "avg_clv_pinnacle": 0.0525,
+    "median_clv_pinnacle": 0.0462,
+    "clv_pinnacle_ci95": [
+     0.0017,
+     0.1027
+    ],
+    "share_beating_pinnacle": 0.6316
+   },
+   "OU2.5": {
+    "bets": 1,
+    "won": 1,
+    "lost": 0,
+    "profit_units": 1.0,
+    "yield": 1.0,
+    "yield_ci95": null,
+    "max_drawdown_units": 0.0,
+    "avg_odds": 2.0,
+    "avg_clv": 0.1392,
+    "clv_pinnacle_n": 1,
+    "avg_clv_pinnacle": 0.1384,
+    "median_clv_pinnacle": 0.1384,
+    "clv_pinnacle_ci95": null,
+    "share_beating_pinnacle": 1.0
+   }
+  },
+  "equity": [
+   -1.0,
+   -2.0,
+   -3.0,
+   -4.0,
+   -5.0,
+   -6.0,
+   -7.0,
+   -8.0,
+   -9.0,
+   -10.0,
+   -11.0,
+   -12.0,
+   -13.0,
+   -14.0,
+   -11.3,
+   -12.3,
+   -11.3,
+   -12.3,
+   -13.3,
+   -14.3,
+   -15.3
+  ]
+ },
+ "bets": [
+  {
+   "date": "2020-07-05",
+   "match": "Southampton - Man City",
+   "score": "1-0",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 6.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1718,
+   "ev": 0.0306,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.021357827505636195,
+   "clv_pinnacle": -0.06206776461830177
+  },
+  {
+   "date": "2020-10-17",
+   "match": "Chelsea - Southampton",
+   "score": "3-3",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 6.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1614,
+   "ev": 0.049,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.1271509950286116,
+   "clv_pinnacle": 0.16080861710703642
+  },
+  {
+   "date": "2020-10-24",
+   "match": "West Ham - Man City",
+   "score": "1-1",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 8.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1315,
+   "ev": 0.0518,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.10991775510475366,
+   "clv_pinnacle": 0.08411640085071648
+  },
+  {
+   "date": "2020-11-08",
+   "match": "West Brom - Tottenham",
+   "score": "0-1",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 7.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1476,
+   "ev": 0.0335,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.0030801543916829655,
+   "clv_pinnacle": -0.03097073926763938
+  },
+  {
+   "date": "2020-12-05",
+   "match": "Man City - Fulham",
+   "score": "2-0",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 11.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.0941,
+   "ev": 0.0351,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.03126591560008951,
+   "clv_pinnacle": 0.01991684971035923
+  },
+  {
+   "date": "2020-12-21",
+   "match": "Chelsea - West Ham",
+   "score": "3-0",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 5.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2068,
+   "ev": 0.0338,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.09498677465569871,
+   "clv_pinnacle": 0.0918200097039239
+  },
+  {
+   "date": "2020-12-30",
+   "match": "Newcastle - Liverpool",
+   "score": "0-0",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 12.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.0947,
+   "ev": 0.1358,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.01656900165349473,
+   "clv_pinnacle": 0.04620526263555891
+  },
+  {
+   "date": "2021-01-13",
+   "match": "Man City - Brighton",
+   "score": "1-0",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 8.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.126,
+   "ev": 0.0714,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.021946763056326812,
+   "clv_pinnacle": -0.008309160219569622
+  },
+  {
+   "date": "2021-01-17",
+   "match": "Sheffield United - Tottenham",
+   "score": "1-3",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 6.5,
+   "bookmaker": "Betway",
+   "model_prob": 0.1596,
+   "ev": 0.0373,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.27521230335362334,
+   "clv_pinnacle": 0.3047512005654527
+  },
+  {
+   "date": "2021-01-17",
+   "match": "Man City - Crystal Palace",
+   "score": "4-0",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 8.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1234,
+   "ev": 0.0486,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.04896751157826951,
+   "clv_pinnacle": 0.05840163183449665
+  },
+  {
+   "date": "2021-03-02",
+   "match": "Man City - Wolves",
+   "score": "4-1",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 7.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1503,
+   "ev": 0.0523,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.013451246403856976,
+   "clv_pinnacle": -0.06090867133277689
+  },
+  {
+   "date": "2021-04-26",
+   "match": "Leicester - Crystal Palace",
+   "score": "2-1",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 8.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1222,
+   "ev": 0.039,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.026560017384416934,
+   "clv_pinnacle": -0.031491869140346185
+  },
+  {
+   "date": "2021-10-23",
+   "match": "Chelsea - Norwich",
+   "score": "7-0",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 8.25,
+   "bookmaker": "Betway",
+   "model_prob": 0.1294,
+   "ev": 0.0679,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.16620786100952878,
+   "clv_pinnacle": 0.14504250324164247
+  },
+  {
+   "date": "2021-10-23",
+   "match": "Chelsea - Norwich",
+   "score": "7-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 23.0,
+   "bookmaker": "Betway",
+   "model_prob": 0.0476,
+   "ev": 0.0949,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.3312298561315341,
+   "clv_pinnacle": 0.2903185243219022
+  },
+  {
+   "date": "2021-10-23",
+   "match": "Leeds - Wolves",
+   "score": "1-1",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 3.7,
+   "bookmaker": "Betway",
+   "model_prob": 0.2824,
+   "ev": 0.045,
+   "won": true,
+   "profit": 2.7,
+   "clv": 0.038730293269076954,
+   "clv_pinnacle": 0.049935753937605964
+  },
+  {
+   "date": "2021-10-23",
+   "match": "Leeds - Wolves",
+   "score": "1-1",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 3.2,
+   "bookmaker": "Betway",
+   "model_prob": 0.3436,
+   "ev": 0.0994,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.036805710858010654,
+   "clv_pinnacle": 0.10352186731693025
+  },
+  {
+   "date": "2022-03-17",
+   "match": "Everton - Newcastle",
+   "score": "1-0",
+   "market": "OU2.5",
+   "selection": "Menos",
+   "odds": 2.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.517,
+   "ev": 0.034,
+   "won": true,
+   "profit": 1.0,
+   "clv": 0.13922728854855548,
+   "clv_pinnacle": 0.13836675020885547
+  },
+  {
+   "date": "2024-01-31",
+   "match": "Tottenham - Brentford",
+   "score": "3-2",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 5.25,
+   "bookmaker": "Betway",
+   "model_prob": 0.197,
+   "ev": 0.0344,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.004453994303612041,
+   "clv_pinnacle": -0.032556295298082016
+  },
+  {
+   "date": "2024-09-22",
+   "match": "Brighton - Nott'm Forest",
+   "score": "2-2",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 4.75,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2233,
+   "ev": 0.0607,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.037540003317163784,
+   "clv_pinnacle": 0.024141704833191335
+  },
+  {
+   "date": "2025-01-04",
+   "match": "Southampton - Brentford",
+   "score": "0-5",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 3.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.3447,
+   "ev": 0.034,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.14227288008680072,
+   "clv_pinnacle": -0.15448029094799987
+  },
+  {
+   "date": "2026-08-23",
+   "match": "Newcastle - Liverpool",
+   "score": "2-2",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 4.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2585,
+   "ev": 0.0341,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.022722502227149333,
+   "clv_pinnacle": null
+  }
+ ],
+ "data": {
+  "source": "football-data.co.uk",
+  "last_result": "2026-10-19"
+ },
+ "warnings": [
+  "Resultados históricos simulados não garantem desempenho futuro.",
+  "Amostra de 21 apostas é pequena: conclusões sobre rentabilidade não são fiáveis.",
+  "O intervalo de confiança de 95% do yield inclui zero ou valores negativos: não há evidência estatística de rentabilidade.",
+  "O modelo é menos preciso do que as odds de fecho sem margem (log loss 1X2): vantagens aparentes são provavelmente ruído ou erro do modelo."
+ ]
+}

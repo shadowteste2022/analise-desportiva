@@ -1,0 +1,434 @@
+{
+ "league": "TODAS",
+ "competition": "Todas as ligas",
+ "run_at": "2026-10-24T12:31:18+00:00",
+ "params": {
+  "test_seasons": 8,
+  "xi": 0.0019,
+  "xg_weight": 0.0,
+  "devig": "shin",
+  "ev_margin": 0.03,
+  "max_market_divergence": 0.12,
+  "min_team_matches": 10,
+  "blend": "pool logarítmico modelo × mercado pré-jogo; pesos de cada época ajustados só com épocas anteriores (todas as ligas); 1.ª época de teste usada só para treino",
+  "odds": "melhor odd pré-jogo entre casas nomeadas (sem Betfair Exchange/agregados); stake fixa 1u"
+ },
+ "period": {
+  "from": "2020-07-01",
+  "to": "2026-10-18"
+ },
+ "predictions": 14495,
+ "accuracy": {
+  "1X2": {
+   "model": {
+    "brier": 0.5702,
+    "log_loss": 0.9603,
+    "n": 14495
+   },
+   "model_same_matches": {
+    "brier": 0.5702,
+    "log_loss": 0.9603,
+    "n": 14494
+   },
+   "dixon_coles_only": {
+    "brier": 0.5823,
+    "log_loss": 0.9786,
+    "n": 14494
+   },
+   "market_prematch_no_vig": {
+    "brier": 0.5701,
+    "log_loss": 0.9603,
+    "n": 14494
+   },
+   "market_closing_no_vig": {
+    "brier": 0.568,
+    "log_loss": 0.957,
+    "n": 14494
+   }
+  },
+  "OU2.5": {
+   "model": {
+    "brier": 0.4779,
+    "log_loss": 0.6706,
+    "n": 14495
+   },
+   "model_same_matches": {
+    "brier": 0.4779,
+    "log_loss": 0.6706,
+    "n": 14492
+   },
+   "dixon_coles_only": {
+    "brier": 0.4882,
+    "log_loss": 0.6815,
+    "n": 14492
+   },
+   "market_prematch_no_vig": {
+    "brier": 0.4779,
+    "log_loss": 0.6705,
+    "n": 14492
+   },
+   "market_closing_no_vig": {
+    "brier": 0.4751,
+    "log_loss": 0.6676,
+    "n": 14492
+   }
+  },
+  "BTTS": {
+   "model": {
+    "brier": 0.4951,
+    "log_loss": 0.6884,
+    "n": 14495
+   }
+  }
+ },
+ "by_season": {
+  "2020/21": {
+   "n": 2626,
+   "final": 0.9669,
+   "dixon_coles": 0.986,
+   "prematch": 0.9665,
+   "closing": 0.9632
+  },
+  "2021/22": {
+   "n": 2310,
+   "final": 0.9687,
+   "dixon_coles": 0.9859,
+   "prematch": 0.9687,
+   "closing": 0.966
+  },
+  "2022/23": {
+   "n": 2327,
+   "final": 0.9594,
+   "dixon_coles": 0.9772,
+   "prematch": 0.9593,
+   "closing": 0.9557
+  },
+  "2023/24": {
+   "n": 2284,
+   "final": 0.9432,
+   "dixon_coles": 0.9631,
+   "prematch": 0.9434,
+   "closing": 0.9399
+  },
+  "2024/25": {
+   "n": 2276,
+   "final": 0.9567,
+   "dixon_coles": 0.9784,
+   "prematch": 0.9568,
+   "closing": 0.9522
+  },
+  "2025/26": {
+   "n": 2274,
+   "final": 0.9677,
+   "dixon_coles": 0.9832,
+   "prematch": 0.9679,
+   "closing": 0.9664
+  },
+  "2026/27": {
+   "n": 397,
+   "final": 0.9496,
+   "dixon_coles": 0.96,
+   "prematch": 0.9498,
+   "closing": 0.9454
+  }
+ },
+ "calibration": [
+  {
+   "bin": "0.0-0.1",
+   "predicted": 0.0701,
+   "observed": 0.0651,
+   "n": 1888
+  },
+  {
+   "bin": "0.1-0.2",
+   "predicted": 0.1566,
+   "observed": 0.1484,
+   "n": 6898
+  },
+  {
+   "bin": "0.2-0.3",
+   "predicted": 0.2563,
+   "observed": 0.2622,
+   "n": 16757
+  },
+  {
+   "bin": "0.3-0.4",
+   "predicted": 0.3544,
+   "observed": 0.3599,
+   "n": 14403
+  },
+  {
+   "bin": "0.4-0.5",
+   "predicted": 0.4518,
+   "observed": 0.4542,
+   "n": 24904
+  },
+  {
+   "bin": "0.5-0.6",
+   "predicted": 0.5469,
+   "observed": 0.5461,
+   "n": 23593
+  },
+  {
+   "bin": "0.6-0.7",
+   "predicted": 0.6383,
+   "observed": 0.6224,
+   "n": 9813
+  },
+  {
+   "bin": "0.7-0.8",
+   "predicted": 0.7395,
+   "observed": 0.7381,
+   "n": 2432
+  },
+  {
+   "bin": "0.8-0.9",
+   "predicted": 0.837,
+   "observed": 0.845,
+   "n": 729
+  },
+  {
+   "bin": "0.9-1.0",
+   "predicted": 0.9132,
+   "observed": 0.9375,
+   "n": 48
+  }
+ ],
+ "betting": {
+  "overall": {
+   "bets": 154,
+   "won": 30,
+   "lost": 124,
+   "profit_units": 13.43,
+   "yield": 0.0872,
+   "yield_ci95": [
+    -0.2773,
+    0.4841
+   ],
+   "max_drawdown_units": 23.3,
+   "avg_odds": 6.9,
+   "avg_clv": 0.0427,
+   "clv_pinnacle_n": 152,
+   "avg_clv_pinnacle": 0.0375,
+   "median_clv_pinnacle": 0.0253,
+   "clv_pinnacle_ci95": [
+    0.0129,
+    0.0618
+   ],
+   "share_beating_pinnacle": 0.5592
+  },
+  "by_market": {
+   "1X2": {
+    "bets": 151,
+    "won": 28,
+    "lost": 123,
+    "profit_units": 11.88,
+    "yield": 0.0787,
+    "yield_ci95": [
+     -0.2846,
+     0.483
+    ],
+    "max_drawdown_units": 24.3,
+    "avg_odds": 7.0,
+    "avg_clv": 0.0389,
+    "clv_pinnacle_n": 150,
+    "avg_clv_pinnacle": 0.0376,
+    "median_clv_pinnacle": 0.0253,
+    "clv_pinnacle_ci95": [
+     0.0144,
+     0.0635
+    ],
+    "share_beating_pinnacle": 0.56
+   },
+   "OU2.5": {
+    "bets": 3,
+    "won": 2,
+    "lost": 1,
+    "profit_units": 1.55,
+    "yield": 0.5167,
+    "yield_ci95": [
+     -1.0,
+     1.55
+    ],
+    "max_drawdown_units": 1.0,
+    "avg_odds": 2.27,
+    "avg_clv": 0.235,
+    "clv_pinnacle_n": 2,
+    "avg_clv_pinnacle": 0.027,
+    "median_clv_pinnacle": 0.027,
+    "clv_pinnacle_ci95": [
+     -0.0843,
+     0.1384
+    ],
+    "share_beating_pinnacle": 0.5
+   }
+  },
+  "equity": [
+   -1.0,
+   -2.0,
+   -3.0,
+   -4.0,
+   -5.0,
+   -6.0,
+   -7.0,
+   -8.0,
+   -9.0,
+   -10.0,
+   -11.0,
+   -12.0,
+   -13.0,
+   -14.0,
+   -11.3,
+   -12.3,
+   -11.3,
+   -12.3,
+   -13.3,
+   -14.3,
+   -15.3,
+   -16.3,
+   -17.3,
+   -18.3,
+   -19.3,
+   -20.3,
+   -21.3,
+   -22.3,
+   -23.3,
+   -16.3,
+   -17.3,
+   -18.3,
+   -19.3,
+   -20.3,
+   -13.8,
+   -14.8,
+   -15.8,
+   -16.8,
+   -17.8,
+   -18.8,
+   -9.8,
+   -10.8,
+   -6.3,
+   -1.8,
+   -2.8,
+   -3.8,
+   0.95,
+   -0.05,
+   -1.05,
+   -2.05,
+   -3.05,
+   -4.05,
+   -5.05,
+   -6.05,
+   -7.05,
+   -2.8,
+   -3.8,
+   -4.8,
+   -5.8,
+   -6.8,
+   -7.8,
+   -8.8,
+   -9.8,
+   -6.6,
+   -7.6,
+   -4.1,
+   3.4,
+   2.4,
+   1.4,
+   0.4,
+   -0.6,
+   -1.6,
+   -2.6,
+   -3.6,
+   -4.6,
+   -5.6,
+   -6.6,
+   0.9,
+   -0.1,
+   -1.1,
+   -2.1,
+   -3.1,
+   -4.1,
+   -5.1,
+   0.9,
+   -0.1,
+   3.9,
+   2.9,
+   1.9,
+   0.9,
+   -0.1,
+   -1.1,
+   -2.1,
+   0.65,
+   -0.35,
+   -1.35,
+   -2.35,
+   -3.35,
+   -4.35,
+   -5.35,
+   -6.35,
+   -7.35,
+   -8.35,
+   -9.35,
+   -8.45,
+   -9.45,
+   -10.45,
+   -4.45,
+   -5.45,
+   -6.45,
+   -7.45,
+   -8.45,
+   -9.45,
+   -10.45,
+   -11.45,
+   -5.2,
+   -6.2,
+   -7.2,
+   -8.2,
+   -9.2,
+   -4.45,
+   -5.45,
+   -6.45,
+   -7.45,
+   -8.45,
+   -9.45,
+   -0.45,
+   -1.45,
+   -2.45,
+   -3.45,
+   3.05,
+   2.05,
+   1.05,
+   0.05,
+   2.8,
+   3.38,
+   2.38,
+   4.88,
+   7.88,
+   6.88,
+   5.88,
+   4.88,
+   3.88,
+   9.38,
+   14.38,
+   13.38,
+   17.88,
+   16.88,
+   15.88,
+   14.88,
+   13.88,
+   12.88,
+   11.88,
+   13.43
+  ]
+ },
+ "bets": [],
+ "data": {
+  "source": "football-data.co.uk",
+  "last_result": "2026-10-21"
+ },
+ "warnings": [
+  "Resultados históricos simulados não garantem desempenho futuro.",
+  "Amostra de 154 apostas é pequena: conclusões sobre rentabilidade não são fiáveis.",
+  "O intervalo de confiança de 95% do yield inclui zero ou valores negativos: não há evidência estatística de rentabilidade.",
+  "O modelo é menos preciso do que as odds de fecho sem margem (log loss 1X2): vantagens aparentes são provavelmente ruído ou erro do modelo."
+ ]
+}

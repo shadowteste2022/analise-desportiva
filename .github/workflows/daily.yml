@@ -1,0 +1,93 @@
+# Hourly: recompute every analysis with fresh data (The Odds API paced by ODDS_API_MONTHLY_BUDGET) and publish the
+# static site to GitHub Pages.
+# Between hourly runs, state/ (prediction log, odds cache, CSV cache) travels through the Actions cache. Once a day
+# (07 UTC run or a manual run) the tests run and state/ is committed, so history survives even if the cache is evicted;
+# committing a binary SQLite file every hour would bloat the repository.
+name: Análises de hora a hora
+
+on:
+  schedule:
+    - cron: "17 * * * *"   # every hour at :17 (top-of-hour slots are the most delayed by GitHub)
+  workflow_dispatch:         # "Run workflow" button for a manual update
+
+permissions:
+  contents: write            # commit state/ back
+  pages: write
+  id-token: write
+
+concurrency:
+  group: analises
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    env:
+      DATA_DIR: ${{ github.workspace }}/state
+      ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}                       # live odds (free plan: 500 credits/month)
+      ODDS_API_MONTHLY_BUDGET: ${{ vars.ODDS_API_MONTHLY_BUDGET || '500' }}
+      ODDS_API_RESET_DAY: ${{ vars.ODDS_API_RESET_DAY || '1' }}
+      ODDS_API_IO_KEY: ${{ secrets.ODDS_API_IO_KEY }}                 # optional: SRIJ-licensed odds
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: daily
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$(date -u +%H)" = "07" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Recuperar o estado da hora anterior
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            state/app.db
+            state/odds_api
+            state/cache
+          key: state-${{ github.run_id }}
+          restore-keys: state-
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - run: pip install -r backend/requirements.txt
+
+      - name: Testes (uma vez por dia)
+        if: steps.daily.outputs.run == 'true'
+        run: |
+          cd backend && python -m pytest -q
+          cd .. && node --test frontend/tests/risk.test.js
+
+      - name: Calcular análises e gerar o site
+        run: cd backend && python -m app.export --out ../site
+
+      - name: Guardar o estado para a próxima hora
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            state/app.db
+            state/odds_api
+            state/cache
+          key: state-${{ github.run_id }}
+
+      - name: Gravar histórico no repositório (uma vez por dia)
+        if: steps.daily.outputs.run == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add state
+          git diff --cached --quiet || git commit -m "Atualização diária do histórico [skip ci]"
+          git push
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - id: deploy
+        uses: actions/deploy-pages@v4
