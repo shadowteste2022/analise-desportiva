@@ -31,7 +31,8 @@ SPORTS = {"E0": "soccer_epl", "SP1": "soccer_spain_la_liga", "I1": "soccer_italy
           "MEX": "soccer_mexico_ligamx", "JPN": "soccer_japan_j_league", "CHN": "soccer_china_superleague",
           "AUT": "soccer_austria_bundesliga", "SWZ": "soccer_switzerland_superleague",
           "DNK": "soccer_denmark_superliga", "NOR": "soccer_norway_eliteserien", "SWE": "soccer_sweden_allsvenskan",
-          "FIN": "soccer_finland_veikkausliiga", "POL": "soccer_poland_ekstraklasa", "IRL": "soccer_league_of_ireland"}
+          "FIN": "soccer_finland_veikkausliiga", "POL": "soccer_poland_ekstraklasa", "IRL": "soccer_league_of_ireland",
+          "RUS": "soccer_russia_premier_league"}
 _cache: dict[str, tuple[float, list]] = {}
 active: list[str] = []  # sport keys the API reports as in season, from /sports
 catalog: dict[str, dict] = {}  # key -> {group, title, description, has_outrights} for the active sports
