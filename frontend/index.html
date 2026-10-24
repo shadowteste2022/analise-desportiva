@@ -117,6 +117,14 @@ function renderOpportunities(fixtures) {
   card.querySelectorAll('tr.click').forEach(tr => tr.onclick = () => location.hash = '#/match/' + encodeURIComponent(tr.dataset.key));
 }
 
+// The best bet of a game, always shown with how far it can be trusted
+const PICK_TAG = {valor: ['b-VALOR', 'valor potencial'], melhor_opcao: ['b-INC', 'não validada'], sem_valor: ['b-SEM', 'EV negativo']};
+function pickCell(p) {
+  if (!p) return '<span class="muted">— sem odds comparáveis</span>';
+  const [cls, tag] = PICK_TAG[p.kind] || ['b-SEM', ''];
+  return `<b>${esc(p.label)}</b> @ ${num(p.odds)} <span class="muted small">(${sign(p.ev)})</span> <span class="badge ${cls}">${tag}</span>`;
+}
+
 let fixturesCache = null;
 async function viewFixtures() {
   const data = fixturesCache || await api('/api/fixtures');
@@ -157,8 +165,7 @@ async function viewFixtures() {
       <th>Melhor aposta</th><th>Categoria</th><th>Confiança</th></tr>${rows.map(x => `<tr class="click" data-key="${esc(x.key)}">
       <td>${esc(x.date)} ${esc(x.time || '')}</td><td>${esc(x.competition)}${x.sport === 'Futebol' ? '' : ` <span class="muted small">${esc(x.sport)}</span>`}</td><td><b>${esc(x.home)}</b> – <b>${esc(x.away)}</b></td>
       <td>${x.probs_1x2 ? [x.probs_1x2['1'], x.probs_1x2.X, x.probs_1x2['2']].filter(p => p != null).map(p => pct(p, 0)).join(' / ') : '—'}</td>
-      <td>${x.pick ? `<b>${esc(x.pick.label)}</b> @ ${num(x.pick.odds)} (${sign(x.pick.ev)})`
-        : x.best ? `Nenhuma <span class="muted small">(melhor EV ${sign(x.best.ev)})</span>` : '—'}</td>
+      <td>${pickCell(x.pick)}</td>
       <td>${badge(x.category)}</td><td>${esc(x.confidence || '—')}</td></tr>`).join('')}</table>
       ${total > limit ? `<p><button id="more">Mostrar mais (${total - limit} restantes)</button></p>` : ''}` : '<p class="muted">Sem jogos para estes filtros.</p>';
     document.querySelectorAll('tr.click').forEach(tr => tr.onclick = () => location.hash = '#/match/' + encodeURIComponent(tr.dataset.key));
@@ -186,9 +193,11 @@ async function viewMatch(key) {
   const [home, away] = [id.home, id.away];
   const rec = r.recommendation;
   let html = `<p><a href="#/">← Jogos</a></p>
-    ${rec ? `<div class="card" style="border-left:4px solid var(${rec.kind === 'valor' ? '--ok' : '--no'})"><h2>Melhor aposta</h2>
-      <p style="font-size:16px"><b>${esc(rec.kind === 'valor' ? rec.label : 'Nenhuma aposta recomendada')}</b>
-      ${rec.kind === 'valor' ? ` @ ${num(rec.odds)} <span class="muted">(${esc(rec.bookmaker)})</span> · EV ${sign(rec.ev)}` : ''}</p>
+    ${rec ? `<div class="card" style="border-left:4px solid var(${{valor: '--ok', melhor_opcao: '--warn'}[rec.kind] || '--no'})"><h2>Melhor aposta</h2>
+      <p style="font-size:16px">${rec.label ? `<b>${esc(rec.label)}</b> @ ${num(rec.odds)} <span class="muted">(${esc(rec.bookmaker)})</span> · EV ${sign(rec.ev)}
+        <span class="badge ${(PICK_TAG[rec.kind] || [])[0] || 'b-SEM'}">${(PICK_TAG[rec.kind] || [])[1] || ''}</span>
+        ${rec.licensed_pt ? '<span class="badge b-VALOR">SRIJ</span>' : '<span class="badge b-DADOS">sem licença PT</span>'}`
+        : '<b>Sem melhor aposta</b>'}</p>
       <p>${esc(rec.text)}</p>
       ${rec.most_likely ? `<p class="small muted">Resultado mais provável: <b>${esc(rec.most_likely.label)}</b> (${pct(rec.most_likely.prob)}). Ser provável não quer dizer que valha a pena apostar: só vale quando a odd paga mais do que essa probabilidade.</p>` : ''}
       <p class="small muted">Análise estatística, não aconselhamento financeiro. Aposte apenas o que pode perder.</p></div>` : ''}

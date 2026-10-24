@@ -65,8 +65,12 @@ def test_recommendation_only_with_value():
     rows = [_row("1X2", "1", 0.62, 1.55, -0.04, mk.SEM_VALOR), _row("1X2", "X", 0.22, 4.6, 0.012, mk.INCONCLUSIVO,
             ["EV estimado +1.2%", "abaixo da margem de segurança de 3%"]), _row("1X2", "2", 0.16, 5.5, -0.12, mk.SEM_VALOR)]
     r = recommend(rows, "Benfica", "Porto")
-    assert r["kind"] == "nenhuma" and r["label"] == "Empate" and "margem de segurança" in r["text"]
-    assert r["most_likely"] == {"label": "Vitória Benfica", "prob": 0.62}  # likely, but not recommended
+    assert r["kind"] == "melhor_opcao" and r["label"] == "Empate" and "margem de segurança" in r["text"]
+    assert r["most_likely"] == {"label": "Vitória Benfica", "prob": 0.62}  # likely, but not the best bet
+    suspicious = rows + [_row("1X2", "2", 0.30, 5.2, 0.56, mk.INCONCLUSIVO, [f"odd 56% {mk.OUTLIER_TEXT}"])]
+    assert recommend(suspicious, "Benfica", "Porto")["label"] == "Empate"  # a +56% data error is never the pick
+    only_negative = [_row("1X2", "1", 0.62, 1.55, -0.04, mk.SEM_VALOR)]
+    assert recommend(only_negative, "Benfica", "Porto")["kind"] == "sem_valor"
     rows.append(_row("OU2.5", "Mais", 0.58, 1.9, 0.10, mk.INCONCLUSIVO))  # higher EV but not valid value
     rows.append(_row("BTTS", "Sim", 0.55, 1.95, 0.0725, mk.VALOR))
     r = recommend(rows, "Benfica", "Porto")

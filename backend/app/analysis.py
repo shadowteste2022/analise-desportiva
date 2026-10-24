@@ -208,28 +208,40 @@ def recommend(rows: list[dict], home: str, away: str, sport: str = "Futebol") ->
     likely outcome is not a good bet unless the price pays more than its probability."""
     def label(r):
         return pick_label(r["market"], r["selection"], home, away, sport)
-    priced = [r for r in rows if r["ev"] is not None]
-    value = [r for r in priced if r["category"] == mk.VALOR]
+    ok = checkable(rows)
+    value = [r for r in ok if r["category"] == mk.VALOR]
     main = [r for r in rows if r["market"] in ("1X2", "Vencedor")]
     likely = max(main, key=lambda r: r["model_prob"]) if main else None
     out = {"most_likely": likely and {"label": label(likely), "prob": likely["model_prob"]}}
+    if not ok:
+        return {**out, "kind": "sem_dados",
+                "text": "Sem odds que se possam comparar com o mercado: não há melhor aposta para este jogo."}
+    b = max(value or ok, key=lambda r: r["ev"])
+    pick = {"label": label(b), "odds": b["best_odds"], "bookmaker": b["bookmaker"], "ev": b["ev"],
+            "prob": b["model_prob"], "licensed_pt": b.get("licensed_pt", False)}
     if value:
-        b = max(value, key=lambda r: r["ev"])
-        return {**out, "kind": "valor", "label": label(b), "odds": b["best_odds"], "bookmaker": b["bookmaker"],
-                "ev": b["ev"], "prob": b["model_prob"],
+        return {**out, **pick, "kind": "valor",
                 "text": f"Aposta com valor potencial: {label(b)} @ {b['best_odds']} ({b['bookmaker']}), EV estimado "
                         f"{b['ev']:+.1%}. É uma estimativa, não uma garantia: use stakes pequenas."}
-    if priced:
-        b = max(priced, key=lambda r: r["ev"])
+    if b["ev"] > 0:
         # the classification reason, not the EV figure itself or the licensing note appended after it
         main_reasons = [x for x in b["reasons"] if not x.startswith("EV estimado") and "SRIJ" not in x]
         why = (main_reasons or b["reasons"] or [""])[0]
-        return {**out, "kind": "nenhuma", "label": label(b), "odds": b["best_odds"], "bookmaker": b["bookmaker"],
-                "ev": b["ev"], "prob": b["model_prob"],
-                "text": f"Nenhuma aposta recomendada neste jogo. A opção mais perto de ter valor é {label(b)} "
-                        f"@ {b['best_odds']} ({b['bookmaker']}), com EV estimado {b['ev']:+.1%}, mas não cumpre os "
-                        f"critérios ({why})."}
-    return {**out, "kind": "sem_dados", "text": "Sem odds ou dados suficientes: não há recomendação para este jogo."}
+        return {**out, **pick, "kind": "melhor_opcao",
+                "text": f"Melhor opção: {label(b)} @ {b['best_odds']} ({b['bookmaker']}), EV estimado {b['ev']:+.1%}. "
+                        f"Não validada ({why}): é a aposta mais favorável deste jogo, não uma aposta garantida."}
+    return {**out, **pick, "kind": "sem_valor",
+            "text": f"Nenhuma opção com EV positivo neste jogo: a menos desfavorável é {label(b)} @ {b['best_odds']} "
+                    f"({b['bookmaker']}), EV estimado {b['ev']:+.1%}. A margem das casas come o valor: melhor não apostar."}
+
+
+def checkable(rows: list[dict]) -> list[dict]:
+    """Selections whose price can be checked against the market: a no-vig market reference exists, the price is not
+    a probable data error or stale, and the model estimate is not far from the market. Anything else would offer
+    value that is not really there (e.g. +56% EV from one bookmaker's wrong price)."""
+    flags = (mk.OUTLIER_TEXT, mk.DIVERGENCE_TEXT)
+    return [r for r in rows if r["ev"] is not None and r.get("market_prob_no_vig") is not None
+            and not any(f in reason for f in flags for reason in r["reasons"])]
 
 
 def _conclusion(rows: list[dict], conf: str | None, notes: list[str]) -> dict:
@@ -344,12 +356,13 @@ def list_fixtures(league: str | None = None) -> tuple[list[dict], dict]:
 
 def summarize(r: dict) -> dict:
     """One fixture-list row from a full report."""
-    best = max((x for x in r["markets"] if x["ev"] is not None), key=lambda x: x["ev"], default=None)
+    best = max(checkable(r["markets"]), key=lambda x: x["ev"], default=None)  # same filter as the best bet
     cats = [x["category"] for x in r["markets"]]
     top = next((c for c in (mk.VALOR, mk.INCONCLUSIVO, mk.SEM_VALOR) if c in cats), mk.SEM_DADOS)
     rec = r.get("recommendation") or {}
     return {"key": r["key"], **r["identification"], "category": top,
-            "pick": {k: rec[k] for k in ("label", "odds", "ev")} if rec.get("kind") == "valor" else None,
+            "pick": {k: rec.get(k) for k in ("kind", "label", "odds", "ev", "bookmaker", "licensed_pt")}
+            if rec.get("label") else None,
             "confidence": (r.get("data_status") or {}).get("confidence"),
             "probs_1x2": ((r["predictions"] or {}).get("probabilities", {}).get("1X2")
                           or (r["predictions"] or {}).get("probabilities", {}).get("Vencedor")),
@@ -362,9 +375,7 @@ def opportunities(r: dict, n: int = 3) -> list[dict]:
     (a no-vig market reference exists) and pass both checks: not a probable data error or stale price, and not a
     model estimate far from the market. Those would top the ranking with value that is not really there."""
     ident = r["identification"]
-    flags = (mk.OUTLIER_TEXT, mk.DIVERGENCE_TEXT)
-    rows = [x for x in r["markets"] if x["ev"] is not None and x["ev"] > 0 and x["market_prob_no_vig"] is not None
-            and not any(f in reason for f in flags for reason in x["reasons"])]
+    rows = [x for x in checkable(r["markets"]) if x["ev"] > 0]
     rows.sort(key=lambda x: x["ev"], reverse=True)
     return [{"label": pick_label(x["market"], x["selection"], ident["home"], ident["away"], ident["sport"]),
              "odds": x["best_odds"], "bookmaker": x["bookmaker"], "licensed_pt": x.get("licensed_pt", False),
