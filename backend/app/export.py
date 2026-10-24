@@ -34,8 +34,9 @@ def export(out: Path) -> dict:
     fx = fx[fx.Div.isin(settings.league_list)]
     odds_api_io.prefetch([r for _, r in fx.iterrows()])
     summaries = []
-    # both log the prediction and odds snapshot, like the API; football first so it gets the Odds API budget first
-    for report in [analysis.analyze(row, meta) for _, row in fx.iterrows()] + sports.reports():
+    # both log the prediction and odds snapshot, like the API. Other sports first: they get the scarce Odds API
+    # credits before football-data leagues, which already carry odds from six bookmakers in their CSVs.
+    for report in sports.reports() + [analysis.analyze(row, meta) for _, row in fx.iterrows()]:
         report["alerts"] = db.odds_moves(report["key"])
         _write(data / "match" / f"{slug(report['key'])}.json", report)
         summaries.append(analysis.summarize(report))

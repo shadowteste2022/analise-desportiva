@@ -25,11 +25,25 @@ LEAGUE_NAMES = {
     "G1": "Grécia — Super League", "SC0": "Escócia — Premiership", "SC1": "Escócia — Championship",
     "SC2": "Escócia — League One", "SC3": "Escócia — League Two",
 }
+# Extra leagues, published in another format (one file per league with every season, closing odds only;
+# fixtures in new_league_fixtures.csv with pre-match 1X2 odds). Code -> (Country column, name).
+NEW_LEAGUES = {
+    "ARG": ("Argentina", "Argentina — Liga Profesional"), "AUT": ("Austria", "Áustria — Bundesliga"),
+    "BRA": ("Brazil", "Brasil — Série A"), "CHN": ("China", "China — Super League"),
+    "DNK": ("Denmark", "Dinamarca — Superliga"), "FIN": ("Finland", "Finlândia — Veikkausliiga"),
+    "IRL": ("Ireland", "Irlanda — Premier Division"), "JPN": ("Japan", "Japão — J1 League"),
+    "MEX": ("Mexico", "México — Liga MX"), "NOR": ("Norway", "Noruega — Eliteserien"),
+    "POL": ("Poland", "Polónia — Ekstraklasa"), "ROU": ("Romania", "Roménia — Superliga"),
+    "RUS": ("Russia", "Rússia — Premier League"), "SWE": ("Sweden", "Suécia — Allsvenskan"),
+    "SWZ": ("Switzerland", "Suíça — Super League"), "USA": ("USA", "EUA — MLS"),
+}
+LEAGUE_NAMES.update({code: name for code, (_, name) in NEW_LEAGUES.items()})
+NEW_RENAME = {"Home": "HomeTeam", "Away": "AwayTeam", "HG": "FTHG", "AG": "FTAG", "Res": "FTR"}
 # Named bookmakers in the CSVs (Max/Avg are market aggregates, BFE is an exchange before commission).
 BOOKMAKERS = {"B365": "Bet365", "BFD": "Betfred", "BV": "BetVictor", "BW": "Betway",
               "PP": "Paddy Power", "SKB": "Sky Bet", "BFE": "Betfair Exchange"}
 REQUIRED = ["Div", "Date", "HomeTeam", "AwayTeam"]
-TEXT_COLS = ("Div", "Date", "Time", "HomeTeam", "AwayTeam", "FTR", "HTR", "Referee")
+TEXT_COLS = ("Div", "Date", "Time", "HomeTeam", "AwayTeam", "FTR", "HTR", "Referee", "Country", "League", "Season")
 ODDS_PREFIXES = tuple(BOOKMAKERS) + ("Max", "Avg")
 
 
@@ -49,7 +63,7 @@ def _fetch(url: str, name: str, ttl_hours: float) -> tuple[pd.DataFrame, dict]:
         try:
             r = httpx.get(url, follow_redirects=True, timeout=30)
             r.raise_for_status()
-            if not r.content.lstrip(b"\xef\xbb\xbf").startswith(b"Div"):
+            if not r.content.lstrip(b"\xef\xbb\xbf").startswith((b"Div", b"Country")):
                 raise ValueError("resposta não parece um CSV do football-data")
             path.write_bytes(r.content)
         except (httpx.HTTPError, ValueError) as e:
@@ -64,6 +78,10 @@ def _fetch(url: str, name: str, ttl_hours: float) -> tuple[pd.DataFrame, dict]:
         text = raw.decode("latin-1")
     df = pd.read_csv(io.StringIO(text), on_bad_lines="skip")
     df = df.loc[:, ~df.columns.str.startswith("Unnamed")]
+    if "Div" not in df.columns and "Country" in df.columns:  # extra-leagues format -> main format
+        codes = {country: code for code, (country, _) in NEW_LEAGUES.items()}
+        df = df.rename(columns=NEW_RENAME)
+        df.insert(0, "Div", df.Country.map(codes))
     missing = [c for c in REQUIRED if c not in df.columns]
     if missing:
         raise ValueError(f"{name}: colunas em falta {missing}")
@@ -87,6 +105,8 @@ def clean(df: pd.DataFrame) -> pd.DataFrame:
 def load_results(league: str, today: date | None = None, seasons: int | None = None) -> tuple[pd.DataFrame, dict]:
     """All played matches for the last `seasons` (default `seasons_back`) seasons, sorted by date."""
     today = today or date.today()
+    if league in NEW_LEAGUES:
+        return _load_new_results(league, today, seasons or settings.seasons_back)
     current = season_codes(today, 1)[0]
     frames, metas = [], []
     for code in season_codes(today, seasons or settings.seasons_back):
@@ -108,6 +128,19 @@ def load_results(league: str, today: date | None = None, seasons: int | None = N
     return df, meta
 
 
+def _load_new_results(league: str, today: date, seasons: int) -> tuple[pd.DataFrame, dict]:
+    """Extra leagues: one file with every season. Some play calendar-year seasons (Brazil, MLS), so the window is
+    the last `seasons` years by date rather than by season code."""
+    df, meta = _fetch(f"{BASE}/new/{league}.csv", f"new_{league}.csv", settings.results_ttl_hours)
+    df = clean(df).dropna(subset=["FTHG", "FTAG"])
+    df = df[(df.FTHG >= 0) & (df.FTAG >= 0) & (df.Date >= pd.Timestamp(today) - pd.DateOffset(years=seasons))]
+    if df.empty:
+        raise RuntimeError(f"Sem resultados recentes para {league}")
+    df = df.sort_values("Date").reset_index(drop=True)
+    return df, {"source": SOURCE, "files": [meta], "matches": len(df),
+                "last_result": df.Date.max().date().isoformat(), "stale": meta["stale"]}
+
+
 def kickoffs(df: pd.DataFrame) -> pd.Series:
     """Kick-off as an aware timestamp. football-data times are UK time, which matches Lisbon all year."""
     when = df.Date.dt.strftime("%Y-%m-%d") + " " + df.get("Time", pd.Series(index=df.index, dtype=object)).fillna("23:59")
@@ -125,6 +158,11 @@ def upcoming(df: pd.DataFrame, now: pd.Timestamp | None = None, grace_hours: flo
 def load_fixtures() -> tuple[pd.DataFrame, dict]:
     """Upcoming matches (next days) for all covered leagues, with pre-match odds."""
     df, meta = _fetch(f"{BASE}/fixtures.csv", "fixtures.csv", settings.fixtures_ttl_hours)
+    try:
+        extra, _ = _fetch(f"{BASE}/new_league_fixtures.csv", "new_league_fixtures.csv", settings.fixtures_ttl_hours)
+        df = pd.concat([df, extra.dropna(subset=["Div"])], ignore_index=True)
+    except (RuntimeError, ValueError) as e:  # the main leagues must still load if the extra file fails
+        log.warning("Jogos das ligas extra indisponíveis: %s", e)
     return upcoming(clean(df)).sort_values(["Date", "Time"]).reset_index(drop=True), meta
 
 

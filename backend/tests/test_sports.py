@@ -54,19 +54,48 @@ def test_describe_tennis():
     assert sports.describe("icehockey_nhl") == ("Hóquei no gelo", "NHL")
 
 
-def test_sport_keys_expand_active_tournaments(monkeypatch):
+CATALOG = {
+    "basketball_nba": {"group": "Basketball", "title": "NBA", "description": "US Basketball", "has_outrights": False},
+    "basketball_wnba": {"group": "Basketball", "title": "WNBA", "description": "US Basketball", "has_outrights": False},
+    "soccer_uefa_womens_champions_league": {"group": "Soccer", "title": "UEFA Women's Champions League",
+                                            "description": "", "has_outrights": False},
+    "soccer_epl": {"group": "Soccer", "title": "EPL", "description": "", "has_outrights": False},
+    "golf_masters_tournament_winner": {"group": "Golf", "title": "Masters", "description": "", "has_outrights": True},
+    "politics_us_presidential_election_winner": {"group": "Politics", "title": "US", "description": "",
+                                                 "has_outrights": False},
+    "tennis_atp_paris_masters": {"group": "Tennis", "title": "ATP Paris Masters", "description": "",
+                                 "has_outrights": False},
+}
+
+
+def test_sport_keys(monkeypatch):
     monkeypatch.setattr(odds_api, "_refresh_quota", lambda: None)
-    monkeypatch.setattr(odds_api, "active", ["tennis_atp_paris_masters", "tennis_wta_finals", "basketball_nba"])
+    monkeypatch.setattr(odds_api, "catalog", CATALOG)
+    monkeypatch.setattr(odds_api, "active", list(CATALOG))
+    monkeypatch.setattr(settings, "other_sports", "*")
+    # all match-market competitions; no outrights, no politics, no football league already from football-data
+    assert sports.sport_keys() == ["basketball_nba", "basketball_wnba", "soccer_uefa_womens_champions_league",
+                                   "tennis_atp_paris_masters"]
     monkeypatch.setattr(settings, "other_sports", "basketball_nba,tennis_atp_")
     assert sports.sport_keys() == ["basketball_nba", "tennis_atp_paris_masters"]
 
 
-def test_reports_keep_only_upcoming(monkeypatch):
+def test_names_in_portuguese_and_women_marked(monkeypatch):
+    monkeypatch.setattr(odds_api, "catalog", CATALOG)
+    assert sports.describe("basketball_wnba") == ("Basquetebol", "WNBA (Feminino)")
+    assert sports.describe("soccer_uefa_womens_champions_league") == ("Futebol", "UEFA Women's Champions League (Feminino)")
+    assert sports.describe("basketball_nba") == ("Basquetebol", "NBA")
+
+
+def test_reports_list_all_fixtures_and_price_what_fits(monkeypatch):
     now = pd.Timestamp.now(tz="UTC")
-    events = [nba_event((now - pd.Timedelta(hours=5)).isoformat()), nba_event((now + pd.Timedelta(hours=3)).isoformat()),
-              nba_event((now + pd.Timedelta(days=30)).isoformat())]
+    evs = [{**nba_event((now + pd.Timedelta(hours=h)).isoformat()), "id": f"e{h}"} for h in (-5, 3, 6, 24 * 30)]
+    fixtures = [{k: v for k, v in e.items() if k != "bookmakers"} for e in evs]  # /events has no odds
     monkeypatch.setattr(settings, "odds_api_key", "test")
     monkeypatch.setattr(sports, "sport_keys", lambda: ["basketball_nba"])
-    monkeypatch.setattr(odds_api, "fetch_sport", lambda k: events)
+    monkeypatch.setattr(odds_api, "events", lambda k: fixtures)
+    monkeypatch.setattr(odds_api, "fetch_sport", lambda k: [evs[1]])  # budget only priced the e3 game
     out = sports.reports(log=False)
-    assert len(out) == 1
+    assert len(out) == 2  # past and +30 days dropped
+    with_odds = [r for r in out if r["markets"]]
+    assert len(with_odds) == 1 and out[1]["recommendation"]["kind"] == "sem_dados"

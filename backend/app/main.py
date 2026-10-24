@@ -115,7 +115,7 @@ def backtests():
 async def run_backtest(test_seasons: int = Query(backtest.TEST_SEASONS, ge=2, le=10)):
     """All configured leagues at once: the combination weights are fitted across leagues. Takes minutes."""
     try:
-        reports = await run_in_threadpool(backtest.run_all, settings.league_list, test_seasons)
+        reports = await run_in_threadpool(backtest.run_all, backtest.backtestable(), test_seasons)
     except (RuntimeError, ValueError) as e:
         raise HTTPException(422, str(e))
     return [{k: r[k] for k in ("league", "period", "predictions", "accuracy", "warnings")} for r in reports]

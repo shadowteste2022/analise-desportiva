@@ -24,6 +24,12 @@ BLEND_MIN_PREDICTIONS = 200
 SELS = {"1X2": ["1", "X", "2"], "OU2.5": ["Mais", "Menos"], "BTTS": ["Sim", "Não"]}
 
 
+def backtestable() -> list[str]:
+    """Leagues with pre-match and closing average odds per season. The extra leagues only publish closing odds,
+    so the model+market combination cannot be validated on them; they stay unvalidated (no VALOR POTENCIAL)."""
+    return [lg for lg in settings.league_list if lg not in fd.NEW_LEAGUES]
+
+
 def _season(d: pd.Series) -> pd.Series:
     return d.dt.year.where(d.dt.month >= 7, d.dt.year - 1)
 
@@ -333,7 +339,7 @@ def load_all() -> list[dict]:
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("leagues", nargs="*", default=settings.league_list)
+    ap.add_argument("leagues", nargs="*", default=backtestable())
     ap.add_argument("--test-seasons", type=int, default=TEST_SEASONS)
     ap.add_argument("--compare-xg", type=float, metavar="W",
                     help="compara o modelo só-golos com o modelo com peso W de xG (não grava nada)")

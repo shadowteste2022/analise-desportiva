@@ -34,22 +34,53 @@ def is_other_sport(key: str) -> bool:
     return "_" in key.split("|")[0]
 
 
+GROUP_PT = {"Soccer": "Futebol", "Basketball": "Basquetebol", "Ice Hockey": "Hóquei no gelo", "Baseball": "Basebol",
+            "Tennis": "Ténis", "American Football": "Futebol americano", "Aussie Rules": "Futebol australiano",
+            "Rugby League": "Râguebi (league)", "Rugby Union": "Râguebi", "Cricket": "Críquete",
+            "Mixed Martial Arts": "MMA", "Boxing": "Boxe", "Handball": "Andebol", "Volleyball": "Voleibol",
+            "Lacrosse": "Lacrosse", "Golf": "Golfe", "Darts": "Dardos", "Snooker": "Snooker", "Table Tennis": "Ténis de mesa"}
+EXCLUDED_GROUPS = {"Politics"}  # not sport
+INDIVIDUAL = {"Ténis", "MMA", "Boxe", "Dardos", "Snooker", "Ténis de mesa", "Golfe"}  # no home venue
+
+
+def is_women(*texts: str) -> bool:
+    t = " ".join(texts).lower()
+    return "women" in t or "wnba" in t or "wta" in t or "female" in t or "ladies" in t
+
+
 def describe(key: str) -> tuple[str, str]:
-    if key in NAMES:
-        return NAMES[key]
-    if key.startswith("tennis_"):  # e.g. tennis_atp_paris_masters -> ATP Paris Masters
+    """(sport, competition) in Portuguese, women's competitions marked."""
+    info = odds_api.catalog.get(key)
+    if info:
+        sport = GROUP_PT.get(info.get("group", ""), info.get("group", ""))
+        comp = info.get("title") or key
+    elif key in NAMES:
+        sport, comp = NAMES[key]
+    elif key.startswith("tennis_"):  # e.g. tennis_atp_paris_masters -> ATP Paris Masters
         tour, *rest = key.split("_")[1:]
-        return "Ténis", " ".join([tour.upper()] + [w.capitalize() for w in rest])
-    return key.split("_")[0].capitalize(), key
+        sport, comp = "Ténis", " ".join([tour.upper()] + [w.capitalize() for w in rest])
+    else:
+        sport, comp = key.split("_")[0].capitalize(), key
+    if is_women(key, comp, (info or {}).get("description", "")) and "femin" not in comp.lower():
+        comp += " (Feminino)"
+    return sport, comp
 
 
 def sport_keys() -> list[str]:
-    """Configured sports; entries ending in "_" expand to every tournament the API reports as active."""
-    odds_api._refresh_quota()  # also fills odds_api.active, at no credit cost
+    """Configured sports. "*" = every in-season competition with match markets (outright-only ones, like golf
+    winners, are left out) except the football leagues already covered by football-data; entries ending in "_"
+    expand to every active key with that prefix."""
+    odds_api._refresh_quota()  # also fills odds_api.active/catalog, at no credit cost
+    covered = set(odds_api.SPORTS.values())
     keys = []
     for k in (x.strip() for x in settings.other_sports.split(",") if x.strip()):
-        keys += sorted(a for a in odds_api.active if a.startswith(k)) if k.endswith("_") else [k]
-    return keys
+        if k == "*":
+            keys += sorted(s for s, info in odds_api.catalog.items()
+                           if not info.get("has_outrights") and info.get("group") not in EXCLUDED_GROUPS
+                           and s not in covered)
+        else:
+            keys += sorted(a for a in odds_api.active if a.startswith(k)) if k.endswith("_") else [k]
+    return list(dict.fromkeys(keys))
 
 
 def event_odds(ev: dict) -> tuple[dict, str | None]:
@@ -112,9 +143,10 @@ def analyze(ev: dict, sport_key: str, log: bool = True) -> dict:
         "identification": {"sport": sport, "league": sport_key, "competition": competition, "home": home,
                            "away": away, "date": kick.date().isoformat(), "time": kick.strftime("%H:%M"),
                            "kickoff": kick.isoformat(),
-                           "venue": "—" if sport == "Ténis" else f"Casa de {home} (pavilhão/estádio não indicado)"},
+                           "venue": "—" if sport in INDIVIDUAL else f"Casa de {home} (pavilhão/estádio não indicado)"},
         "data_status": {"odds": [{"source": "the-odds-api.com", "fetched_at": last,
-                                  "note": f"odds de {n_books} casas"}],
+                                  "note": f"odds de {n_books} casas" if n_books else
+                                  "sem odds nesta atualização (orçamento de créditos ou casas ainda sem preço)"}],
                         "bookmakers": n_books, "confidence": conf, "model_validation": validation,
                         "analysed_at": datetime.now(timezone.utc).isoformat(timespec="seconds")},
         "statistics": None,
@@ -135,19 +167,30 @@ def analyze(ev: dict, sport_key: str, log: bool = True) -> dict:
     return report
 
 
+def _in_window(ev: dict, now: pd.Timestamp) -> bool:
+    try:
+        start = pd.Timestamp(ev["commence_time"])
+    except (KeyError, ValueError, TypeError):
+        return False
+    return now - pd.Timedelta(hours=2) < start < now + pd.Timedelta(days=HORIZON_DAYS)
+
+
 def reports(log: bool = True) -> list[dict]:
-    """Upcoming events (from 2 h ago to HORIZON_DAYS ahead) for every configured sport, soonest first."""
+    """Every upcoming event (from 2 h ago to HORIZON_DAYS ahead) of every configured sport. Fixtures come from the
+    free /events endpoint; odds are then requested sport by sport, soonest event first, within the credit budget.
+    Events whose odds did not fit in the budget are still listed, without odds."""
     if not odds_api.enabled():
         return []
     now = pd.Timestamp.now(tz=timezone.utc)
+    fixtures = {sk: [e for e in odds_api.events(sk) if _in_window(e, now)] for sk in sport_keys()}
+    order = sorted((sk for sk, evs in fixtures.items() if evs),
+                   key=lambda sk: min(pd.Timestamp(e["commence_time"]) for e in fixtures[sk]))
     out = []
-    for sk in sport_keys():
-        for ev in odds_api.fetch_sport(sk):
+    for sk in order:
+        priced = {e.get("id"): e for e in odds_api.fetch_sport(sk)}
+        for ev in fixtures[sk]:
             try:
-                start = pd.Timestamp(ev["commence_time"])
-                if not (now - pd.Timedelta(hours=2) < start < now + pd.Timedelta(days=HORIZON_DAYS)):
-                    continue
-                out.append(analyze(ev, sk, log))
+                out.append(analyze(priced.get(ev.get("id")) or {**ev, "bookmakers": []}, sk, log))
             except (KeyError, ValueError, TypeError):  # one malformed event must not hide the rest
                 continue
     return sorted(out, key=lambda r: (r["identification"]["date"], r["identification"]["time"]))

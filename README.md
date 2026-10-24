@@ -153,8 +153,20 @@ Grécia; Escócia (Premiership, Championship, League One). Configurável em `LEA
 O `fixtures.csv` só é republicado cerca de duas vezes por semana e mantém os jogos já disputados até lá. A app esconde
 os jogos que começaram há mais de 2 horas (hora de Lisboa, que é a mesma do Reino Unido usada pela fonte).
 
-**Outras modalidades (`OTHER_SPORTS`):** basquetebol (NBA, Euroleague), hóquei no gelo (NHL), basebol (MLB) e ténis
-(todos os torneios ATP/WTA que a The Odds API indicar como ativos).
+**Futebol, mais 16 ligas** (formato "extra" do football-data, com o mesmo modelo e estatísticas): Brasil,
+Argentina, EUA (MLS), México, Japão, China, Áustria, Suíça, Dinamarca, Noruega, Suécia, Finlândia, Polónia, Roménia,
+Irlanda e Rússia. O histórico destas ligas só tem odds de fecho, por isso ficam fora do backtest e nunca são validadas.
+
+**Todas as outras modalidades e competições (`OTHER_SPORTS=*`):** cada execução pede à The Odds API a lista de
+competições em época (grátis). Entram todas, masculinas e femininas: futebol de todo o mundo (Champions League, ligas
+femininas…), basquetebol, hóquei, basebol, ténis ATP/WTA, futebol americano, râguebi, críquete, MMA, boxe, etc. Só
+ficam de fora os mercados de vencedor final (golfe, apostas de longo prazo) e a política.
+- **Jogos:** vêm do endpoint `/events`, que não gasta créditos, por isso **aparecem todos**.
+- **Odds:** gastam créditos. São pedidas competição a competição, a começar pelo jogo mais próximo, até ao limite do
+  orçamento. As modalidades sem outra fonte de odds têm prioridade sobre as ligas do football-data, que já trazem odds
+  de 6 casas nos CSVs. Jogos sem odds aparecem como "sem odds".
+- **Confirmação de que é grátis:** se o `/events` alguma vez gastar créditos (cabeçalho `x-requests-last`), deixa de
+  ser chamado.
 - **Probabilidades:** não há fonte grátis com histórico de resultados e odds como o football-data, por isso ainda não
   há modelo estatístico próprio. As probabilidades são o **consenso das casas sem margem** (Shin sobre a odd média).
 - **Valor:** o "valor" mostrado é a melhor odd face a esse consenso. Sem backtest, nunca aparece `VALOR POTENCIAL`.

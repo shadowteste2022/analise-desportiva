@@ -89,7 +89,7 @@ document.getElementById('gate-ok').onclick = () => { store.set('age-ok', '1'); d
 function oddsApiNote(q) {
   if (!q || !q.enabled) return '';
   if (q.used == null) return `Odds ao vivo: quota da The Odds API indisponível${q.error ? ` (${esc(q.error)})` : ''}, a usar as últimas odds guardadas. `;
-  return `Odds ao vivo (The Odds API): ${q.used} de ${q.budget} créditos usados neste período${q.skipped.length ? `; adiadas para respeitar o orçamento: ${q.skipped.map(esc).join(', ')} (mostram as últimas odds guardadas)` : ''}. `;
+  return `Odds ao vivo (The Odds API): ${q.used} de ${q.budget ?? '—'} créditos usados neste período${q.skipped.length ? `; ${q.skipped.length} competições ficaram para as próximas atualizações para respeitar o orçamento (mostram as últimas odds guardadas ou "sem odds")` : ''}. `;
 }
 let fixturesCache = null;
 async function viewFixtures() {
@@ -97,19 +97,22 @@ async function viewFixtures() {
   fixturesCache = data;
   const f = JSON.parse(store.get('filters') || '{}');
   const sports = [...new Set(data.fixtures.map(x => x.sport))].sort((a, b) => (a !== 'Futebol') - (b !== 'Futebol') || a.localeCompare(b));
-  const comps = [...new Map(data.fixtures.map(x => [x.league, x])).values()];  // filter options from the data itself
+  const comps = [...new Map(data.fixtures.map(x => [x.league, x])).values()]  // filter options from the data itself
+    .sort((a, b) => (a.sport !== 'Futebol') - (b.sport !== 'Futebol') || a.sport.localeCompare(b.sport) || a.competition.localeCompare(b.competition));
+  const PAGE = 150;
+  let limit = PAGE;
   $app.innerHTML = `<div class="card"><h2>Próximos jogos</h2>
     <div class="filters">
       <select id="f-sport"><option value="">Todas as modalidades</option>${sports.map(s => `<option>${esc(s)}</option>`).join('')}</select>
       <select id="f-league"><option value="">Todas as competições</option>${comps.map(x => `<option value="${esc(x.league)}" data-sport="${esc(x.sport)}">${esc(x.competition)}</option>`).join('')}</select>
       <select id="f-cat"><option value="">Todas as categorias</option>${['VALOR POTENCIAL','VALOR INCONCLUSIVO','SEM VALOR IDENTIFICADO','SEM DADOS SUFICIENTES'].map(c => `<option>${c}</option>`).join('')}</select>
-      <input id="f-q" placeholder="Pesquisar equipa">
+      <input id="f-q" placeholder="Pesquisar equipa ou jogador">
       <select id="f-sort"><option value="date">Ordenar por data</option><option value="ev">Ordenar por EV</option></select>
     </div><div class="tbl" id="fx"></div>
     <p class="small muted">${data.generated_at ? `<b>Análises atualizadas ${esc(new Date(data.generated_at).toLocaleString('pt-PT'))}</b> (de hora a hora). ` : ''}${oddsApiNote(data.odds_api)}Fonte: ${esc(data.source.source)} · obtido ${esc(new Date(data.source.fetched_at).toLocaleString('pt-PT'))}${data.source.stale ? ' · <b>cache desatualizada</b>' : ''}.
     A categoria mostrada é a melhor entre os mercados do jogo. Confiança = robustez da amostra, não probabilidade do resultado.</p></div>
     <div class="card"><h2>Alertas de variação de odds</h2><div id="alerts" class="small muted">A carregar…</div></div>`;
-  for (const k of ['sport','league','cat','q','sort']) { const el = document.getElementById('f-' + k); if (f[k]) el.value = f[k]; el.oninput = render; }
+  for (const k of ['sport','league','cat','q','sort']) { const el = document.getElementById('f-' + k); if (f[k]) el.value = f[k]; el.oninput = () => { limit = PAGE; render(); }; }
   function render() {
     const s = {sport: v('sport'), league: v('league'), cat: v('cat'), q: v('q').toLowerCase(), sort: v('sort')};
     store.set('filters', JSON.stringify(s));
@@ -122,14 +125,19 @@ async function viewFixtures() {
       && (!s.cat || x.category === s.cat) && (!s.q || (x.home + ' ' + x.away).toLowerCase().includes(s.q)));
     if (s.sort === 'ev') rows.sort((a, b) => (b.best?.ev ?? -9) - (a.best?.ev ?? -9));
     else rows.sort((a, b) => (a.date + (a.time || '')).localeCompare(b.date + (b.time || '')));
-    document.getElementById('fx').innerHTML = rows.length ? `<table><tr><th>Data</th><th>Competição</th><th>Jogo</th><th>Prob. 1 / X / 2</th>
+    const total = rows.length;
+    rows = rows.slice(0, limit);  // hundreds of games across all sports: render a page at a time
+    document.getElementById('fx').innerHTML = rows.length ? `<p class="small muted">${total} jogos</p><table><tr><th>Data</th><th>Competição</th><th>Jogo</th><th>Prob. 1 / X / 2</th>
       <th>Melhor aposta</th><th>Categoria</th><th>Confiança</th></tr>${rows.map(x => `<tr class="click" data-key="${esc(x.key)}">
-      <td>${esc(x.date)} ${esc(x.time || '')}</td><td>${x.sport === 'Futebol' ? esc(x.league) : `${esc(x.competition)} <span class="muted small">${esc(x.sport)}</span>`}</td><td><b>${esc(x.home)}</b> – <b>${esc(x.away)}</b></td>
+      <td>${esc(x.date)} ${esc(x.time || '')}</td><td>${esc(x.competition)}${x.sport === 'Futebol' ? '' : ` <span class="muted small">${esc(x.sport)}</span>`}</td><td><b>${esc(x.home)}</b> – <b>${esc(x.away)}</b></td>
       <td>${x.probs_1x2 ? [x.probs_1x2['1'], x.probs_1x2.X, x.probs_1x2['2']].filter(p => p != null).map(p => pct(p, 0)).join(' / ') : '—'}</td>
       <td>${x.pick ? `<b>${esc(x.pick.label)}</b> @ ${num(x.pick.odds)} (${sign(x.pick.ev)})`
         : x.best ? `Nenhuma <span class="muted small">(melhor EV ${sign(x.best.ev)})</span>` : '—'}</td>
-      <td>${badge(x.category)}</td><td>${esc(x.confidence || '—')}</td></tr>`).join('')}</table>` : '<p class="muted">Sem jogos para estes filtros.</p>';
+      <td>${badge(x.category)}</td><td>${esc(x.confidence || '—')}</td></tr>`).join('')}</table>
+      ${total > limit ? `<p><button id="more">Mostrar mais (${total - limit} restantes)</button></p>` : ''}` : '<p class="muted">Sem jogos para estes filtros.</p>';
     document.querySelectorAll('tr.click').forEach(tr => tr.onclick = () => location.hash = '#/match/' + encodeURIComponent(tr.dataset.key));
+    const more = document.getElementById('more');
+    if (more) more.onclick = () => { limit += PAGE; render(); };
   }
   const v = k => document.getElementById('f-' + k).value;
   render();

@@ -186,8 +186,10 @@ def pick_label(market: str, sel: str, home: str, away: str, sport: str = "Futebo
     if market == "BTTS":
         return "Ambas marcam" if sel == "Sim" else "Não marcam ambas"
     if market.startswith("OU"):
-        unit = "golos" if sport in ("Futebol", "Hóquei no gelo") else "pontos" if sport == "Basquetebol" else \
-            "jogos" if sport == "Ténis" else "corridas" if sport == "Basebol" else ""
+        unit = {"Futebol": "golos", "Hóquei no gelo": "golos", "Andebol": "golos", "Basquetebol": "pontos",
+                "Futebol americano": "pontos", "Futebol australiano": "pontos", "Râguebi": "pontos",
+                "Râguebi (league)": "pontos", "Ténis": "jogos", "Basebol": "corridas", "Críquete": "corridas",
+                "MMA": "rondas", "Boxe": "rondas", "Voleibol": "pontos"}.get(sport, "")
         return f"{sel} de {market[2:]} {unit}".strip()
     return f"{market} {sel}"
 

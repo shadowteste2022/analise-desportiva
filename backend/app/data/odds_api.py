@@ -26,9 +26,17 @@ SPORTS = {"E0": "soccer_epl", "SP1": "soccer_spain_la_liga", "I1": "soccer_italy
           "E1": "soccer_efl_champ", "E2": "soccer_england_league1", "E3": "soccer_england_league2",
           "SP2": "soccer_spain_segunda_division", "I2": "soccer_italy_serie_b", "D2": "soccer_germany_bundesliga2",
           "F2": "soccer_france_ligue_two", "B1": "soccer_belgium_first_div", "SC0": "soccer_spl",
-          "T1": "soccer_turkey_super_league", "G1": "soccer_greece_super_league"}
+          "T1": "soccer_turkey_super_league", "G1": "soccer_greece_super_league",
+          "BRA": "soccer_brazil_campeonato", "ARG": "soccer_argentina_primera_division", "USA": "soccer_usa_mls",
+          "MEX": "soccer_mexico_ligamx", "JPN": "soccer_japan_j_league", "CHN": "soccer_china_superleague",
+          "AUT": "soccer_austria_bundesliga", "SWZ": "soccer_switzerland_superleague",
+          "DNK": "soccer_denmark_superliga", "NOR": "soccer_norway_eliteserien", "SWE": "soccer_sweden_allsvenskan",
+          "FIN": "soccer_finland_veikkausliiga", "POL": "soccer_poland_ekstraklasa", "IRL": "soccer_league_of_ireland"}
 _cache: dict[str, tuple[float, list]] = {}
 active: list[str] = []  # sport keys the API reports as in season, from /sports
+catalog: dict[str, dict] = {}  # key -> {group, title, description, has_outrights} for the active sports
+_events_cache: dict[str, tuple[float, list]] = {}
+_events_free = [True]  # set to False if /events ever reports a cost; then it is never called again
 quota = {"remaining": None, "used": None, "budget": None, "allowed_now": None, "skipped": [], "error": None}
 
 
@@ -63,7 +71,9 @@ def _refresh_quota() -> None:
         r = httpx.get(BASE, params={"apiKey": settings.odds_api_key}, timeout=20)
         r.raise_for_status()
         _read_headers(r)
-        active[:] = [s["key"] for s in r.json() if s.get("active")]  # used to find live tennis tournaments
+        sports = [s for s in r.json() if s.get("active")]
+        active[:] = [s["key"] for s in sports]  # in-season sports: nothing else is requested
+        catalog.update({s["key"]: s for s in sports})
     except (httpx.HTTPError, ValueError, KeyError, TypeError) as e:
         if not isinstance(e, httpx.HTTPError):
             quota["error"] = f"resposta inesperada de /sports ({type(e).__name__})"
@@ -115,10 +125,40 @@ def fetch(league: str) -> list[dict]:
     return fetch_sport(sport) if sport else []
 
 
+def events(sport: str) -> list[dict]:
+    """Upcoming events of a sport, without odds. The API documents /events as free (no quota), so every sport's
+    fixtures can be listed even when the odds budget only covers a few; cached like the odds."""
+    if not enabled() or not _events_free[0]:
+        return []
+    hit = _events_cache.get(sport) or _load_disk(f"events_{sport}")
+    if hit and (time.time() - hit[0]) / 3600 < settings.fixtures_ttl_hours:
+        return hit[1]
+    try:
+        r = httpx.get(f"{BASE}/{sport}/events", params={"apiKey": settings.odds_api_key}, timeout=20)
+        _read_headers(r)
+        r.raise_for_status()
+        evs = r.json()
+    except httpx.HTTPError as e:
+        log.warning("The Odds API: jogos de %s indisponíveis (%s)", sport, _error(e))
+        return hit[1] if hit else []
+    except ValueError:
+        return hit[1] if hit else []
+    if float(r.headers.get("x-requests-last", 0) or 0) > 0:  # documented as free; stop at once if that changes
+        _events_free[0] = False
+        log.warning("The Odds API: /events passou a gastar créditos; deixa de ser usado")
+    _events_cache[sport] = (time.time(), evs)
+    _disk(f"events_{sport}").parent.mkdir(parents=True, exist_ok=True)
+    _disk(f"events_{sport}").write_text(json.dumps({"fetched_at": time.time(), "events": evs}), encoding="utf-8")
+    return evs
+
+
 def fetch_sport(sport: str) -> list[dict]:
-    """Raw events for an Odds API sport key: fresh cache, else a paced API call, else the last saved odds if not
-    too old."""
+    """Raw events with odds for an Odds API sport key: fresh cache, else a paced API call, else the last saved odds
+    if not too old."""
     if not enabled():
+        return []
+    _refresh_quota()
+    if catalog and sport not in catalog:  # out of season or unknown key: costs credits for nothing
         return []
     hit = _cache.get(sport) or _load_disk(sport)
     age_h = (time.time() - hit[0]) / 3600 if hit else None
