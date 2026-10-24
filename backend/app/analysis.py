@@ -102,8 +102,9 @@ def evaluate_markets(probs: dict, odds: dict, conf: str | None) -> list[dict]:
     for market, sels in probs.items():
         books = odds.get(market, {})
         avg = books.get(fd.AGGREGATES["Avg"])
-        nv_source = avg if avg and len(avg) == len(sels) else None
-        nv, avg_margin = mk.devig(nv_source) if nv_source else (None, None)
+        avg_margin = mk.devig(avg)[1] if avg and len(avg) == len(sels) else None
+        nv = blend.market_fair(odds, market)  # average price, or the consensus of 2+ bookmakers
+        nv = nv if nv and nv.keys() == sels.keys() else None
         for sel, p in sels.items():
             best, bookie, licensed = _best(books, sel)
             margin = mk.devig(books[bookie])[1] if bookie and len(books[bookie]) == len(sels) else None
@@ -349,11 +350,13 @@ def summarize(r: dict) -> dict:
 
 
 def opportunities(r: dict, n: int = 3) -> list[dict]:
-    """The game's best-EV selections for the day's ranking. Prices flagged as probable data errors or stale odds
-    are left out: they would top the ranking with value that is not really there."""
+    """The game's best-EV selections for the day's ranking. Only selections that can be checked against the market
+    (a no-vig market reference exists) and pass both checks: not a probable data error or stale price, and not a
+    model estimate far from the market. Those would top the ranking with value that is not really there."""
     ident = r["identification"]
-    rows = [x for x in r["markets"] if x["ev"] is not None and x["ev"] > 0
-            and not any(mk.OUTLIER_TEXT in reason for reason in x["reasons"])]
+    flags = (mk.OUTLIER_TEXT, mk.DIVERGENCE_TEXT)
+    rows = [x for x in r["markets"] if x["ev"] is not None and x["ev"] > 0 and x["market_prob_no_vig"] is not None
+            and not any(f in reason for f in flags for reason in x["reasons"])]
     rows.sort(key=lambda x: x["ev"], reverse=True)
     return [{"label": pick_label(x["market"], x["selection"], ident["home"], ident["away"], ident["sport"]),
              "odds": x["best_odds"], "bookmaker": x["bookmaker"], "licensed_pt": x.get("licensed_pt", False),

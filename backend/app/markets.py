@@ -10,6 +10,7 @@ SEM_VALOR = "SEM VALOR IDENTIFICADO"
 SEM_DADOS = "SEM DADOS SUFICIENTES"
 TOTAL_LINES = (0.5, 1.5, 2.5, 3.5, 4.5)
 OUTLIER_TEXT = "acima da odd justa do próprio mercado"  # marks a probable data error in a selection's reasons
+DIVERGENCE_TEXT = "do mercado sem margem"  # marks a model estimate far from the market (probable model error)
 
 
 def market_probs(m: np.ndarray) -> dict[str, dict[str, float]]:
@@ -88,7 +89,7 @@ def classify(p: float | None, odds: float | None, conf: str | None,
         reasons.append(f"odd {odds * market_p - 1:.0%} {OUTLIER_TEXT} — provável erro ou odd desatualizada num operador")
         return INCONCLUSIVO, reasons
     if market_p is not None and abs(p - market_p) > settings.max_market_divergence:
-        reasons.append(f"modelo diverge {abs(p - market_p):.0%} do mercado sem margem — provável informação "
+        reasons.append(f"modelo diverge {abs(p - market_p):.0%} {DIVERGENCE_TEXT} — provável informação "
                        "que o modelo não vê (lesões, rotação, notícias)")
         return INCONCLUSIVO, reasons
     if e < settings.ev_margin:

@@ -31,9 +31,29 @@ def fit(pm: np.ndarray, pk: np.ndarray, y: np.ndarray) -> dict:
     return {"a": round(float(a), 4), "b": round(float(b), 4), "n": len(y)}
 
 
+NOT_BOOKS = set(fd.AGGREGATES.values()) | {"Betfair Exchange"}  # aggregates, and an exchange before commission
+
+
 def market_fair(odds: dict, market: str) -> dict | None:
-    avg = odds.get(market, {}).get(fd.AGGREGATES["Avg"])
-    return mk.devig(avg)[0] if avg else None
+    """No-vig market probabilities: the CSV average price when there is one, otherwise the consensus (average price)
+    of 2+ bookmakers pricing the whole market, e.g. the live lines other than 2.5 goals."""
+    books = odds.get(market, {})
+    avg = books.get(fd.AGGREGATES["Avg"])
+    if not avg:
+        full = [s for b, s in books.items() if b not in NOT_BOOKS]
+        full = [s for s in full if full and s.keys() == full[0].keys()]
+        if len(full) < 2:
+            return None
+        avg = {k: float(np.mean([s[k] for s in full])) for k in full[0]}
+    return mk.devig(avg)[0]
+
+
+def weights_for(weights: dict, market: str) -> dict | None:
+    """Validated weights exist for 1X2 and O/U 2.5 only; other goal lines and BTTS (also two-way goal markets)
+    reuse the O/U 2.5 ones. Either way the backtest gives the model ~zero weight."""
+    if market in weights:
+        return weights[market]
+    return weights.get("OU2.5") if market.startswith("OU") or market == "BTTS" else None
 
 
 def apply(probs: dict, odds: dict, weights: dict | None) -> tuple[dict, list[str]]:
@@ -41,9 +61,10 @@ def apply(probs: dict, odds: dict, weights: dict | None) -> tuple[dict, list[str
     if not weights:
         return probs, []
     out, used = dict(probs), []
-    for market, w in weights.items():
-        fair = market_fair(odds, market)
-        if market not in probs or not fair or fair.keys() != probs[market].keys():
+    for market in probs:
+        w = weights_for(weights, market)
+        fair = market_fair(odds, market) if w else None
+        if not fair or fair.keys() != probs[market].keys():
             continue
         sels = list(probs[market])
         p = combine(np.array([probs[market][s] for s in sels]), np.array([fair[s] for s in sels]), w["a"], w["b"])

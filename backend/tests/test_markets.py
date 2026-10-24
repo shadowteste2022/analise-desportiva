@@ -55,9 +55,9 @@ def test_classify(p, odds, conf, market_p, expected):
     assert mk.classify(p, odds, conf, market_p)[0] == expected
 
 
-def _row(market, sel, p, odds, ev, cat, reasons=("motivo",)):
+def _row(market, sel, p, odds, ev, cat, reasons=("motivo",), market_p=0.5):
     return {"market": market, "selection": sel, "model_prob": p, "best_odds": odds, "bookmaker": "Bk", "ev": ev,
-            "category": cat, "reasons": list(reasons)}
+            "category": cat, "reasons": list(reasons), "market_prob_no_vig": market_p}
 
 
 def test_recommendation_only_with_value():
@@ -83,6 +83,22 @@ def test_opportunities_skip_negative_ev_and_bad_data():
     opps = opportunities(r)
     assert [o["label"] for o in opps] == ["Mais de 2.5 golos", "Ambas marcam"]  # outlier and negative EV left out
     assert opps[0]["licensed_pt"] is False and opps[0]["odds"] == 1.95
+    rows += [_row("OU3.5", "Menos", 0.8, 1.83, 0.46, mk.INCONCLUSIVO, market_p=None),  # nothing to check it against
+             _row("OU1.5", "Mais", 0.9, 1.4, 0.26, mk.INCONCLUSIVO, ["EV", f"modelo diverge 20% {mk.DIVERGENCE_TEXT}"])]
+    assert [o["label"] for o in opportunities(r)] == ["Mais de 2.5 golos", "Ambas marcam"]
+
+
+def test_market_reference_from_bookmaker_consensus():
+    from app.models import blend
+    odds = {"OU3.5": {"A": {"Mais": 3.0, "Menos": 1.40}, "B": {"Mais": 2.8, "Menos": 1.45}},
+            "OU4.5": {"A": {"Mais": 5.0, "Menos": 1.15}}}  # a single bookmaker is no consensus
+    fair = blend.market_fair(odds, "OU3.5")
+    assert sum(fair.values()) == pytest.approx(1) and fair["Menos"] > 0.6
+    assert blend.market_fair(odds, "OU4.5") is None
+    w = {"1X2": {"a": 0, "b": 1}, "OU2.5": {"a": 0.0, "b": 1.0}}
+    assert blend.weights_for(w, "OU3.5") == w["OU2.5"] and blend.weights_for(w, "Vencedor") is None
+    out, used = blend.apply({"OU3.5": {"Mais": 0.1, "Menos": 0.9}}, odds, w)
+    assert used == ["OU3.5"] and out["OU3.5"]["Menos"] == pytest.approx(fair["Menos"])  # a=0 -> market
 
 
 def test_pick_labels():
