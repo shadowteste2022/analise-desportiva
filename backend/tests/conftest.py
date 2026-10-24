@@ -2,7 +2,11 @@ import os
 import tempfile
 
 # Must run before app.config is imported: isolate data and disable external services.
-os.environ.update({"DATA_DIR": tempfile.mkdtemp(), "ADMIN_TOKEN": "test-token", "ODDS_API_KEY": "", "LEAGUES": "T0"})
+# Every setting the tests depend on is pinned here, so variables set by the CI workflow (e.g. ODDS_API_RESET_DAY)
+# cannot change the results.
+os.environ.update({"DATA_DIR": tempfile.mkdtemp(), "ADMIN_TOKEN": "test-token", "ODDS_API_KEY": "", "LEAGUES": "T0",
+                   "ODDS_API_IO_KEY": "", "ODDS_API_RESET_DAY": "1", "ODDS_API_MONTHLY_BUDGET": "500",
+                   "ODDS_API_MIN_REMAINING": "20", "OTHER_SPORTS": "*", "DEVIG_METHOD": "shin", "XG_WEIGHT": "0"})
 
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
