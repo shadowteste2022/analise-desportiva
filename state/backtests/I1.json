@@ -1,7 +1,7 @@
 {
  "league": "I1",
  "competition": "Itália — Serie A",
- "run_at": "2026-10-24T12:31:00+00:00",
+ "run_at": "2026-10-24T14:08:39+00:00",
  "params": {
   "test_seasons": 8,
   "xi": 0.0019,
@@ -22,12 +22,12 @@
   "1X2": {
    "model": {
     "brier": 0.5712,
-    "log_loss": 0.9616,
+    "log_loss": 0.9615,
     "n": 2358
    },
    "model_same_matches": {
     "brier": 0.5712,
-    "log_loss": 0.9616,
+    "log_loss": 0.9615,
     "n": 2357
    },
    "dixon_coles_only": {
@@ -48,13 +48,13 @@
   },
   "OU2.5": {
    "model": {
-    "brier": 0.4898,
-    "log_loss": 0.683,
+    "brier": 0.4897,
+    "log_loss": 0.6829,
     "n": 2358
    },
    "model_same_matches": {
-    "brier": 0.4898,
-    "log_loss": 0.683,
+    "brier": 0.4897,
+    "log_loss": 0.6829,
     "n": 2356
    },
    "dixon_coles_only": {
@@ -84,14 +84,14 @@
  "by_season": {
   "2020/21": {
    "n": 468,
-   "final": 0.9315,
+   "final": 0.9319,
    "dixon_coles": 0.9536,
    "prematch": 0.9301,
    "closing": 0.9268
   },
   "2021/22": {
    "n": 358,
-   "final": 0.9851,
+   "final": 0.9849,
    "dixon_coles": 0.997,
    "prematch": 0.9851,
    "closing": 0.9795
@@ -105,14 +105,14 @@
   },
   "2023/24": {
    "n": 370,
-   "final": 0.9666,
+   "final": 0.966,
    "dixon_coles": 0.9831,
    "prematch": 0.9669,
    "closing": 0.9654
   },
   "2024/25": {
    "n": 361,
-   "final": 0.9393,
+   "final": 0.9391,
    "dixon_coles": 0.9603,
    "prematch": 0.9405,
    "closing": 0.9405
@@ -126,7 +126,7 @@
   },
   "2026/27": {
    "n": 70,
-   "final": 0.9151,
+   "final": 0.9146,
    "dixon_coles": 0.9329,
    "prematch": 0.9169,
    "closing": 0.9212
@@ -136,116 +136,236 @@
   {
    "bin": "0.0-0.1",
    "predicted": 0.0761,
-   "observed": 0.0658,
-   "n": 228
+   "observed": 0.0769,
+   "n": 234
   },
   {
    "bin": "0.1-0.2",
-   "predicted": 0.1589,
-   "observed": 0.1464,
-   "n": 1168
+   "predicted": 0.1583,
+   "observed": 0.1468,
+   "n": 1158
   },
   {
    "bin": "0.2-0.3",
-   "predicted": 0.2572,
-   "observed": 0.2561,
-   "n": 2663
+   "predicted": 0.2567,
+   "observed": 0.2542,
+   "n": 2667
   },
   {
    "bin": "0.3-0.4",
-   "predicted": 0.3539,
-   "observed": 0.3707,
-   "n": 2104
+   "predicted": 0.3543,
+   "observed": 0.3726,
+   "n": 2131
   },
   {
    "bin": "0.4-0.5",
    "predicted": 0.4535,
-   "observed": 0.4534,
-   "n": 4345
+   "observed": 0.4532,
+   "n": 4312
   },
   {
    "bin": "0.5-0.6",
-   "predicted": 0.5456,
+   "predicted": 0.5455,
    "observed": 0.5524,
-   "n": 4245
+   "n": 4209
   },
   {
    "bin": "0.6-0.7",
    "predicted": 0.6367,
-   "observed": 0.6044,
-   "n": 1413
+   "observed": 0.6005,
+   "n": 1462
   },
   {
    "bin": "0.7-0.8",
-   "predicted": 0.7377,
-   "observed": 0.7422,
-   "n": 287
+   "predicted": 0.7384,
+   "observed": 0.7609,
+   "n": 276
   },
   {
    "bin": "0.8-0.9",
-   "predicted": 0.8281,
-   "observed": 0.8302,
-   "n": 53
+   "predicted": 0.8274,
+   "observed": 0.8246,
+   "n": 57
   }
  ],
  "betting": {
   "overall": {
-   "bets": 7,
-   "won": 3,
-   "lost": 4,
-   "profit_units": 14.0,
-   "yield": 2.0,
+   "bets": 22,
+   "won": 5,
+   "lost": 17,
+   "profit_units": 8.83,
+   "yield": 0.4014,
    "yield_ci95": [
-    -0.2143,
-    4.8571
+    -0.6214,
+    1.6365
    ],
-   "max_drawdown_units": 3.0,
-   "avg_odds": 6.62,
-   "avg_clv": 0.1314,
-   "clv_pinnacle_n": 7,
-   "avg_clv_pinnacle": 0.127,
-   "median_clv_pinnacle": 0.1254,
+   "max_drawdown_units": 6.0,
+   "avg_odds": 6.52,
+   "avg_clv": 0.0145,
+   "clv_pinnacle_n": 22,
+   "avg_clv_pinnacle": -0.0022,
+   "median_clv_pinnacle": -0.0398,
    "clv_pinnacle_ci95": [
-    0.0466,
-    0.2263
+    -0.0671,
+    0.0675
    ],
-   "share_beating_pinnacle": 0.8571
+   "share_beating_pinnacle": 0.4091
   },
   "by_market": {
    "1X2": {
-    "bets": 7,
-    "won": 3,
-    "lost": 4,
-    "profit_units": 14.0,
-    "yield": 2.0,
+    "bets": 22,
+    "won": 5,
+    "lost": 17,
+    "profit_units": 8.83,
+    "yield": 0.4014,
     "yield_ci95": [
-     -0.2143,
-     4.8571
+     -0.6214,
+     1.6365
     ],
-    "max_drawdown_units": 3.0,
-    "avg_odds": 6.62,
-    "avg_clv": 0.1314,
-    "clv_pinnacle_n": 7,
-    "avg_clv_pinnacle": 0.127,
-    "median_clv_pinnacle": 0.1254,
+    "max_drawdown_units": 6.0,
+    "avg_odds": 6.52,
+    "avg_clv": 0.0145,
+    "clv_pinnacle_n": 22,
+    "avg_clv_pinnacle": -0.0022,
+    "median_clv_pinnacle": -0.0398,
     "clv_pinnacle_ci95": [
-     0.0466,
-     0.2263
+     -0.0671,
+     0.0675
     ],
-    "share_beating_pinnacle": 0.8571
+    "share_beating_pinnacle": 0.4091
    }
   },
   "equity": [
    -1.0,
    -2.0,
    -3.0,
-   6.0,
-   5.0,
-   9.5,
-   14.0
+   -4.0,
+   -1.0,
+   3.5,
+   2.5,
+   1.5,
+   0.5,
+   6.5,
+   5.5,
+   4.5,
+   3.5,
+   2.5,
+   1.5,
+   0.5,
+   3.83,
+   2.83,
+   1.83,
+   0.83,
+   9.83,
+   8.83
   ]
  },
  "bets": [
+  {
+   "date": "2020-07-07",
+   "match": "Lecce - Lazio",
+   "score": "2-1",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 5.75,
+   "bookmaker": "Betway",
+   "model_prob": 0.18,
+   "ev": 0.0353,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.006659381565154554,
+   "clv_pinnacle": 0.03744627865943073
+  },
+  {
+   "date": "2020-09-30",
+   "match": "Benevento - Inter",
+   "score": "2-5",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 9.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1144,
+   "ev": 0.03,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.12787223323556596,
+   "clv_pinnacle": -0.17313733971414524
+  },
+  {
+   "date": "2020-10-25",
+   "match": "Benevento - Napoli",
+   "score": "1-2",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 6.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1741,
+   "ev": 0.0448,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.12019367851930807,
+   "clv_pinnacle": -0.12584490888794242
+  },
+  {
+   "date": "2020-10-25",
+   "match": "Fiorentina - Udinese",
+   "score": "3-2",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 5.0,
+   "bookmaker": "Betway",
+   "model_prob": 0.2069,
+   "ev": 0.0346,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.21344995505540543,
+   "clv_pinnacle": 0.21833833701572658
+  },
+  {
+   "date": "2020-12-07",
+   "match": "Fiorentina - Genoa",
+   "score": "1-1",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 4.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2578,
+   "ev": 0.0313,
+   "won": true,
+   "profit": 3.0,
+   "clv": -0.03277391787303596,
+   "clv_pinnacle": -0.03653986954020938
+  },
+  {
+   "date": "2020-12-12",
+   "match": "Lazio - Verona",
+   "score": "1-2",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 5.5,
+   "bookmaker": "Betway",
+   "model_prob": 0.1894,
+   "ev": 0.0415,
+   "won": true,
+   "profit": 4.5,
+   "clv": 0.08602457508198746,
+   "clv_pinnacle": 0.10363747543664736
+  },
+  {
+   "date": "2020-12-13",
+   "match": "Cagliari - Inter",
+   "score": "1-3",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 8.25,
+   "bookmaker": "Betway",
+   "model_prob": 0.1263,
+   "ev": 0.042,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.11476135767443352,
+   "clv_pinnacle": -0.18179243503522902
+  },
   {
    "date": "2020-12-23",
    "match": "Roma - Cagliari",
@@ -254,12 +374,57 @@
    "selection": "2",
    "odds": 10.5,
    "bookmaker": "Betway",
-   "model_prob": 0.0989,
-   "ev": 0.0388,
+   "model_prob": 0.1004,
+   "ev": 0.0545,
    "won": false,
    "profit": -1.0,
    "clv": 0.383546141050054,
    "clv_pinnacle": 0.40961604622276293
+  },
+  {
+   "date": "2021-01-03",
+   "match": "Cagliari - Napoli",
+   "score": "1-4",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 7.25,
+   "bookmaker": "Betway",
+   "model_prob": 0.1423,
+   "ev": 0.032,
+   "won": false,
+   "profit": -1.0,
+   "clv": -9.398035895424872e-05,
+   "clv_pinnacle": -0.04315233040042987
+  },
+  {
+   "date": "2021-01-17",
+   "match": "Atalanta - Genoa",
+   "score": "0-0",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 7.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1488,
+   "ev": 0.0414,
+   "won": true,
+   "profit": 6.0,
+   "clv": -0.11250022980482788,
+   "clv_pinnacle": -0.1535942345147292
+  },
+  {
+   "date": "2021-01-17",
+   "match": "Atalanta - Genoa",
+   "score": "0-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 13.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.0804,
+   "ev": 0.0453,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.2101256946878165,
+   "clv_pinnacle": -0.30317238410147673
   },
   {
    "date": "2021-04-03",
@@ -269,12 +434,102 @@
    "selection": "2",
    "odds": 8.0,
    "bookmaker": "Betway",
-   "model_prob": 0.1321,
-   "ev": 0.0572,
+   "model_prob": 0.1344,
+   "ev": 0.0752,
    "won": false,
    "profit": -1.0,
    "clv": 0.11639892147432129,
    "clv_pinnacle": 0.1590676405414544
+  },
+  {
+   "date": "2021-04-03",
+   "match": "Napoli - Crotone",
+   "score": "4-3",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 7.0,
+   "bookmaker": "Betway",
+   "model_prob": 0.1475,
+   "ev": 0.0323,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.02978985510177934,
+   "clv_pinnacle": -0.06379668373002145
+  },
+  {
+   "date": "2021-04-26",
+   "match": "Torino - Napoli",
+   "score": "0-2",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 4.75,
+   "bookmaker": "Bet365",
+   "model_prob": 0.218,
+   "ev": 0.0353,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.20597170638901785,
+   "clv_pinnacle": 0.2197672020753283
+  },
+  {
+   "date": "2021-05-02",
+   "match": "Napoli - Cagliari",
+   "score": "1-1",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 8.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1231,
+   "ev": 0.046,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.12880395888878238,
+   "clv_pinnacle": -0.1458325320003967
+  },
+  {
+   "date": "2021-05-16",
+   "match": "Parma - Sassuolo",
+   "score": "1-3",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 4.75,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2172,
+   "ev": 0.0315,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.10860508249194445,
+   "clv_pinnacle": -0.09386342710629048
+  },
+  {
+   "date": "2021-05-22",
+   "match": "Crotone - Fiorentina",
+   "score": "0-0",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 4.33,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2384,
+   "ev": 0.0324,
+   "won": true,
+   "profit": 3.33,
+   "clv": -0.039780204094913785,
+   "clv_pinnacle": -0.056739975491410743
+  },
+  {
+   "date": "2021-10-22",
+   "match": "Sampdoria - Spezia",
+   "score": "2-1",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 4.5,
+   "bookmaker": "Betway",
+   "model_prob": 0.2294,
+   "ev": 0.0324,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.057924567102926705,
+   "clv_pinnacle": -0.10767981558153428
   },
   {
    "date": "2021-10-23",
@@ -284,12 +539,27 @@
    "selection": "1",
    "odds": 3.75,
    "bookmaker": "Betway",
-   "model_prob": 0.2838,
-   "ev": 0.0644,
+   "model_prob": 0.2844,
+   "ev": 0.0664,
    "won": false,
    "profit": -1.0,
    "clv": 0.04130527215444002,
    "clv_pinnacle": 0.03563054713645619
+  },
+  {
+   "date": "2021-12-06",
+   "match": "Cagliari - Torino",
+   "score": "1-1",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 3.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2946,
+   "ev": 0.031,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.022798338531523354,
+   "clv_pinnacle": -0.006464981551389526
   },
   {
    "date": "2021-12-12",
@@ -299,8 +569,8 @@
    "selection": "2",
    "odds": 10.0,
    "bookmaker": "Bet365",
-   "model_prob": 0.1064,
-   "ev": 0.0643,
+   "model_prob": 0.108,
+   "ev": 0.08,
    "won": true,
    "profit": 9.0,
    "clv": 0.19816349379718945,
@@ -314,42 +584,12 @@
    "selection": "1",
    "odds": 3.1,
    "bookmaker": "Betway",
-   "model_prob": 0.3567,
-   "ev": 0.1059,
+   "model_prob": 0.3565,
+   "ev": 0.1052,
    "won": false,
    "profit": -1.0,
    "clv": 0.12799934815474634,
    "clv_pinnacle": 0.12536084535772485
-  },
-  {
-   "date": "2023-02-26",
-   "match": "Bologna - Inter",
-   "score": "1-0",
-   "market": "1X2",
-   "selection": "1",
-   "odds": 5.5,
-   "bookmaker": "Bet365",
-   "model_prob": 0.1884,
-   "ev": 0.0361,
-   "won": true,
-   "profit": 4.5,
-   "clv": 0.0220593816812531,
-   "clv_pinnacle": 0.025532909544268678
-  },
-  {
-   "date": "2026-01-07",
-   "match": "Napoli - Verona",
-   "score": "2-2",
-   "market": "1X2",
-   "selection": "X",
-   "odds": 5.5,
-   "bookmaker": "Bet365",
-   "model_prob": 0.1879,
-   "ev": 0.0334,
-   "won": true,
-   "profit": 4.5,
-   "clv": 0.030189849789993506,
-   "clv_pinnacle": -0.0005679813170763603
   }
  ],
  "data": {
@@ -358,7 +598,7 @@
  },
  "warnings": [
   "Resultados históricos simulados não garantem desempenho futuro.",
-  "Amostra de 7 apostas é pequena: conclusões sobre rentabilidade não são fiáveis.",
+  "Amostra de 22 apostas é pequena: conclusões sobre rentabilidade não são fiáveis.",
   "O intervalo de confiança de 95% do yield inclui zero ou valores negativos: não há evidência estatística de rentabilidade.",
   "O modelo é menos preciso do que as odds de fecho sem margem (log loss 1X2): vantagens aparentes são provavelmente ruído ou erro do modelo."
  ]

@@ -1,7 +1,7 @@
 {
  "league": "SP1",
  "competition": "Espanha — La Liga",
- "run_at": "2026-10-24T12:30:58+00:00",
+ "run_at": "2026-10-24T14:08:38+00:00",
  "params": {
   "test_seasons": 8,
   "xi": 0.0019,
@@ -22,12 +22,12 @@
   "1X2": {
    "model": {
     "brier": 0.5742,
-    "log_loss": 0.9671,
+    "log_loss": 0.967,
     "n": 2320
    },
    "model_same_matches": {
     "brier": 0.5742,
-    "log_loss": 0.9671,
+    "log_loss": 0.967,
     "n": 2320
    },
    "dixon_coles_only": {
@@ -48,13 +48,13 @@
   },
   "OU2.5": {
    "model": {
-    "brier": 0.4788,
-    "log_loss": 0.6716,
+    "brier": 0.4786,
+    "log_loss": 0.6714,
     "n": 2320
    },
    "model_same_matches": {
-    "brier": 0.4788,
-    "log_loss": 0.6716,
+    "brier": 0.4786,
+    "log_loss": 0.6714,
     "n": 2320
    },
    "dixon_coles_only": {
@@ -84,49 +84,49 @@
  "by_season": {
   "2020/21": {
    "n": 417,
-   "final": 0.9727,
+   "final": 0.9732,
    "dixon_coles": 0.989,
    "prematch": 0.9721,
    "closing": 0.9697
   },
   "2021/22": {
    "n": 380,
-   "final": 0.9875,
+   "final": 0.9876,
    "dixon_coles": 1.0066,
    "prematch": 0.9875,
    "closing": 0.9894
   },
   "2022/23": {
    "n": 359,
-   "final": 0.9861,
+   "final": 0.986,
    "dixon_coles": 1.0036,
    "prematch": 0.9861,
    "closing": 0.9849
   },
   "2023/24": {
    "n": 370,
-   "final": 0.9487,
+   "final": 0.9476,
    "dixon_coles": 0.9608,
    "prematch": 0.9493,
    "closing": 0.9499
   },
   "2024/25": {
    "n": 370,
-   "final": 0.9516,
+   "final": 0.9515,
    "dixon_coles": 0.9734,
    "prematch": 0.9523,
    "closing": 0.9451
   },
   "2025/26": {
    "n": 361,
-   "final": 0.9646,
+   "final": 0.9644,
    "dixon_coles": 0.9809,
    "prematch": 0.9654,
    "closing": 0.9657
   },
   "2026/27": {
    "n": 63,
-   "final": 0.9114,
+   "final": 0.9112,
    "dixon_coles": 0.9249,
    "prematch": 0.9125,
    "closing": 0.8931
@@ -135,110 +135,110 @@
  "calibration": [
   {
    "bin": "0.0-0.1",
-   "predicted": 0.0739,
-   "observed": 0.0688,
-   "n": 218
+   "predicted": 0.0735,
+   "observed": 0.0714,
+   "n": 224
   },
   {
    "bin": "0.1-0.2",
-   "predicted": 0.1576,
-   "observed": 0.1386,
-   "n": 981
+   "predicted": 0.1572,
+   "observed": 0.137,
+   "n": 978
   },
   {
    "bin": "0.2-0.3",
-   "predicted": 0.2592,
-   "observed": 0.2549,
-   "n": 2597
+   "predicted": 0.2589,
+   "observed": 0.2551,
+   "n": 2603
   },
   {
    "bin": "0.3-0.4",
-   "predicted": 0.3501,
-   "observed": 0.3556,
-   "n": 2759
+   "predicted": 0.3499,
+   "observed": 0.3542,
+   "n": 2764
   },
   {
    "bin": "0.4-0.5",
-   "predicted": 0.4507,
-   "observed": 0.4673,
-   "n": 3950
+   "predicted": 0.4505,
+   "observed": 0.4691,
+   "n": 3927
   },
   {
    "bin": "0.5-0.6",
-   "predicted": 0.5482,
-   "observed": 0.5364,
-   "n": 3725
+   "predicted": 0.5484,
+   "observed": 0.5356,
+   "n": 3710
   },
   {
    "bin": "0.6-0.7",
-   "predicted": 0.6381,
-   "observed": 0.6376,
-   "n": 1631
+   "predicted": 0.6385,
+   "observed": 0.6371,
+   "n": 1648
   },
   {
    "bin": "0.7-0.8",
-   "predicted": 0.7383,
-   "observed": 0.7162,
-   "n": 303
+   "predicted": 0.7405,
+   "observed": 0.7188,
+   "n": 313
   },
   {
    "bin": "0.8-0.9",
-   "predicted": 0.8324,
-   "observed": 0.8533,
-   "n": 75
+   "predicted": 0.8366,
+   "observed": 0.8611,
+   "n": 72
   },
   {
    "bin": "0.9-1.0",
-   "predicted": 0.9082,
+   "predicted": 0.9102,
    "observed": 1.0,
    "n": 1
   }
  ],
  "betting": {
   "overall": {
-   "bets": 16,
-   "won": 2,
-   "lost": 14,
-   "profit_units": -0.5,
-   "yield": -0.0312,
+   "bets": 25,
+   "won": 4,
+   "lost": 21,
+   "profit_units": -0.25,
+   "yield": -0.01,
    "yield_ci95": [
-    -1.0,
-    1.407
+    -0.81,
+    1.0002
    ],
-   "max_drawdown_units": 8.0,
-   "avg_odds": 6.75,
-   "avg_clv": 0.014,
-   "clv_pinnacle_n": 16,
-   "avg_clv_pinnacle": -0.0061,
-   "median_clv_pinnacle": 0.0261,
+   "max_drawdown_units": 9.25,
+   "avg_odds": 6.69,
+   "avg_clv": -0.0487,
+   "clv_pinnacle_n": 25,
+   "avg_clv_pinnacle": -0.0667,
+   "median_clv_pinnacle": -0.0368,
    "clv_pinnacle_ci95": [
-    -0.0854,
-    0.0673
+    -0.1295,
+    -0.0082
    ],
-   "share_beating_pinnacle": 0.5625
+   "share_beating_pinnacle": 0.4
   },
   "by_market": {
    "1X2": {
-    "bets": 16,
-    "won": 2,
-    "lost": 14,
-    "profit_units": -0.5,
-    "yield": -0.0312,
+    "bets": 25,
+    "won": 4,
+    "lost": 21,
+    "profit_units": -0.25,
+    "yield": -0.01,
     "yield_ci95": [
-     -1.0,
-     1.407
+     -0.81,
+     1.0002
     ],
-    "max_drawdown_units": 8.0,
-    "avg_odds": 6.75,
-    "avg_clv": 0.014,
-    "clv_pinnacle_n": 16,
-    "avg_clv_pinnacle": -0.0061,
-    "median_clv_pinnacle": 0.0261,
+    "max_drawdown_units": 9.25,
+    "avg_odds": 6.69,
+    "avg_clv": -0.0487,
+    "clv_pinnacle_n": 25,
+    "avg_clv_pinnacle": -0.0667,
+    "median_clv_pinnacle": -0.0368,
     "clv_pinnacle_ci95": [
-     -0.0854,
-     0.0673
+     -0.1295,
+     -0.0082
     ],
-    "share_beating_pinnacle": 0.5625
+    "share_beating_pinnacle": 0.4
    }
   },
   "equity": [
@@ -250,14 +250,23 @@
    -6.0,
    -7.0,
    -8.0,
-   -1.0,
-   -2.0,
-   -3.0,
-   -4.0,
-   -5.0,
-   1.5,
-   0.5,
-   -0.5
+   -4.25,
+   -5.25,
+   -6.25,
+   -7.25,
+   -8.25,
+   -9.25,
+   -5.75,
+   -6.75,
+   0.25,
+   -0.75,
+   -1.75,
+   -2.75,
+   -3.75,
+   -4.75,
+   1.75,
+   0.75,
+   -0.25
   ]
  },
  "bets": [
@@ -269,27 +278,57 @@
    "selection": "X",
    "odds": 7.0,
    "bookmaker": "Betway",
-   "model_prob": 0.1485,
-   "ev": 0.0398,
+   "model_prob": 0.1517,
+   "ev": 0.0618,
    "won": false,
    "profit": -1.0,
    "clv": 0.07400536249945366,
    "clv_pinnacle": 0.03141155085563696
   },
   {
-   "date": "2020-07-12",
-   "match": "Levante - Ath Bilbao",
-   "score": "1-2",
+   "date": "2020-07-11",
+   "match": "Ath Madrid - Betis",
+   "score": "1-0",
    "market": "1X2",
-   "selection": "1",
-   "odds": 3.8,
+   "selection": "2",
+   "odds": 8.0,
    "bookmaker": "Bet365",
-   "model_prob": 0.2711,
-   "ev": 0.0302,
+   "model_prob": 0.1292,
+   "ev": 0.0332,
    "won": false,
    "profit": -1.0,
-   "clv": 0.15808387401534274,
-   "clv_pinnacle": 0.1367503184579264
+   "clv": -0.2908773635303613,
+   "clv_pinnacle": -0.32704302963787424
+  },
+  {
+   "date": "2020-07-19",
+   "match": "Ath Madrid - Sociedad",
+   "score": "1-1",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 4.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2323,
+   "ev": 0.0453,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.04782756330118909,
+   "clv_pinnacle": 0.016380334990982348
+  },
+  {
+   "date": "2020-07-19",
+   "match": "Alaves - Barcelona",
+   "score": "0-5",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 6.0,
+   "bookmaker": "Betway",
+   "model_prob": 0.1747,
+   "ev": 0.0484,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.23795150172713742,
+   "clv_pinnacle": -0.206696962398642
   },
   {
    "date": "2020-10-01",
@@ -299,8 +338,8 @@
    "selection": "2",
    "odds": 8.0,
    "bookmaker": "Betway",
-   "model_prob": 0.1293,
-   "ev": 0.0344,
+   "model_prob": 0.1309,
+   "ev": 0.047,
    "won": false,
    "profit": -1.0,
    "clv": 0.11027280377404369,
@@ -314,12 +353,57 @@
    "selection": "2",
    "odds": 9.0,
    "bookmaker": "Bet365",
-   "model_prob": 0.1145,
-   "ev": 0.0307,
+   "model_prob": 0.1192,
+   "ev": 0.073,
    "won": false,
    "profit": -1.0,
    "clv": -0.17409645114253336,
    "clv_pinnacle": -0.22830628107375883
+  },
+  {
+   "date": "2020-12-15",
+   "match": "Real Madrid - Ath Bilbao",
+   "score": "3-1",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 6.5,
+   "bookmaker": "Betway",
+   "model_prob": 0.1587,
+   "ev": 0.0313,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.011421068284260372,
+   "clv_pinnacle": 0.005443186954212642
+  },
+  {
+   "date": "2020-12-22",
+   "match": "Valladolid - Barcelona",
+   "score": "0-3",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 5.4,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1916,
+   "ev": 0.0349,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.006840306891259695,
+   "clv_pinnacle": 0.028708648144152527
+  },
+  {
+   "date": "2021-01-09",
+   "match": "Osasuna - Real Madrid",
+   "score": "0-0",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 4.75,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2184,
+   "ev": 0.0374,
+   "won": true,
+   "profit": 3.75,
+   "clv": -0.05596258707051571,
+   "clv_pinnacle": -0.05591703482571708
   },
   {
    "date": "2021-01-21",
@@ -329,8 +413,8 @@
    "selection": "1",
    "odds": 6.75,
    "bookmaker": "Betway",
-   "model_prob": 0.1569,
-   "ev": 0.0592,
+   "model_prob": 0.1596,
+   "ev": 0.0774,
    "won": false,
    "profit": -1.0,
    "clv": 0.16022881773423947,
@@ -344,8 +428,8 @@
    "selection": "2",
    "odds": 8.0,
    "bookmaker": "Bet365",
-   "model_prob": 0.1296,
-   "ev": 0.0368,
+   "model_prob": 0.1321,
+   "ev": 0.0566,
    "won": false,
    "profit": -1.0,
    "clv": -0.2804698438444152,
@@ -359,8 +443,8 @@
    "selection": "2",
    "odds": 7.25,
    "bookmaker": "Betway",
-   "model_prob": 0.1457,
-   "ev": 0.0565,
+   "model_prob": 0.1509,
+   "ev": 0.0942,
    "won": false,
    "profit": -1.0,
    "clv": 0.20568886552733567,
@@ -374,12 +458,57 @@
    "selection": "2",
    "odds": 7.75,
    "bookmaker": "Betway",
-   "model_prob": 0.1333,
-   "ev": 0.033,
+   "model_prob": 0.1372,
+   "ev": 0.0632,
    "won": false,
    "profit": -1.0,
    "clv": 0.08843901704392643,
    "clv_pinnacle": 0.13262904184275826
+  },
+  {
+   "date": "2021-02-14",
+   "match": "Real Madrid - Valencia",
+   "score": "2-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 8.0,
+   "bookmaker": "Betway",
+   "model_prob": 0.1304,
+   "ev": 0.0435,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.12769986959250135,
+   "clv_pinnacle": -0.1758136725779259
+  },
+  {
+   "date": "2021-02-14",
+   "match": "Villarreal - Betis",
+   "score": "1-2",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 4.5,
+   "bookmaker": "Betway",
+   "model_prob": 0.2312,
+   "ev": 0.0404,
+   "won": true,
+   "profit": 3.5,
+   "clv": -0.01628493594336078,
+   "clv_pinnacle": -0.03879467261785252
+  },
+  {
+   "date": "2021-04-03",
+   "match": "Real Madrid - Eibar",
+   "score": "2-0",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 5.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1891,
+   "ev": 0.0402,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.007053478097985955,
+   "clv_pinnacle": -0.01779697668363489
   },
   {
    "date": "2021-05-11",
@@ -389,8 +518,8 @@
    "selection": "X",
    "odds": 8.0,
    "bookmaker": "Bet365",
-   "model_prob": 0.1305,
-   "ev": 0.044,
+   "model_prob": 0.1319,
+   "ev": 0.0548,
    "won": true,
    "profit": 7.0,
    "clv": -0.10942038440558755,
@@ -404,8 +533,8 @@
    "selection": "X",
    "odds": 7.5,
    "bookmaker": "Bet365",
-   "model_prob": 0.1402,
-   "ev": 0.0517,
+   "model_prob": 0.1435,
+   "ev": 0.0764,
    "won": false,
    "profit": -1.0,
    "clv": -0.045826950108367126,
@@ -413,33 +542,48 @@
   },
   {
    "date": "2021-05-22",
-   "match": "Huesca - Valencia",
-   "score": "0-0",
+   "match": "Eibar - Barcelona",
+   "score": "0-1",
    "market": "1X2",
-   "selection": "2",
-   "odds": 5.0,
+   "selection": "X",
+   "odds": 4.75,
    "bookmaker": "Bet365",
-   "model_prob": 0.2061,
-   "ev": 0.0305,
+   "model_prob": 0.2185,
+   "ev": 0.0381,
    "won": false,
    "profit": -1.0,
-   "clv": 0.018899198931774608,
-   "clv_pinnacle": -0.007710545603123675
+   "clv": -0.0379871769604061,
+   "clv_pinnacle": -0.05290463034553672
   },
   {
-   "date": "2021-05-22",
-   "match": "Elche - Ath Bilbao",
-   "score": "2-0",
+   "date": "2021-05-23",
+   "match": "Sevilla - Alaves",
+   "score": "1-0",
    "market": "1X2",
    "selection": "2",
-   "odds": 4.0,
-   "bookmaker": "Betway",
-   "model_prob": 0.2598,
-   "ev": 0.039,
+   "odds": 6.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1605,
+   "ev": 0.0434,
    "won": false,
    "profit": -1.0,
-   "clv": 0.059535934706992366,
-   "clv_pinnacle": 0.07999246749332745
+   "clv": -0.3103768582503589,
+   "clv_pinnacle": -0.3734239700054305
+  },
+  {
+   "date": "2021-09-26",
+   "match": "Barcelona - Levante",
+   "score": "3-0",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 5.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1881,
+   "ev": 0.0346,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.10748183261598143,
+   "clv_pinnacle": 0.1489520453181059
   },
   {
    "date": "2021-10-27",
@@ -449,8 +593,8 @@
    "selection": "1",
    "odds": 6.0,
    "bookmaker": "Betway",
-   "model_prob": 0.1816,
-   "ev": 0.0898,
+   "model_prob": 0.1829,
+   "ev": 0.0975,
    "won": false,
    "profit": -1.0,
    "clv": 0.1347248988479437,
@@ -464,12 +608,27 @@
    "selection": "X",
    "odds": 7.5,
    "bookmaker": "Bet365",
-   "model_prob": 0.1394,
-   "ev": 0.0457,
+   "model_prob": 0.1413,
+   "ev": 0.0596,
    "won": true,
    "profit": 6.5,
    "clv": -0.3227015635193996,
    "clv_pinnacle": -0.27800146134485004
+  },
+  {
+   "date": "2022-01-22",
+   "match": "Ath Madrid - Valencia",
+   "score": "3-2",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 8.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1212,
+   "ev": 0.0301,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.11876702992074706,
+   "clv_pinnacle": -0.1705009346203772
   },
   {
    "date": "2022-02-21",
@@ -479,27 +638,12 @@
    "selection": "2",
    "odds": 6.0,
    "bookmaker": "Bet365",
-   "model_prob": 0.1742,
-   "ev": 0.0455,
+   "model_prob": 0.1757,
+   "ev": 0.0539,
    "won": false,
    "profit": -1.0,
    "clv": -0.005972970837344604,
    "clv_pinnacle": -0.03384384014727393
-  },
-  {
-   "date": "2023-02-18",
-   "match": "Betis - Valladolid",
-   "score": "2-1",
-   "market": "1X2",
-   "selection": "2",
-   "odds": 6.5,
-   "bookmaker": "Bet365",
-   "model_prob": 0.1609,
-   "ev": 0.0459,
-   "won": false,
-   "profit": -1.0,
-   "clv": 0.15200136173079581,
-   "clv_pinnacle": 0.14229896200169567
   }
  ],
  "data": {
@@ -508,7 +652,7 @@
  },
  "warnings": [
   "Resultados históricos simulados não garantem desempenho futuro.",
-  "Amostra de 16 apostas é pequena: conclusões sobre rentabilidade não são fiáveis.",
+  "Amostra de 25 apostas é pequena: conclusões sobre rentabilidade não são fiáveis.",
   "O intervalo de confiança de 95% do yield inclui zero ou valores negativos: não há evidência estatística de rentabilidade.",
   "O modelo é menos preciso do que as odds de fecho sem margem (log loss 1X2): vantagens aparentes são provavelmente ruído ou erro do modelo."
  ]

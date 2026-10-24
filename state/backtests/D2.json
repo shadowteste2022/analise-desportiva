@@ -1,0 +1,845 @@
+{
+ "league": "D2",
+ "competition": "Alemanha — 2. Bundesliga",
+ "run_at": "2026-10-24T14:08:55+00:00",
+ "params": {
+  "test_seasons": 8,
+  "xi": 0.0019,
+  "xg_weight": 0.0,
+  "devig": "shin",
+  "ev_margin": 0.03,
+  "max_market_divergence": 0.12,
+  "min_team_matches": 10,
+  "blend": "pool logarítmico modelo × mercado pré-jogo; pesos de cada época ajustados só com épocas anteriores (todas as ligas); 1.ª época de teste usada só para treino",
+  "odds": "melhor odd pré-jogo entre casas nomeadas (sem Betfair Exchange/agregados); stake fixa 1u"
+ },
+ "period": {
+  "from": "2020-09-18",
+  "to": "2026-10-18"
+ },
+ "predictions": 1752,
+ "accuracy": {
+  "1X2": {
+   "model": {
+    "brier": 0.6214,
+    "log_loss": 1.0338,
+    "n": 1752
+   },
+   "model_same_matches": {
+    "brier": 0.6214,
+    "log_loss": 1.0338,
+    "n": 1752
+   },
+   "dixon_coles_only": {
+    "brier": 0.6343,
+    "log_loss": 1.0535,
+    "n": 1752
+   },
+   "market_prematch_no_vig": {
+    "brier": 0.6215,
+    "log_loss": 1.0339,
+    "n": 1752
+   },
+   "market_closing_no_vig": {
+    "brier": 0.6209,
+    "log_loss": 1.0331,
+    "n": 1752
+   }
+  },
+  "OU2.5": {
+   "model": {
+    "brier": 0.4812,
+    "log_loss": 0.6742,
+    "n": 1752
+   },
+   "model_same_matches": {
+    "brier": 0.4812,
+    "log_loss": 0.6742,
+    "n": 1752
+   },
+   "dixon_coles_only": {
+    "brier": 0.4958,
+    "log_loss": 0.6896,
+    "n": 1752
+   },
+   "market_prematch_no_vig": {
+    "brier": 0.4812,
+    "log_loss": 0.6741,
+    "n": 1752
+   },
+   "market_closing_no_vig": {
+    "brier": 0.4798,
+    "log_loss": 0.6726,
+    "n": 1752
+   }
+  },
+  "BTTS": {
+   "model": {
+    "brier": 0.4926,
+    "log_loss": 0.6861,
+    "n": 1752
+   }
+  }
+ },
+ "by_season": {
+  "2020/21": {
+   "n": 296,
+   "final": 1.0408,
+   "dixon_coles": 1.0562,
+   "prematch": 1.0403,
+   "closing": 1.04
+  },
+  "2021/22": {
+   "n": 278,
+   "final": 1.0399,
+   "dixon_coles": 1.0562,
+   "prematch": 1.0399,
+   "closing": 1.035
+  },
+  "2022/23": {
+   "n": 287,
+   "final": 1.0175,
+   "dixon_coles": 1.0404,
+   "prematch": 1.0181,
+   "closing": 1.0162
+  },
+  "2023/24": {
+   "n": 278,
+   "final": 1.0189,
+   "dixon_coles": 1.0356,
+   "prematch": 1.0194,
+   "closing": 1.0212
+  },
+  "2024/25": {
+   "n": 277,
+   "final": 1.0538,
+   "dixon_coles": 1.0753,
+   "prematch": 1.053,
+   "closing": 1.0515
+  },
+  "2025/26": {
+   "n": 286,
+   "final": 1.0272,
+   "dixon_coles": 1.0527,
+   "prematch": 1.0278,
+   "closing": 1.0279
+  },
+  "2026/27": {
+   "n": 50,
+   "final": 1.0634,
+   "dixon_coles": 1.0797,
+   "prematch": 1.063,
+   "closing": 1.0714
+  }
+ },
+ "calibration": [
+  {
+   "bin": "0.0-0.1",
+   "predicted": 0.0866,
+   "observed": 0.0,
+   "n": 12
+  },
+  {
+   "bin": "0.1-0.2",
+   "predicted": 0.1695,
+   "observed": 0.1455,
+   "n": 323
+  },
+  {
+   "bin": "0.2-0.3",
+   "predicted": 0.2555,
+   "observed": 0.2587,
+   "n": 2528
+  },
+  {
+   "bin": "0.3-0.4",
+   "predicted": 0.3561,
+   "observed": 0.3678,
+   "n": 2232
+  },
+  {
+   "bin": "0.4-0.5",
+   "predicted": 0.4468,
+   "observed": 0.4497,
+   "n": 3084
+  },
+  {
+   "bin": "0.5-0.6",
+   "predicted": 0.5506,
+   "observed": 0.549,
+   "n": 2665
+  },
+  {
+   "bin": "0.6-0.7",
+   "predicted": 0.6358,
+   "observed": 0.6166,
+   "n": 1291
+  },
+  {
+   "bin": "0.7-0.8",
+   "predicted": 0.7245,
+   "observed": 0.6825,
+   "n": 126
+  },
+  {
+   "bin": "0.8-0.9",
+   "predicted": 0.8235,
+   "observed": 0.6667,
+   "n": 3
+  }
+ ],
+ "betting": {
+  "overall": {
+   "bets": 37,
+   "won": 10,
+   "lost": 27,
+   "profit_units": 9.48,
+   "yield": 0.2562,
+   "yield_ci95": [
+    -0.3816,
+    0.9717
+   ],
+   "max_drawdown_units": 13.0,
+   "avg_odds": 5.13,
+   "avg_clv": 0.0584,
+   "clv_pinnacle_n": 37,
+   "avg_clv_pinnacle": 0.054,
+   "median_clv_pinnacle": 0.0538,
+   "clv_pinnacle_ci95": [
+    0.0041,
+    0.1057
+   ],
+   "share_beating_pinnacle": 0.6216
+  },
+  "by_market": {
+   "1X2": {
+    "bets": 37,
+    "won": 10,
+    "lost": 27,
+    "profit_units": 9.48,
+    "yield": 0.2562,
+    "yield_ci95": [
+     -0.3816,
+     0.9717
+    ],
+    "max_drawdown_units": 13.0,
+    "avg_odds": 5.13,
+    "avg_clv": 0.0584,
+    "clv_pinnacle_n": 37,
+    "avg_clv_pinnacle": 0.054,
+    "median_clv_pinnacle": 0.0538,
+    "clv_pinnacle_ci95": [
+     0.0041,
+     0.1057
+    ],
+    "share_beating_pinnacle": 0.6216
+   }
+  },
+  "equity": [
+   -1.0,
+   -2.0,
+   3.0,
+   7.0,
+   6.0,
+   5.0,
+   4.0,
+   7.1,
+   6.1,
+   5.1,
+   4.1,
+   3.1,
+   2.1,
+   1.1,
+   0.1,
+   -0.9,
+   -1.9,
+   -2.9,
+   -3.9,
+   -4.9,
+   0.1,
+   -0.9,
+   -1.9,
+   -2.9,
+   -3.9,
+   -4.9,
+   -5.9,
+   -2.15,
+   1.85,
+   0.85,
+   5.1,
+   4.1,
+   3.1,
+   6.6,
+   5.6,
+   6.98,
+   9.48
+  ]
+ },
+ "bets": [
+  {
+   "date": "2020-10-30",
+   "match": "Hamburg - St Pauli",
+   "score": "2-2",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 6.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1599,
+   "ev": 0.0397,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.1038244944854898,
+   "clv_pinnacle": 0.16437534189770453
+  },
+  {
+   "date": "2020-11-07",
+   "match": "Hannover - Erzgebirge Aue",
+   "score": "0-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 6.75,
+   "bookmaker": "Betway",
+   "model_prob": 0.1582,
+   "ev": 0.0679,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.15862265869554637,
+   "clv_pinnacle": 0.11472708667311382
+  },
+  {
+   "date": "2020-11-22",
+   "match": "Hamburg - Bochum",
+   "score": "1-3",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 6.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1765,
+   "ev": 0.0592,
+   "won": true,
+   "profit": 5.0,
+   "clv": 0.11902203971882308,
+   "clv_pinnacle": 0.0965686688825802
+  },
+  {
+   "date": "2020-12-15",
+   "match": "Greuther Furth - Darmstadt",
+   "score": "0-4",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 5.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2116,
+   "ev": 0.0582,
+   "won": true,
+   "profit": 4.0,
+   "clv": 0.45168950524223317,
+   "clv_pinnacle": 0.43427531070334147
+  },
+  {
+   "date": "2020-12-16",
+   "match": "Fortuna Dusseldorf - Osnabruck",
+   "score": "3-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 3.8,
+   "bookmaker": "Betway",
+   "model_prob": 0.2711,
+   "ev": 0.0302,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.10570612649761868,
+   "clv_pinnacle": 0.07876692450278311
+  },
+  {
+   "date": "2020-12-19",
+   "match": "Braunschweig - Greuther Furth",
+   "score": "0-3",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 5.25,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2048,
+   "ev": 0.0752,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.501107428312765,
+   "clv_pinnacle": 0.5346186576488772
+  },
+  {
+   "date": "2021-01-10",
+   "match": "Paderborn - Erzgebirge Aue",
+   "score": "2-1",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 4.75,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2284,
+   "ev": 0.0849,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.07230791181453777,
+   "clv_pinnacle": 0.07396129188078904
+  },
+  {
+   "date": "2021-01-31",
+   "match": "Heidenheim - St Pauli",
+   "score": "3-4",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 4.1,
+   "bookmaker": "Betway",
+   "model_prob": 0.2517,
+   "ev": 0.032,
+   "won": true,
+   "profit": 3.0999999999999996,
+   "clv": -0.07377739564475361,
+   "clv_pinnacle": -0.1332619051680486
+  },
+  {
+   "date": "2021-03-14",
+   "match": "Karlsruhe - Braunschweig",
+   "score": "0-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 4.2,
+   "bookmaker": "Bet365",
+   "model_prob": 0.248,
+   "ev": 0.0414,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.039094068605336596,
+   "clv_pinnacle": -0.03280669155358218
+  },
+  {
+   "date": "2021-04-18",
+   "match": "Bochum - Hannover",
+   "score": "4-3",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 4.33,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2389,
+   "ev": 0.0344,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.05523635116117265,
+   "clv_pinnacle": 0.10197980709445686
+  },
+  {
+   "date": "2021-04-21",
+   "match": "Hannover - Regensburg",
+   "score": "3-1",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 4.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.259,
+   "ev": 0.0361,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.11657222370017117,
+   "clv_pinnacle": -0.13371625330302028
+  },
+  {
+   "date": "2021-04-29",
+   "match": "Hamburg - Karlsruhe",
+   "score": "1-1",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 6.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1725,
+   "ev": 0.0351,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.1623575597287985,
+   "clv_pinnacle": -0.17366490535195445
+  },
+  {
+   "date": "2021-05-03",
+   "match": "Fortuna Dusseldorf - Karlsruhe",
+   "score": "3-2",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 4.33,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2381,
+   "ev": 0.031,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.12731510391502787,
+   "clv_pinnacle": -0.13810631422934494
+  },
+  {
+   "date": "2021-05-08",
+   "match": "Fortuna Dusseldorf - Braunschweig",
+   "score": "2-2",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 6.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1591,
+   "ev": 0.0344,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.19967392247082627,
+   "clv_pinnacle": -0.24502346441624145
+  },
+  {
+   "date": "2021-05-13",
+   "match": "Holstein Kiel - Regensburg",
+   "score": "3-2",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 6.0,
+   "bookmaker": "Betway",
+   "model_prob": 0.1755,
+   "ev": 0.0528,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.10190266232504275,
+   "clv_pinnacle": 0.11690379267053119
+  },
+  {
+   "date": "2021-05-23",
+   "match": "Greuther Furth - Fortuna Dusseldorf",
+   "score": "3-2",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 6.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.192,
+   "ev": 0.1519,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.08550264623857151,
+   "clv_pinnacle": 0.05169784818244083
+  },
+  {
+   "date": "2021-05-23",
+   "match": "Bochum - Sandhausen",
+   "score": "3-1",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 4.2,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2519,
+   "ev": 0.0579,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.00647101450459886,
+   "clv_pinnacle": 0.027459113191872664
+  },
+  {
+   "date": "2021-05-23",
+   "match": "Hamburg - Braunschweig",
+   "score": "4-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 4.75,
+   "bookmaker": "Betway",
+   "model_prob": 0.2174,
+   "ev": 0.0326,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.0038465987391299583,
+   "clv_pinnacle": 0.01150557367947136
+  },
+  {
+   "date": "2021-07-24",
+   "match": "Darmstadt - Regensburg",
+   "score": "0-2",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 3.6,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2916,
+   "ev": 0.0496,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.048871134760054113,
+   "clv_pinnacle": 0.06631895064780191
+  },
+  {
+   "date": "2021-09-24",
+   "match": "Regensburg - Erzgebirge Aue",
+   "score": "3-2",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 5.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.19,
+   "ev": 0.0453,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.007713835218748688,
+   "clv_pinnacle": -0.011765380803499204
+  },
+  {
+   "date": "2021-09-26",
+   "match": "Hannover - Sandhausen",
+   "score": "1-2",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 6.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1742,
+   "ev": 0.0451,
+   "won": true,
+   "profit": 5.0,
+   "clv": -0.10924700396496079,
+   "clv_pinnacle": -0.110545594195679
+  },
+  {
+   "date": "2021-10-01",
+   "match": "Erzgebirge Aue - Hamburg",
+   "score": "1-1",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 6.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.174,
+   "ev": 0.0439,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.0039464605924131035,
+   "clv_pinnacle": -0.03529195809349783
+  },
+  {
+   "date": "2021-10-23",
+   "match": "Fortuna Dusseldorf - Karlsruhe",
+   "score": "3-1",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 3.8,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2762,
+   "ev": 0.0495,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.017869087575373088,
+   "clv_pinnacle": -0.03517894284652512
+  },
+  {
+   "date": "2021-11-06",
+   "match": "Fortuna Dusseldorf - Hannover",
+   "score": "1-1",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 4.33,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2388,
+   "ev": 0.034,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.1105370846295246,
+   "clv_pinnacle": 0.08999271375661522
+  },
+  {
+   "date": "2021-11-06",
+   "match": "Paderborn - Ingolstadt",
+   "score": "2-1",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 7.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1447,
+   "ev": 0.085,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.21767941980338423,
+   "clv_pinnacle": 0.3046779953581944
+  },
+  {
+   "date": "2022-02-19",
+   "match": "Werder Bremen - Ingolstadt",
+   "score": "1-1",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 11.0,
+   "bookmaker": "Betway",
+   "model_prob": 0.0945,
+   "ev": 0.04,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.07906591597458368,
+   "clv_pinnacle": 0.0338626417154122
+  },
+  {
+   "date": "2022-02-20",
+   "match": "Darmstadt - Hansa Rostock",
+   "score": "1-1",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 5.5,
+   "bookmaker": "Betway",
+   "model_prob": 0.1886,
+   "ev": 0.037,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.2879281640982827,
+   "clv_pinnacle": 0.21465513732143493
+  },
+  {
+   "date": "2022-02-20",
+   "match": "St Pauli - Hannover",
+   "score": "0-3",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 4.75,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2179,
+   "ev": 0.0352,
+   "won": true,
+   "profit": 3.75,
+   "clv": 0.28031268000616194,
+   "clv_pinnacle": 0.2593453133954091
+  },
+  {
+   "date": "2022-03-11",
+   "match": "Darmstadt - Sandhausen",
+   "score": "1-1",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 5.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2082,
+   "ev": 0.0411,
+   "won": true,
+   "profit": 4.0,
+   "clv": 0.17848334473024718,
+   "clv_pinnacle": 0.2159313283427733
+  },
+  {
+   "date": "2022-03-12",
+   "match": "Paderborn - Fortuna Dusseldorf",
+   "score": "1-1",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 2.1,
+   "bookmaker": "Bet365",
+   "model_prob": 0.5092,
+   "ev": 0.0694,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.008250961788030198,
+   "clv_pinnacle": -0.01615789050849914
+  },
+  {
+   "date": "2022-04-02",
+   "match": "Hamburg - Paderborn",
+   "score": "1-2",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 5.25,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1969,
+   "ev": 0.0335,
+   "won": true,
+   "profit": 4.25,
+   "clv": -0.10122602458227892,
+   "clv_pinnacle": -0.16355731242821392
+  },
+  {
+   "date": "2022-05-15",
+   "match": "Werder Bremen - Regensburg",
+   "score": "2-0",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 7.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1381,
+   "ev": 0.0354,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.013909966259433082,
+   "clv_pinnacle": 0.053792913197274306
+  },
+  {
+   "date": "2022-11-04",
+   "match": "Darmstadt - Hannover",
+   "score": "1-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 5.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.206,
+   "ev": 0.0301,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.09017217986276593,
+   "clv_pinnacle": 0.084617751255053
+  },
+  {
+   "date": "2023-04-22",
+   "match": "Bielefeld - Hannover",
+   "score": "1-3",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 4.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2312,
+   "ev": 0.0405,
+   "won": true,
+   "profit": 3.5,
+   "clv": 0.0016582273924541369,
+   "clv_pinnacle": -0.0038771009125656564
+  },
+  {
+   "date": "2024-03-17",
+   "match": "Karlsruhe - Magdeburg",
+   "score": "7-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 4.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2598,
+   "ev": 0.0393,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.12614776969239494,
+   "clv_pinnacle": 0.15713543757956416
+  },
+  {
+   "date": "2024-05-03",
+   "match": "Hamburg - St Pauli",
+   "score": "1-0",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 2.38,
+   "bookmaker": "Bet365",
+   "model_prob": 0.4341,
+   "ev": 0.033,
+   "won": true,
+   "profit": 1.38,
+   "clv": 0.0639943380048682,
+   "clv_pinnacle": 0.06929433961078613
+  },
+  {
+   "date": "2024-05-19",
+   "match": "Osnabruck - Hertha",
+   "score": "2-1",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 3.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2949,
+   "ev": 0.0322,
+   "won": true,
+   "profit": 2.5,
+   "clv": -0.13286652417179756,
+   "clv_pinnacle": -0.12668504442685147
+  }
+ ],
+ "data": {
+  "source": "football-data.co.uk",
+  "last_result": "2026-10-18"
+ },
+ "warnings": [
+  "Resultados históricos simulados não garantem desempenho futuro.",
+  "Amostra de 37 apostas é pequena: conclusões sobre rentabilidade não são fiáveis.",
+  "O intervalo de confiança de 95% do yield inclui zero ou valores negativos: não há evidência estatística de rentabilidade.",
+  "O modelo é menos preciso do que as odds de fecho sem margem (log loss 1X2): vantagens aparentes são provavelmente ruído ou erro do modelo."
+ ]
+}

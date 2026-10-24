@@ -134,14 +134,31 @@ cd backend && ../.venv/Scripts/python -m app.export --out ../site
 | Componente | Fonte | Chave? | Custo | Estado |
 |---|---|---|---|---|
 | Resultados, golos, xG, remates, cantos, cartões, odds históricas e de fecho | [football-data.co.uk](https://www.football-data.co.uk) (CSV) | Não | Grátis | **Integrado e testado com dados reais** |
-| Próximos jogos com odds pré-jogo de 6 operadores (1X2, O/U 2,5) | football-data.co.uk `fixtures.csv` | Não | Grátis | **Integrado e testado com dados reais** |
-| Odds ao vivo, mais operadores, outras linhas de golos | [The Odds API](https://the-odds-api.com) | `ODDS_API_KEY` | Grátis ~500 créditos/mês; planos pagos acima | Integrado; **só testado com resposta simulada** (não tenho chave) |
+| Próximos jogos com odds pré-jogo de 6 operadores (1X2, O/U 2,5), 21 ligas | football-data.co.uk `fixtures.csv` | Não | Grátis | **Integrado e testado com dados reais** |
+| Odds ao vivo, mais operadores, outras linhas de golos | [The Odds API](https://the-odds-api.com) | `ODDS_API_KEY` | Grátis ~500 créditos/mês; planos pagos acima | Integrado; testado no GitHub até ao pedido (resposta: chave inválida) |
+| **Outras modalidades**: NBA, Euroleague, NHL, MLB, torneios ATP/WTA ativos | The Odds API | `ODDS_API_KEY` | Partilha o orçamento acima | Integrado; só aparecem com uma chave válida |
 | **Odds de casas licenciadas em Portugal** (Betano PT, Betclic PT, Bwin PT): 1X2, totais 0,5–4,5, BTTS | [odds-api.io](https://odds-api.io) | `ODDS_API_IO_KEY` | Desde £49/mês (plano Solo = 2 casas); novas chaves grátis suspensas | Integrado; **só testado com resposta simulada** (não tenho chave) |
 | Lesões, suspensões, onzes prováveis | ex.: API-Football (api-sports.io), Sportmonks | Sim | Pago acima do plano grátis | **Não integrado**: cada relatório avisa disto |
 | Meteorologia | ex.: Open-Meteo | Não | Grátis | Não integrado |
 
 Os preços são os conhecidos à data do desenvolvimento; confirme-os antes de contratar. As chaves ficam só no backend
 (`.env`) e nunca são enviadas ao browser nem escritas nos logs.
+
+## Ligas e modalidades
+
+**Futebol (21 ligas do football-data):** Portugal; Inglaterra (Premier League, Championship, League One, League
+Two, National League); Espanha, Itália, Alemanha e França (1.ª e 2.ª divisões); Países Baixos; Bélgica; Turquia;
+Grécia; Escócia (Premiership, Championship, League One). Configurável em `LEAGUES`.
+
+O `fixtures.csv` só é republicado cerca de duas vezes por semana e mantém os jogos já disputados até lá. A app esconde
+os jogos que começaram há mais de 2 horas (hora de Lisboa, que é a mesma do Reino Unido usada pela fonte).
+
+**Outras modalidades (`OTHER_SPORTS`):** basquetebol (NBA, Euroleague), hóquei no gelo (NHL), basebol (MLB) e ténis
+(todos os torneios ATP/WTA que a The Odds API indicar como ativos).
+- **Probabilidades:** não há fonte grátis com histórico de resultados e odds como o football-data, por isso ainda não
+  há modelo estatístico próprio. As probabilidades são o **consenso das casas sem margem** (Shin sobre a odd média).
+- **Valor:** o "valor" mostrado é a melhor odd face a esse consenso. Sem backtest, nunca aparece `VALOR POTENCIAL`.
+- **Orçamento:** estas modalidades partilham o orçamento da The Odds API e são pedidas depois do futebol.
 
 ## Casas de apostas legais em Portugal
 
@@ -278,6 +295,23 @@ mercado recebe **b ≈ 1,03**. As odds pré-jogo já contêm tudo o que o Dixon-
   89 das 152) não mostra vantagem com nenhum método além do proporcional, e o sinal concentra-se em 17 azarões de odd
   acima de 10. Por liga, Espanha e França ficam negativas.
 - Yield de +8,7%, com IC entre −27,7% e +48,4%: sem evidência de rentabilidade.
+
+### Alargado às 21 ligas (24/10/2026)
+
+O mesmo backtest, com as 21 ligas e os pesos da combinação reajustados com todas:
+
+| | Valor |
+|---|---|
+| Jogos avaliados fora da amostra | 44 329 |
+| Log loss 1X2: final / fecho | 0,9978 / 0,9942 |
+| Ligas em que o final bate o fecho | **0 de 21** |
+| Pesos da combinação | modelo a = 0, mercado b ≈ 1,04 |
+| Apostas simuladas | 744 |
+| Yield | +4,4% (IC 95% −10,5% a +19,1%) |
+| CLV contra o fecho Pinnacle (Shin) | **+2,0% (IC 95% +0,9% a +3,1%)**, 53% acima do fecho |
+
+Com 5 vezes mais apostas, o sinal de line shopping mantém-se pequeno (+2%) mas com IC acima de zero. Continua a não
+haver nenhuma liga validada, porque a probabilidade final nunca é tão precisa como o fecho.
 
 ### Robustez do CLV a outros métodos de remoção de margem
 

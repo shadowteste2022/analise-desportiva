@@ -1,0 +1,531 @@
+{
+ "league": "SC0",
+ "competition": "Escócia — Premiership",
+ "run_at": "2026-10-24T14:08:48+00:00",
+ "params": {
+  "test_seasons": 8,
+  "xi": 0.0019,
+  "xg_weight": 0.0,
+  "devig": "shin",
+  "ev_margin": 0.03,
+  "max_market_divergence": 0.12,
+  "min_team_matches": 10,
+  "blend": "pool logarítmico modelo × mercado pré-jogo; pesos de cada época ajustados só com épocas anteriores (todas as ligas); 1.ª época de teste usada só para treino",
+  "odds": "melhor odd pré-jogo entre casas nomeadas (sem Betfair Exchange/agregados); stake fixa 1u"
+ },
+ "period": {
+  "from": "2020-08-01",
+  "to": "2026-10-18"
+ },
+ "predictions": 1401,
+ "accuracy": {
+  "1X2": {
+   "model": {
+    "brier": 0.5536,
+    "log_loss": 0.9364,
+    "n": 1401
+   },
+   "model_same_matches": {
+    "brier": 0.5536,
+    "log_loss": 0.9364,
+    "n": 1401
+   },
+   "dixon_coles_only": {
+    "brier": 0.5646,
+    "log_loss": 0.9531,
+    "n": 1401
+   },
+   "market_prematch_no_vig": {
+    "brier": 0.5537,
+    "log_loss": 0.9364,
+    "n": 1401
+   },
+   "market_closing_no_vig": {
+    "brier": 0.5521,
+    "log_loss": 0.9342,
+    "n": 1401
+   }
+  },
+  "OU2.5": {
+   "model": {
+    "brier": 0.4822,
+    "log_loss": 0.6751,
+    "n": 1401
+   },
+   "model_same_matches": {
+    "brier": 0.4822,
+    "log_loss": 0.6751,
+    "n": 1401
+   },
+   "dixon_coles_only": {
+    "brier": 0.4897,
+    "log_loss": 0.6833,
+    "n": 1401
+   },
+   "market_prematch_no_vig": {
+    "brier": 0.4822,
+    "log_loss": 0.6751,
+    "n": 1401
+   },
+   "market_closing_no_vig": {
+    "brier": 0.4816,
+    "log_loss": 0.6745,
+    "n": 1401
+   }
+  },
+  "BTTS": {
+   "model": {
+    "brier": 0.5017,
+    "log_loss": 0.695,
+    "n": 1401
+   }
+  }
+ },
+ "by_season": {
+  "2020/21": {
+   "n": 218,
+   "final": 0.9329,
+   "dixon_coles": 0.9687,
+   "prematch": 0.9321,
+   "closing": 0.9271
+  },
+  "2021/22": {
+   "n": 228,
+   "final": 0.9472,
+   "dixon_coles": 0.9563,
+   "prematch": 0.9472,
+   "closing": 0.9443
+  },
+  "2022/23": {
+   "n": 228,
+   "final": 0.8719,
+   "dixon_coles": 0.8833,
+   "prematch": 0.8732,
+   "closing": 0.8668
+  },
+  "2023/24": {
+   "n": 228,
+   "final": 0.9327,
+   "dixon_coles": 0.951,
+   "prematch": 0.9328,
+   "closing": 0.934
+  },
+  "2024/25": {
+   "n": 228,
+   "final": 0.953,
+   "dixon_coles": 0.9668,
+   "prematch": 0.9524,
+   "closing": 0.9546
+  },
+  "2025/26": {
+   "n": 217,
+   "final": 0.9696,
+   "dixon_coles": 0.9807,
+   "prematch": 0.9696,
+   "closing": 0.9657
+  },
+  "2026/27": {
+   "n": 54,
+   "final": 0.9889,
+   "dixon_coles": 1.013,
+   "prematch": 0.9882,
+   "closing": 0.9943
+  }
+ },
+ "calibration": [
+  {
+   "bin": "0.0-0.1",
+   "predicted": 0.0647,
+   "observed": 0.0541,
+   "n": 296
+  },
+  {
+   "bin": "0.1-0.2",
+   "predicted": 0.1529,
+   "observed": 0.1447,
+   "n": 615
+  },
+  {
+   "bin": "0.2-0.3",
+   "predicted": 0.2621,
+   "observed": 0.2673,
+   "n": 1519
+  },
+  {
+   "bin": "0.3-0.4",
+   "predicted": 0.3537,
+   "observed": 0.3773,
+   "n": 1312
+  },
+  {
+   "bin": "0.4-0.5",
+   "predicted": 0.4538,
+   "observed": 0.4605,
+   "n": 2547
+  },
+  {
+   "bin": "0.5-0.6",
+   "predicted": 0.5441,
+   "observed": 0.5321,
+   "n": 2396
+  },
+  {
+   "bin": "0.6-0.7",
+   "predicted": 0.6376,
+   "observed": 0.6016,
+   "n": 758
+  },
+  {
+   "bin": "0.7-0.8",
+   "predicted": 0.743,
+   "observed": 0.7703,
+   "n": 222
+  },
+  {
+   "bin": "0.8-0.9",
+   "predicted": 0.8424,
+   "observed": 0.8613,
+   "n": 137
+  },
+  {
+   "bin": "0.9-1.0",
+   "predicted": 0.9109,
+   "observed": 0.8,
+   "n": 5
+  }
+ ],
+ "betting": {
+  "overall": {
+   "bets": 17,
+   "won": 4,
+   "lost": 13,
+   "profit_units": 2.6,
+   "yield": 0.1529,
+   "yield_ci95": [
+    -0.7882,
+    1.25
+   ],
+   "max_drawdown_units": 9.0,
+   "avg_odds": 6.71,
+   "avg_clv": -0.0249,
+   "clv_pinnacle_n": 17,
+   "avg_clv_pinnacle": -0.04,
+   "median_clv_pinnacle": -0.0067,
+   "clv_pinnacle_ci95": [
+    -0.1195,
+    0.0317
+   ],
+   "share_beating_pinnacle": 0.4706
+  },
+  "by_market": {
+   "1X2": {
+    "bets": 17,
+    "won": 4,
+    "lost": 13,
+    "profit_units": 2.6,
+    "yield": 0.1529,
+    "yield_ci95": [
+     -0.7882,
+     1.25
+    ],
+    "max_drawdown_units": 9.0,
+    "avg_odds": 6.71,
+    "avg_clv": -0.0249,
+    "clv_pinnacle_n": 17,
+    "avg_clv_pinnacle": -0.04,
+    "median_clv_pinnacle": -0.0067,
+    "clv_pinnacle_ci95": [
+     -0.1195,
+     0.0317
+    ],
+    "share_beating_pinnacle": 0.4706
+   }
+  },
+  "equity": [
+   -1.0,
+   -2.0,
+   -3.0,
+   -4.0,
+   -5.0,
+   -6.0,
+   -7.0,
+   -8.0,
+   -9.0,
+   -3.75,
+   -4.75,
+   -5.75,
+   -3.15,
+   0.6,
+   4.6,
+   3.6,
+   2.6
+  ]
+ },
+ "bets": [
+  {
+   "date": "2020-08-09",
+   "match": "Kilmarnock - Celtic",
+   "score": "1-1",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 13.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.0816,
+   "ev": 0.0603,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.02205200626561654,
+   "clv_pinnacle": 0.05721868385972528
+  },
+  {
+   "date": "2020-12-30",
+   "match": "Celtic - Dundee United",
+   "score": "3-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 15.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.0689,
+   "ev": 0.033,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.3912178424490944,
+   "clv_pinnacle": -0.3734068138209711
+  },
+  {
+   "date": "2021-02-06",
+   "match": "Livingston - St Johnstone",
+   "score": "1-2",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 3.4,
+   "bookmaker": "Bet365",
+   "model_prob": 0.3073,
+   "ev": 0.045,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.08203592507067503,
+   "clv_pinnacle": 0.09956641385300591
+  },
+  {
+   "date": "2021-02-10",
+   "match": "St Mirren - Celtic",
+   "score": "0-4",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 7.0,
+   "bookmaker": "Betway",
+   "model_prob": 0.1525,
+   "ev": 0.0676,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.06668199590482393,
+   "clv_pinnacle": -0.07720878446772406
+  },
+  {
+   "date": "2021-04-10",
+   "match": "Celtic - Livingston",
+   "score": "6-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 8.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1398,
+   "ev": 0.1185,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.2700456820597905,
+   "clv_pinnacle": -0.3177154585143337
+  },
+  {
+   "date": "2021-05-12",
+   "match": "Celtic - St Johnstone",
+   "score": "4-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 8.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1329,
+   "ev": 0.1295,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.26623096719413963,
+   "clv_pinnacle": -0.29030748268551165
+  },
+  {
+   "date": "2021-05-15",
+   "match": "St Johnstone - Livingston",
+   "score": "0-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 4.2,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2465,
+   "ev": 0.0354,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.09059080112580431,
+   "clv_pinnacle": 0.07161573362947338
+  },
+  {
+   "date": "2021-09-25",
+   "match": "Hearts - Livingston",
+   "score": "3-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 7.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1474,
+   "ev": 0.1054,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.04926361687250669,
+   "clv_pinnacle": -0.0387167824408472
+  },
+  {
+   "date": "2021-10-23",
+   "match": "Celtic - St Johnstone",
+   "score": "2-0",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 6.75,
+   "bookmaker": "Betway",
+   "model_prob": 0.153,
+   "ev": 0.0326,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.02733101110996672,
+   "clv_pinnacle": -0.02223659616406415
+  },
+  {
+   "date": "2021-10-27",
+   "match": "Rangers - Aberdeen",
+   "score": "2-2",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 6.25,
+   "bookmaker": "Betway",
+   "model_prob": 0.1675,
+   "ev": 0.0468,
+   "won": true,
+   "profit": 5.25,
+   "clv": 0.008824178610019384,
+   "clv_pinnacle": -0.049665020982841646
+  },
+  {
+   "date": "2021-11-20",
+   "match": "St Mirren - Livingston",
+   "score": "1-1",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 4.75,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2179,
+   "ev": 0.0352,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.05375093240163742,
+   "clv_pinnacle": -0.006714776466937744
+  },
+  {
+   "date": "2021-12-26",
+   "match": "St Johnstone - Celtic",
+   "score": "1-3",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 6.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1639,
+   "ev": 0.0652,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.23703421137933667,
+   "clv_pinnacle": 0.25573743428006224
+  },
+  {
+   "date": "2022-01-25",
+   "match": "St Mirren - Aberdeen",
+   "score": "1-0",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 3.6,
+   "bookmaker": "Betway",
+   "model_prob": 0.2884,
+   "ev": 0.0383,
+   "won": true,
+   "profit": 2.6,
+   "clv": 0.04388766100169095,
+   "clv_pinnacle": 0.02974325026113256
+  },
+  {
+   "date": "2022-02-19",
+   "match": "St Johnstone - Hearts",
+   "score": "2-1",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 4.75,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2194,
+   "ev": 0.0421,
+   "won": true,
+   "profit": 3.75,
+   "clv": 0.08893145202956676,
+   "clv_pinnacle": 0.0881382604651697
+  },
+  {
+   "date": "2022-04-09",
+   "match": "Aberdeen - Ross County",
+   "score": "0-1",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 5.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2064,
+   "ev": 0.0319,
+   "won": true,
+   "profit": 4.0,
+   "clv": -0.09984410628063656,
+   "clv_pinnacle": -0.1489835062328484
+  },
+  {
+   "date": "2022-04-30",
+   "match": "Hearts - Ross County",
+   "score": "0-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 5.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1888,
+   "ev": 0.0384,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.02486632104902331,
+   "clv_pinnacle": 0.009891980161071956
+  },
+  {
+   "date": "2023-12-20",
+   "match": "Aberdeen - Livingston",
+   "score": "2-1",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 4.33,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2401,
+   "ev": 0.0397,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.03556512315329696,
+   "clv_pinnacle": 0.03267758762800388
+  }
+ ],
+ "data": {
+  "source": "football-data.co.uk",
+  "last_result": "2026-10-18"
+ },
+ "warnings": [
+  "Resultados históricos simulados não garantem desempenho futuro.",
+  "Amostra de 17 apostas é pequena: conclusões sobre rentabilidade não são fiáveis.",
+  "O intervalo de confiança de 95% do yield inclui zero ou valores negativos: não há evidência estatística de rentabilidade.",
+  "O modelo é menos preciso do que as odds de fecho sem margem (log loss 1X2): vantagens aparentes são provavelmente ruído ou erro do modelo."
+ ]
+}

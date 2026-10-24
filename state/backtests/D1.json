@@ -1,7 +1,7 @@
 {
  "league": "D1",
  "competition": "Alemanha — Bundesliga",
- "run_at": "2026-10-24T12:31:01+00:00",
+ "run_at": "2026-10-24T14:08:41+00:00",
  "params": {
   "test_seasons": 8,
   "xi": 0.0019,
@@ -21,13 +21,13 @@
  "accuracy": {
   "1X2": {
    "model": {
-    "brier": 0.585,
-    "log_loss": 0.9836,
+    "brier": 0.5849,
+    "log_loss": 0.9835,
     "n": 1794
    },
    "model_same_matches": {
-    "brier": 0.585,
-    "log_loss": 0.9836,
+    "brier": 0.5849,
+    "log_loss": 0.9835,
     "n": 1794
    },
    "dixon_coles_only": {
@@ -49,12 +49,12 @@
   "OU2.5": {
    "model": {
     "brier": 0.4562,
-    "log_loss": 0.6477,
+    "log_loss": 0.6476,
     "n": 1794
    },
    "model_same_matches": {
     "brier": 0.4562,
-    "log_loss": 0.6477,
+    "log_loss": 0.6476,
     "n": 1794
    },
    "dixon_coles_only": {
@@ -84,42 +84,42 @@
  "by_season": {
   "2020/21": {
    "n": 296,
-   "final": 0.9978,
+   "final": 0.9971,
    "dixon_coles": 1.0162,
    "prematch": 0.9982,
    "closing": 0.9944
   },
   "2021/22": {
    "n": 287,
-   "final": 1.0134,
+   "final": 1.0129,
    "dixon_coles": 1.0243,
    "prematch": 1.0133,
    "closing": 1.0055
   },
   "2022/23": {
    "n": 306,
-   "final": 0.9963,
+   "final": 0.9966,
    "dixon_coles": 1.0061,
    "prematch": 0.9963,
    "closing": 0.9959
   },
   "2023/24": {
    "n": 286,
-   "final": 0.9547,
+   "final": 0.9548,
    "dixon_coles": 0.9841,
    "prematch": 0.9547,
    "closing": 0.952
   },
   "2024/25": {
    "n": 286,
-   "final": 0.994,
+   "final": 0.9943,
    "dixon_coles": 1.023,
    "prematch": 0.9931,
    "closing": 0.9888
   },
   "2025/26": {
    "n": 296,
-   "final": 0.9505,
+   "final": 0.9503,
    "dixon_coles": 0.9687,
    "prematch": 0.9513,
    "closing": 0.9484
@@ -135,115 +135,124 @@
  "calibration": [
   {
    "bin": "0.0-0.1",
-   "predicted": 0.0704,
-   "observed": 0.0814,
-   "n": 221
+   "predicted": 0.0698,
+   "observed": 0.0804,
+   "n": 224
   },
   {
    "bin": "0.1-0.2",
-   "predicted": 0.158,
-   "observed": 0.1623,
-   "n": 838
+   "predicted": 0.1578,
+   "observed": 0.1614,
+   "n": 849
   },
   {
    "bin": "0.2-0.3",
-   "predicted": 0.2532,
+   "predicted": 0.2529,
    "observed": 0.2661,
    "n": 2326
   },
   {
    "bin": "0.3-0.4",
-   "predicted": 0.3555,
-   "observed": 0.3346,
-   "n": 2182
+   "predicted": 0.3554,
+   "observed": 0.3361,
+   "n": 2184
   },
   {
    "bin": "0.4-0.5",
    "predicted": 0.448,
-   "observed": 0.4417,
-   "n": 2486
+   "observed": 0.441,
+   "n": 2467
   },
   {
    "bin": "0.5-0.6",
-   "predicted": 0.5504,
-   "observed": 0.557,
-   "n": 2235
+   "predicted": 0.5506,
+   "observed": 0.5578,
+   "n": 2223
   },
   {
    "bin": "0.6-0.7",
-   "predicted": 0.6415,
-   "observed": 0.6459,
-   "n": 1689
+   "predicted": 0.6419,
+   "observed": 0.6435,
+   "n": 1686
   },
   {
    "bin": "0.7-0.8",
-   "predicted": 0.7402,
-   "observed": 0.7548,
-   "n": 465
+   "predicted": 0.7411,
+   "observed": 0.7557,
+   "n": 479
   },
   {
    "bin": "0.8-0.9",
-   "predicted": 0.8396,
-   "observed": 0.8056,
-   "n": 108
+   "predicted": 0.8409,
+   "observed": 0.8214,
+   "n": 112
   },
   {
    "bin": "0.9-1.0",
-   "predicted": 0.9183,
+   "predicted": 0.9212,
    "observed": 0.875,
    "n": 8
   }
  ],
  "betting": {
   "overall": {
-   "bets": 16,
-   "won": 2,
-   "lost": 14,
-   "profit_units": -5.0,
-   "yield": -0.3125,
+   "bets": 28,
+   "won": 3,
+   "lost": 25,
+   "profit_units": -8.0,
+   "yield": -0.2857,
    "yield_ci95": [
     -1.0,
-    0.7031
+    0.6339
    ],
-   "max_drawdown_units": 8.0,
-   "avg_odds": 7.76,
-   "avg_clv": 0.0686,
-   "clv_pinnacle_n": 16,
-   "avg_clv_pinnacle": 0.0689,
-   "median_clv_pinnacle": 0.0723,
+   "max_drawdown_units": 10.75,
+   "avg_odds": 7.47,
+   "avg_clv": 0.0296,
+   "clv_pinnacle_n": 28,
+   "avg_clv_pinnacle": 0.0301,
+   "median_clv_pinnacle": 0.0008,
    "clv_pinnacle_ci95": [
-    0.0142,
-    0.1201
+    -0.0134,
+    0.0718
    ],
-   "share_beating_pinnacle": 0.6875
+   "share_beating_pinnacle": 0.5
   },
   "by_market": {
    "1X2": {
-    "bets": 16,
-    "won": 2,
-    "lost": 14,
-    "profit_units": -5.0,
-    "yield": -0.3125,
+    "bets": 28,
+    "won": 3,
+    "lost": 25,
+    "profit_units": -8.0,
+    "yield": -0.2857,
     "yield_ci95": [
      -1.0,
-     0.7031
+     0.6339
     ],
-    "max_drawdown_units": 8.0,
-    "avg_odds": 7.76,
-    "avg_clv": 0.0686,
-    "clv_pinnacle_n": 16,
-    "avg_clv_pinnacle": 0.0689,
-    "median_clv_pinnacle": 0.0723,
+    "max_drawdown_units": 10.75,
+    "avg_odds": 7.47,
+    "avg_clv": 0.0296,
+    "clv_pinnacle_n": 28,
+    "avg_clv_pinnacle": 0.0301,
+    "median_clv_pinnacle": 0.0008,
     "clv_pinnacle_ci95": [
-     0.0142,
-     0.1201
+     -0.0134,
+     0.0718
     ],
-    "share_beating_pinnacle": 0.6875
+    "share_beating_pinnacle": 0.5
    }
   },
   "equity": [
    -1.0,
    -2.0,
+   -3.0,
+   -4.0,
+   0.75,
+   -0.25,
+   -1.25,
+   -2.25,
+   -3.25,
+   -4.25,
+   -5.25,
    2.75,
    1.75,
    0.75,
@@ -253,14 +262,47 @@
    -3.25,
    -4.25,
    -5.25,
-   -1.0,
+   -6.25,
    -2.0,
    -3.0,
    -4.0,
-   -5.0
+   -5.0,
+   -6.0,
+   -7.0,
+   -8.0
   ]
  },
  "bets": [
+  {
+   "date": "2020-09-27",
+   "match": "Hoffenheim - Bayern Munich",
+   "score": "4-1",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 7.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1375,
+   "ev": 0.0313,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.08600250453994995,
+   "clv_pinnacle": -0.12243133323596977
+  },
+  {
+   "date": "2020-10-17",
+   "match": "Mainz - Leverkusen",
+   "score": "0-1",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 5.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1876,
+   "ev": 0.0317,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.05456548415173368,
+   "clv_pinnacle": -0.07434043774967858
+  },
   {
    "date": "2020-10-24",
    "match": "RB Leipzig - Hertha",
@@ -269,8 +311,8 @@
    "selection": "2",
    "odds": 7.0,
    "bookmaker": "Betway",
-   "model_prob": 0.1474,
-   "ev": 0.0319,
+   "model_prob": 0.1512,
+   "ev": 0.0584,
    "won": false,
    "profit": -1.0,
    "clv": 0.12953713346924478,
@@ -284,8 +326,8 @@
    "selection": "2",
    "odds": 10.5,
    "bookmaker": "Betway",
-   "model_prob": 0.1066,
-   "ev": 0.1196,
+   "model_prob": 0.1092,
+   "ev": 0.1461,
    "won": false,
    "profit": -1.0,
    "clv": 0.21622343796654375,
@@ -299,12 +341,42 @@
    "selection": "X",
    "odds": 5.75,
    "bookmaker": "Bet365",
-   "model_prob": 0.1823,
-   "ev": 0.048,
+   "model_prob": 0.1831,
+   "ev": 0.0531,
    "won": true,
    "profit": 4.75,
    "clv": 0.20202035068897617,
    "clv_pinnacle": 0.21028766790782139
+  },
+  {
+   "date": "2021-01-09",
+   "match": "Leverkusen - Werder Bremen",
+   "score": "1-1",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 7.25,
+   "bookmaker": "Betway",
+   "model_prob": 0.1422,
+   "ev": 0.0307,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.041907092765983256,
+   "clv_pinnacle": -0.00231778866918797
+  },
+  {
+   "date": "2021-01-17",
+   "match": "Bayern Munich - Freiburg",
+   "score": "2-1",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 7.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1382,
+   "ev": 0.0368,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.009329488353946758,
+   "clv_pinnacle": -0.02550513127273557
   },
   {
    "date": "2021-01-24",
@@ -314,8 +386,8 @@
    "selection": "1",
    "odds": 16.0,
    "bookmaker": "Bet365",
-   "model_prob": 0.0649,
-   "ev": 0.0377,
+   "model_prob": 0.068,
+   "ev": 0.0877,
    "won": false,
    "profit": -1.0,
    "clv": -0.05385705271503993,
@@ -329,12 +401,27 @@
    "selection": "X",
    "odds": 8.0,
    "bookmaker": "Bet365",
-   "model_prob": 0.1344,
-   "ev": 0.0749,
+   "model_prob": 0.1371,
+   "ev": 0.0969,
    "won": false,
    "profit": -1.0,
    "clv": -0.013090502488005806,
    "clv_pinnacle": -0.01979770825801086
+  },
+  {
+   "date": "2021-02-06",
+   "match": "Schalke 04 - RB Leipzig",
+   "score": "0-3",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 5.75,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1798,
+   "ev": 0.034,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.02366375635578577,
+   "clv_pinnacle": 0.060725681080566085
   },
   {
    "date": "2021-02-12",
@@ -344,12 +431,27 @@
    "selection": "X",
    "odds": 6.5,
    "bookmaker": "Bet365",
-   "model_prob": 0.1589,
-   "ev": 0.0329,
+   "model_prob": 0.1613,
+   "ev": 0.0485,
    "won": false,
    "profit": -1.0,
    "clv": -0.0926732029115569,
    "clv_pinnacle": -0.12150349100198798
+  },
+  {
+   "date": "2021-03-14",
+   "match": "Leverkusen - Bielefeld",
+   "score": "1-2",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 9.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1162,
+   "ev": 0.0454,
+   "won": true,
+   "profit": 8.0,
+   "clv": 0.08884040290151018,
+   "clv_pinnacle": 0.12523441138964064
   },
   {
    "date": "2021-03-20",
@@ -359,12 +461,57 @@
    "selection": "1",
    "odds": 8.0,
    "bookmaker": "Bet365",
-   "model_prob": 0.1334,
-   "ev": 0.0669,
+   "model_prob": 0.1359,
+   "ev": 0.0869,
    "won": false,
    "profit": -1.0,
    "clv": 0.11725438046488579,
    "clv_pinnacle": 0.13570239103009896
+  },
+  {
+   "date": "2021-03-20",
+   "match": "Schalke 04 - M'gladbach",
+   "score": "0-3",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 7.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1393,
+   "ev": 0.045,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.05351386589470364,
+   "clv_pinnacle": -0.0663494660533317
+  },
+  {
+   "date": "2021-04-20",
+   "match": "Bayern Munich - Leverkusen",
+   "score": "2-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 7.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1484,
+   "ev": 0.0386,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.14235359000045533,
+   "clv_pinnacle": 0.17296458330392128
+  },
+  {
+   "date": "2021-04-20",
+   "match": "Ein Frankfurt - Augsburg",
+   "score": "2-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 7.5,
+   "bookmaker": "Betway",
+   "model_prob": 0.1378,
+   "ev": 0.0333,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.254190008413248,
+   "clv_pinnacle": -0.26883097295809
   },
   {
    "date": "2021-04-21",
@@ -374,8 +521,8 @@
    "selection": "2",
    "odds": 6.5,
    "bookmaker": "Bet365",
-   "model_prob": 0.16,
-   "ev": 0.0398,
+   "model_prob": 0.1622,
+   "ev": 0.0541,
    "won": false,
    "profit": -1.0,
    "clv": -0.023727790095363965,
@@ -389,8 +536,8 @@
    "selection": "X",
    "odds": 4.2,
    "bookmaker": "Bet365",
-   "model_prob": 0.2472,
-   "ev": 0.038,
+   "model_prob": 0.2492,
+   "ev": 0.0467,
    "won": false,
    "profit": -1.0,
    "clv": 0.012547265344231784,
@@ -404,12 +551,27 @@
    "selection": "2",
    "odds": 6.5,
    "bookmaker": "Betway",
-   "model_prob": 0.159,
-   "ev": 0.0338,
+   "model_prob": 0.1633,
+   "ev": 0.0617,
    "won": false,
    "profit": -1.0,
    "clv": 0.0858762353972744,
    "clv_pinnacle": 0.07304920895702627
+  },
+  {
+   "date": "2021-04-25",
+   "match": "RB Leipzig - Stuttgart",
+   "score": "2-0",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 5.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1879,
+   "ev": 0.0335,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.015089853388812302,
+   "clv_pinnacle": -0.001694956826231997
   },
   {
    "date": "2021-05-15",
@@ -419,8 +581,8 @@
    "selection": "1",
    "odds": 10.0,
    "bookmaker": "Bet365",
-   "model_prob": 0.1091,
-   "ev": 0.0907,
+   "model_prob": 0.1109,
+   "ev": 0.1093,
    "won": false,
    "profit": -1.0,
    "clv": 0.00020036923406085982,
@@ -434,8 +596,8 @@
    "selection": "2",
    "odds": 5.25,
    "bookmaker": "Bet365",
-   "model_prob": 0.1965,
-   "ev": 0.0318,
+   "model_prob": 0.201,
+   "ev": 0.055,
    "won": true,
    "profit": 4.25,
    "clv": 0.22104413572744108,
@@ -449,8 +611,8 @@
    "selection": "2",
    "odds": 6.0,
    "bookmaker": "Bet365",
-   "model_prob": 0.1761,
-   "ev": 0.0568,
+   "model_prob": 0.177,
+   "ev": 0.0619,
    "won": false,
    "profit": -1.0,
    "clv": 0.07929825152225756,
@@ -464,12 +626,27 @@
    "selection": "X",
    "odds": 11.0,
    "bookmaker": "Bet365",
-   "model_prob": 0.0945,
-   "ev": 0.0399,
+   "model_prob": 0.0963,
+   "ev": 0.0598,
    "won": false,
    "profit": -1.0,
    "clv": -0.03807646900741868,
    "clv_pinnacle": -0.039155017802166237
+  },
+  {
+   "date": "2021-08-28",
+   "match": "Bayern Munich - Hertha",
+   "score": "5-0",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 9.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1153,
+   "ev": 0.0381,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.06567355009797271,
+   "clv_pinnacle": -0.029572214994274648
   },
   {
    "date": "2021-10-23",
@@ -479,8 +656,8 @@
    "selection": "1",
    "odds": 7.75,
    "bookmaker": "Betway",
-   "model_prob": 0.1439,
-   "ev": 0.115,
+   "model_prob": 0.1454,
+   "ev": 0.1269,
    "won": false,
    "profit": -1.0,
    "clv": 0.130344366096786,
@@ -494,12 +671,27 @@
    "selection": "X",
    "odds": 5.25,
    "bookmaker": "Betway",
-   "model_prob": 0.2078,
-   "ev": 0.091,
+   "model_prob": 0.2092,
+   "ev": 0.0985,
    "won": false,
    "profit": -1.0,
    "clv": 0.12520612786745566,
    "clv_pinnacle": 0.14473295169093925
+  },
+  {
+   "date": "2022-01-15",
+   "match": "Stuttgart - RB Leipzig",
+   "score": "0-2",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 6.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1724,
+   "ev": 0.0344,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.028241118160049927,
+   "clv_pinnacle": -0.028755648620307106
   }
  ],
  "data": {
@@ -508,7 +700,7 @@
  },
  "warnings": [
   "Resultados históricos simulados não garantem desempenho futuro.",
-  "Amostra de 16 apostas é pequena: conclusões sobre rentabilidade não são fiáveis.",
+  "Amostra de 28 apostas é pequena: conclusões sobre rentabilidade não são fiáveis.",
   "O intervalo de confiança de 95% do yield inclui zero ou valores negativos: não há evidência estatística de rentabilidade.",
   "O modelo é menos preciso do que as odds de fecho sem margem (log loss 1X2): vantagens aparentes são provavelmente ruído ou erro do modelo."
  ]

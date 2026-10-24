@@ -1,0 +1,669 @@
+{
+ "league": "E1",
+ "competition": "Inglaterra — Championship",
+ "run_at": "2026-10-24T14:08:50+00:00",
+ "params": {
+  "test_seasons": 8,
+  "xi": 0.0019,
+  "xg_weight": 0.0,
+  "devig": "shin",
+  "ev_margin": 0.03,
+  "max_market_divergence": 0.12,
+  "min_team_matches": 10,
+  "blend": "pool logarítmico modelo × mercado pré-jogo; pesos de cada época ajustados só com épocas anteriores (todas as ligas); 1.ª época de teste usada só para treino",
+  "odds": "melhor odd pré-jogo entre casas nomeadas (sem Betfair Exchange/agregados); stake fixa 1u"
+ },
+ "period": {
+  "from": "2020-07-01",
+  "to": "2026-10-20"
+ },
+ "predictions": 3312,
+ "accuracy": {
+  "1X2": {
+   "model": {
+    "brier": 0.6239,
+    "log_loss": 1.0373,
+    "n": 3312
+   },
+   "model_same_matches": {
+    "brier": 0.6239,
+    "log_loss": 1.0373,
+    "n": 3312
+   },
+   "dixon_coles_only": {
+    "brier": 0.6355,
+    "log_loss": 1.0543,
+    "n": 3312
+   },
+   "market_prematch_no_vig": {
+    "brier": 0.6237,
+    "log_loss": 1.037,
+    "n": 3312
+   },
+   "market_closing_no_vig": {
+    "brier": 0.623,
+    "log_loss": 1.0362,
+    "n": 3312
+   }
+  },
+  "OU2.5": {
+   "model": {
+    "brier": 0.4903,
+    "log_loss": 0.6834,
+    "n": 3312
+   },
+   "model_same_matches": {
+    "brier": 0.4903,
+    "log_loss": 0.6834,
+    "n": 3312
+   },
+   "dixon_coles_only": {
+    "brier": 0.5015,
+    "log_loss": 0.695,
+    "n": 3312
+   },
+   "market_prematch_no_vig": {
+    "brier": 0.4903,
+    "log_loss": 0.6833,
+    "n": 3312
+   },
+   "market_closing_no_vig": {
+    "brier": 0.4887,
+    "log_loss": 0.6818,
+    "n": 3312
+   }
+  },
+  "BTTS": {
+   "model": {
+    "brier": 0.5011,
+    "log_loss": 0.6944,
+    "n": 3312
+   }
+  }
+ },
+ "by_season": {
+  "2020/21": {
+   "n": 589,
+   "final": 1.0417,
+   "dixon_coles": 1.0619,
+   "prematch": 1.0411,
+   "closing": 1.0417
+  },
+  "2021/22": {
+   "n": 530,
+   "final": 1.0333,
+   "dixon_coles": 1.0553,
+   "prematch": 1.0333,
+   "closing": 1.0344
+  },
+  "2022/23": {
+   "n": 532,
+   "final": 1.0572,
+   "dixon_coles": 1.0657,
+   "prematch": 1.057,
+   "closing": 1.0571
+  },
+  "2023/24": {
+   "n": 502,
+   "final": 1.024,
+   "dixon_coles": 1.0462,
+   "prematch": 1.0236,
+   "closing": 1.0185
+  },
+  "2024/25": {
+   "n": 533,
+   "final": 1.0264,
+   "dixon_coles": 1.0229,
+   "prematch": 1.0265,
+   "closing": 1.0255
+  },
+  "2025/26": {
+   "n": 532,
+   "final": 1.0382,
+   "dixon_coles": 1.0638,
+   "prematch": 1.0379,
+   "closing": 1.0376
+  },
+  "2026/27": {
+   "n": 94,
+   "final": 1.0461,
+   "dixon_coles": 1.103,
+   "prematch": 1.0462,
+   "closing": 1.0424
+  }
+ },
+ "calibration": [
+  {
+   "bin": "0.0-0.1",
+   "predicted": 0.0786,
+   "observed": 0.0674,
+   "n": 89
+  },
+  {
+   "bin": "0.1-0.2",
+   "predicted": 0.1657,
+   "observed": 0.1726,
+   "n": 759
+  },
+  {
+   "bin": "0.2-0.3",
+   "predicted": 0.2645,
+   "observed": 0.2612,
+   "n": 4464
+  },
+  {
+   "bin": "0.3-0.4",
+   "predicted": 0.3519,
+   "observed": 0.3648,
+   "n": 2985
+  },
+  {
+   "bin": "0.4-0.5",
+   "predicted": 0.4541,
+   "observed": 0.4663,
+   "n": 7148
+  },
+  {
+   "bin": "0.5-0.6",
+   "predicted": 0.5433,
+   "observed": 0.5319,
+   "n": 6530
+  },
+  {
+   "bin": "0.6-0.7",
+   "predicted": 0.6291,
+   "observed": 0.5944,
+   "n": 1065
+  },
+  {
+   "bin": "0.7-0.8",
+   "predicted": 0.7415,
+   "observed": 0.7109,
+   "n": 128
+  },
+  {
+   "bin": "0.8-0.9",
+   "predicted": 0.8339,
+   "observed": 0.875,
+   "n": 16
+  }
+ ],
+ "betting": {
+  "overall": {
+   "bets": 26,
+   "won": 4,
+   "lost": 22,
+   "profit_units": -8.75,
+   "yield": -0.3365,
+   "yield_ci95": [
+    -0.875,
+    0.4041
+   ],
+   "max_drawdown_units": 15.0,
+   "avg_odds": 5.85,
+   "avg_clv": 0.0449,
+   "clv_pinnacle_n": 25,
+   "avg_clv_pinnacle": 0.0113,
+   "median_clv_pinnacle": 0.0091,
+   "clv_pinnacle_ci95": [
+    -0.0317,
+    0.0555
+   ],
+   "share_beating_pinnacle": 0.52
+  },
+  "by_market": {
+   "1X2": {
+    "bets": 26,
+    "won": 4,
+    "lost": 22,
+    "profit_units": -8.75,
+    "yield": -0.3365,
+    "yield_ci95": [
+     -0.875,
+     0.4041
+    ],
+    "max_drawdown_units": 15.0,
+    "avg_odds": 5.85,
+    "avg_clv": 0.0449,
+    "clv_pinnacle_n": 25,
+    "avg_clv_pinnacle": 0.0113,
+    "median_clv_pinnacle": 0.0091,
+    "clv_pinnacle_ci95": [
+     -0.0317,
+     0.0555
+    ],
+    "share_beating_pinnacle": 0.52
+   }
+  },
+  "equity": [
+   -1.0,
+   -2.0,
+   -3.0,
+   -4.0,
+   -5.0,
+   -6.0,
+   -7.0,
+   -8.0,
+   -9.0,
+   -10.0,
+   -11.0,
+   -12.0,
+   -13.0,
+   -9.0,
+   -10.0,
+   -11.0,
+   -12.0,
+   -13.0,
+   -14.0,
+   -15.0,
+   -10.5,
+   -11.5,
+   -12.5,
+   -10.0,
+   -11.0,
+   -8.75
+  ]
+ },
+ "bets": [
+  {
+   "date": "2020-09-19",
+   "match": "Brentford - Huddersfield",
+   "score": "3-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 7.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1503,
+   "ev": 0.0521,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.07449013648379121,
+   "clv_pinnacle": -0.10269085441754766
+  },
+  {
+   "date": "2020-10-31",
+   "match": "Stoke - Rotherham",
+   "score": "1-0",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 3.75,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2751,
+   "ev": 0.0316,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.011985216668903398,
+   "clv_pinnacle": -0.01700148209695751
+  },
+  {
+   "date": "2020-11-28",
+   "match": "Cardiff - Luton",
+   "score": "4-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 4.75,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2201,
+   "ev": 0.0453,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.019315966922316852,
+   "clv_pinnacle": 0.00908479198909573
+  },
+  {
+   "date": "2020-12-16",
+   "match": "Blackburn - Rotherham",
+   "score": "2-1",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 6.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1661,
+   "ev": 0.0794,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.2182314196663333,
+   "clv_pinnacle": 0.20060154582256784
+  },
+  {
+   "date": "2020-12-19",
+   "match": "Brentford - Reading",
+   "score": "3-1",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 5.75,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1813,
+   "ev": 0.0427,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.16863736081767766,
+   "clv_pinnacle": 0.16052464363359142
+  },
+  {
+   "date": "2021-01-20",
+   "match": "Norwich - Bristol City",
+   "score": "2-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 6.5,
+   "bookmaker": "Betway",
+   "model_prob": 0.1608,
+   "ev": 0.0451,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.0706229362173093,
+   "clv_pinnacle": -0.08246796366881348
+  },
+  {
+   "date": "2021-02-06",
+   "match": "Bournemouth - Birmingham",
+   "score": "3-2",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 6.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1785,
+   "ev": 0.0708,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.053362310985864525,
+   "clv_pinnacle": 0.05343241136251442
+  },
+  {
+   "date": "2021-03-20",
+   "match": "Watford - Birmingham",
+   "score": "3-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 7.25,
+   "bookmaker": "Betway",
+   "model_prob": 0.143,
+   "ev": 0.037,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.19235751204544904,
+   "clv_pinnacle": 0.18444863542780832
+  },
+  {
+   "date": "2021-04-02",
+   "match": "Watford - Sheffield Weds",
+   "score": "1-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 7.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1401,
+   "ev": 0.0508,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.031538332323449936,
+   "clv_pinnacle": -0.051055064887960855
+  },
+  {
+   "date": "2021-04-24",
+   "match": "Watford - Millwall",
+   "score": "1-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 7.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1465,
+   "ev": 0.0986,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.03936266410063216,
+   "clv_pinnacle": -0.046544006839213004
+  },
+  {
+   "date": "2021-05-01",
+   "match": "Norwich - Reading",
+   "score": "4-1",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 6.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1728,
+   "ev": 0.0369,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.12424109240491799,
+   "clv_pinnacle": -0.13335022776802985
+  },
+  {
+   "date": "2021-08-21",
+   "match": "Fulham - Hull",
+   "score": "2-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 9.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.114,
+   "ev": 0.0832,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.07120071339849543,
+   "clv_pinnacle": -0.13090713367689522
+  },
+  {
+   "date": "2021-12-11",
+   "match": "Stoke - Middlesbrough",
+   "score": "0-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 3.4,
+   "bookmaker": "Betway",
+   "model_prob": 0.3078,
+   "ev": 0.0464,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.14087757220285146,
+   "clv_pinnacle": 0.13158223797628654
+  },
+  {
+   "date": "2021-12-20",
+   "match": "Fulham - Sheffield United",
+   "score": "0-1",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 5.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2106,
+   "ev": 0.0528,
+   "won": true,
+   "profit": 4.0,
+   "clv": -0.1720697252646457,
+   "clv_pinnacle": -0.22012577904157593
+  },
+  {
+   "date": "2022-01-22",
+   "match": "Stoke - Fulham",
+   "score": "2-3",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 4.33,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2393,
+   "ev": 0.0364,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.016390180952062572,
+   "clv_pinnacle": -0.054369129363672775
+  },
+  {
+   "date": "2022-01-22",
+   "match": "Nott'm Forest - Derby",
+   "score": "2-1",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 4.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2309,
+   "ev": 0.039,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.09799468089167462,
+   "clv_pinnacle": -0.14681202450837016
+  },
+  {
+   "date": "2022-02-19",
+   "match": "Sheffield United - Swansea",
+   "score": "4-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 6.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1631,
+   "ev": 0.0603,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.06929539185869427,
+   "clv_pinnacle": -0.016425971865633437
+  },
+  {
+   "date": "2022-02-26",
+   "match": "Bournemouth - Stoke",
+   "score": "2-1",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 5.25,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1981,
+   "ev": 0.0398,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.007320460924121752,
+   "clv_pinnacle": -0.03341111576299749
+  },
+  {
+   "date": "2022-03-05",
+   "match": "Fulham - Blackburn",
+   "score": "2-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 8.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1218,
+   "ev": 0.0353,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.18423856887683954,
+   "clv_pinnacle": 0.09520911494039686
+  },
+  {
+   "date": "2022-03-08",
+   "match": "Bournemouth - Peterboro",
+   "score": "1-1",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 14.0,
+   "bookmaker": "Betway",
+   "model_prob": 0.0745,
+   "ev": 0.043,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.18280268657127552,
+   "clv_pinnacle": 0.15322619566179618
+  },
+  {
+   "date": "2022-03-15",
+   "match": "Bournemouth - Reading",
+   "score": "1-1",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 5.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.1875,
+   "ev": 0.031,
+   "won": true,
+   "profit": 4.5,
+   "clv": 0.09880558677964424,
+   "clv_pinnacle": 0.10659932537111438
+  },
+  {
+   "date": "2022-10-04",
+   "match": "Bristol City - Coventry",
+   "score": "0-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 3.8,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2717,
+   "ev": 0.0323,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.11103539646758098,
+   "clv_pinnacle": 0.0973177362138955
+  },
+  {
+   "date": "2022-10-12",
+   "match": "Bristol City - Preston",
+   "score": "2-1",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 3.3,
+   "bookmaker": "Betway",
+   "model_prob": 0.3122,
+   "ev": 0.0304,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.03307167941060629,
+   "clv_pinnacle": 0.05181358460887209
+  },
+  {
+   "date": "2023-04-30",
+   "match": "Cardiff - Huddersfield",
+   "score": "1-2",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 3.5,
+   "bookmaker": "Betway",
+   "model_prob": 0.3056,
+   "ev": 0.0695,
+   "won": true,
+   "profit": 2.5,
+   "clv": 0.056201398644438294,
+   "clv_pinnacle": 0.03934268104863747
+  },
+  {
+   "date": "2024-04-09",
+   "match": "Preston - Huddersfield",
+   "score": "4-1",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 3.25,
+   "bookmaker": "Betway",
+   "model_prob": 0.3305,
+   "ev": 0.074,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.03273536380407949,
+   "clv_pinnacle": 0.03424817999622354
+  },
+  {
+   "date": "2026-04-06",
+   "match": "Bristol City - Sheffield United",
+   "score": "1-0",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 3.25,
+   "bookmaker": "Betway",
+   "model_prob": 0.3299,
+   "ev": 0.0721,
+   "won": true,
+   "profit": 2.25,
+   "clv": 0.2142564733451111,
+   "clv_pinnacle": null
+  }
+ ],
+ "data": {
+  "source": "football-data.co.uk",
+  "last_result": "2026-10-20"
+ },
+ "warnings": [
+  "Resultados históricos simulados não garantem desempenho futuro.",
+  "Amostra de 26 apostas é pequena: conclusões sobre rentabilidade não são fiáveis.",
+  "O intervalo de confiança de 95% do yield inclui zero ou valores negativos: não há evidência estatística de rentabilidade.",
+  "O modelo é menos preciso do que as odds de fecho sem margem (log loss 1X2): vantagens aparentes são provavelmente ruído ou erro do modelo."
+ ]
+}

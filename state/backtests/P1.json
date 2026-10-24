@@ -1,7 +1,7 @@
 {
  "league": "P1",
  "competition": "Portugal — Primeira Liga",
- "run_at": "2026-10-24T12:31:05+00:00",
+ "run_at": "2026-10-24T14:08:34+00:00",
  "params": {
   "test_seasons": 8,
   "xi": 0.0019,
@@ -21,13 +21,13 @@
  "accuracy": {
   "1X2": {
    "model": {
-    "brier": 0.5394,
-    "log_loss": 0.9146,
+    "brier": 0.5393,
+    "log_loss": 0.9143,
     "n": 1833
    },
    "model_same_matches": {
-    "brier": 0.5394,
-    "log_loss": 0.9146,
+    "brier": 0.5393,
+    "log_loss": 0.9143,
     "n": 1833
    },
    "dixon_coles_only": {
@@ -48,13 +48,13 @@
   },
   "OU2.5": {
    "model": {
-    "brier": 0.4806,
-    "log_loss": 0.6734,
+    "brier": 0.4804,
+    "log_loss": 0.6732,
     "n": 1833
    },
    "model_same_matches": {
-    "brier": 0.4806,
-    "log_loss": 0.6734,
+    "brier": 0.4804,
+    "log_loss": 0.6732,
     "n": 1833
    },
    "dixon_coles_only": {
@@ -84,28 +84,28 @@
  "by_season": {
   "2020/21": {
    "n": 343,
-   "final": 0.949,
+   "final": 0.9495,
    "dixon_coles": 0.9657,
    "prematch": 0.948,
    "closing": 0.9475
   },
   "2021/22": {
    "n": 277,
-   "final": 0.9172,
+   "final": 0.9176,
    "dixon_coles": 0.9408,
    "prematch": 0.9173,
    "closing": 0.9141
   },
   "2022/23": {
    "n": 286,
-   "final": 0.8529,
+   "final": 0.8511,
    "dixon_coles": 0.8722,
    "prematch": 0.8528,
    "closing": 0.8462
   },
   "2023/24": {
    "n": 296,
-   "final": 0.91,
+   "final": 0.9092,
    "dixon_coles": 0.9347,
    "prematch": 0.9103,
    "closing": 0.9052
@@ -119,7 +119,7 @@
   },
   "2025/26": {
    "n": 287,
-   "final": 0.9171,
+   "final": 0.917,
    "dixon_coles": 0.9322,
    "prematch": 0.9175,
    "closing": 0.9082
@@ -135,110 +135,110 @@
  "calibration": [
   {
    "bin": "0.0-0.1",
-   "predicted": 0.0659,
-   "observed": 0.0444,
-   "n": 383
+   "predicted": 0.0656,
+   "observed": 0.0434,
+   "n": 392
   },
   {
    "bin": "0.1-0.2",
-   "predicted": 0.1508,
-   "observed": 0.1174,
-   "n": 826
+   "predicted": 0.151,
+   "observed": 0.1197,
+   "n": 827
   },
   {
    "bin": "0.2-0.3",
-   "predicted": 0.2634,
-   "observed": 0.2749,
-   "n": 1844
+   "predicted": 0.2633,
+   "observed": 0.2726,
+   "n": 1834
   },
   {
    "bin": "0.3-0.4",
-   "predicted": 0.3533,
-   "observed": 0.3487,
-   "n": 1913
+   "predicted": 0.3532,
+   "observed": 0.3506,
+   "n": 1925
   },
   {
    "bin": "0.4-0.5",
-   "predicted": 0.45,
-   "observed": 0.4676,
-   "n": 3302
+   "predicted": 0.4499,
+   "observed": 0.4695,
+   "n": 3291
   },
   {
    "bin": "0.5-0.6",
-   "predicted": 0.5485,
-   "observed": 0.5322,
-   "n": 3010
+   "predicted": 0.5487,
+   "observed": 0.5303,
+   "n": 2985
   },
   {
    "bin": "0.6-0.7",
-   "predicted": 0.635,
-   "observed": 0.6287,
-   "n": 1107
+   "predicted": 0.6347,
+   "observed": 0.6275,
+   "n": 1122
   },
   {
    "bin": "0.7-0.8",
    "predicted": 0.7442,
-   "observed": 0.8,
-   "n": 280
+   "observed": 0.7958,
+   "n": 284
   },
   {
    "bin": "0.8-0.9",
-   "predicted": 0.8358,
-   "observed": 0.8671,
-   "n": 158
+   "predicted": 0.8376,
+   "observed": 0.8712,
+   "n": 163
   },
   {
    "bin": "0.9-1.0",
-   "predicted": 0.9071,
+   "predicted": 0.9108,
    "observed": 1.0,
    "n": 8
   }
  ],
  "betting": {
   "overall": {
-   "bets": 19,
-   "won": 3,
-   "lost": 16,
-   "profit_units": -6.35,
-   "yield": -0.3342,
+   "bets": 28,
+   "won": 2,
+   "lost": 26,
+   "profit_units": -22.35,
+   "yield": -0.7982,
    "yield_ci95": [
     -1.0,
-    0.5263
+    -0.4625
    ],
-   "max_drawdown_units": 12.35,
-   "avg_odds": 6.11,
-   "avg_clv": 0.0422,
-   "clv_pinnacle_n": 19,
-   "avg_clv_pinnacle": 0.0365,
-   "median_clv_pinnacle": -0.0161,
+   "max_drawdown_units": 22.35,
+   "avg_odds": 6.09,
+   "avg_clv": 0.0656,
+   "clv_pinnacle_n": 28,
+   "avg_clv_pinnacle": 0.057,
+   "median_clv_pinnacle": 0.0548,
    "clv_pinnacle_ci95": [
-    -0.0421,
-    0.1163
+    -0.0057,
+    0.1214
    ],
-   "share_beating_pinnacle": 0.4737
+   "share_beating_pinnacle": 0.6071
   },
   "by_market": {
    "1X2": {
-    "bets": 18,
-    "won": 3,
-    "lost": 15,
-    "profit_units": -5.35,
-    "yield": -0.2972,
+    "bets": 27,
+    "won": 2,
+    "lost": 25,
+    "profit_units": -21.35,
+    "yield": -0.7907,
     "yield_ci95": [
      -1.0,
-     0.5861
+     -0.4426
     ],
-    "max_drawdown_units": 11.35,
-    "avg_odds": 6.32,
-    "avg_clv": 0.0491,
-    "clv_pinnacle_n": 18,
-    "avg_clv_pinnacle": 0.0432,
-    "median_clv_pinnacle": -0.0019,
+    "max_drawdown_units": 21.35,
+    "avg_odds": 6.23,
+    "avg_clv": 0.0711,
+    "clv_pinnacle_n": 27,
+    "avg_clv_pinnacle": 0.0622,
+    "median_clv_pinnacle": 0.0768,
     "clv_pinnacle_ci95": [
-     -0.0411,
-     0.1268
+     -0.0022,
+     0.1263
     ],
-    "share_beating_pinnacle": 0.5
+    "share_beating_pinnacle": 0.6296
    },
    "OU2.5": {
     "bets": 1,
@@ -262,21 +262,30 @@
    -2.0,
    -3.0,
    -4.0,
-   -1.25,
-   -2.25,
-   -3.25,
-   -4.25,
-   -5.25,
+   -5.0,
+   -6.0,
+   -7.0,
+   -8.0,
+   -9.0,
    -6.25,
    -7.25,
    -8.25,
    -9.25,
    -10.25,
    -11.25,
-   -10.35,
-   -11.35,
-   -12.35,
-   -6.35
+   -12.25,
+   -13.25,
+   -14.25,
+   -15.25,
+   -16.25,
+   -17.25,
+   -18.25,
+   -19.25,
+   -20.25,
+   -19.35,
+   -20.35,
+   -21.35,
+   -22.35
   ]
  },
  "bets": [
@@ -288,27 +297,57 @@
    "selection": "2",
    "odds": 7.5,
    "bookmaker": "Bet365",
-   "model_prob": 0.1442,
-   "ev": 0.0814,
+   "model_prob": 0.1465,
+   "ev": 0.0989,
    "won": false,
    "profit": -1.0,
    "clv": 0.3084423898568862,
    "clv_pinnacle": 0.2667038143163889
   },
   {
-   "date": "2020-07-25",
-   "match": "Boavista - Rio Ave",
-   "score": "0-2",
+   "date": "2020-07-15",
+   "match": "Porto - Sp Lisbon",
+   "score": "2-0",
    "market": "1X2",
-   "selection": "1",
+   "selection": "2",
    "odds": 5.0,
    "bookmaker": "Bet365",
-   "model_prob": 0.2068,
-   "ev": 0.0338,
+   "model_prob": 0.2083,
+   "ev": 0.0416,
    "won": false,
    "profit": -1.0,
-   "clv": -0.11515549130237157,
-   "clv_pinnacle": -0.07766376896859217
+   "clv": -0.13189552104468683,
+   "clv_pinnacle": -0.18196508886216123
+  },
+  {
+   "date": "2020-10-31",
+   "match": "Maritimo - Nacional",
+   "score": "0-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 3.75,
+   "bookmaker": "Betway",
+   "model_prob": 0.2757,
+   "ev": 0.0337,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.08751567527710957,
+   "clv_pinnacle": 0.08412946905075946
+  },
+  {
+   "date": "2020-11-29",
+   "match": "Gil Vicente - Rio Ave",
+   "score": "2-0",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 3.4,
+   "bookmaker": "Bet365",
+   "model_prob": 0.3036,
+   "ev": 0.0323,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.027679595711764815,
+   "clv_pinnacle": 0.02896583845675904
   },
   {
    "date": "2020-11-30",
@@ -318,8 +357,8 @@
    "selection": "X",
    "odds": 5.5,
    "bookmaker": "Bet365",
-   "model_prob": 0.1884,
-   "ev": 0.036,
+   "model_prob": 0.1915,
+   "ev": 0.0535,
    "won": false,
    "profit": -1.0,
    "clv": -0.21500160630163334,
@@ -333,12 +372,57 @@
    "selection": "Mais",
    "odds": 2.25,
    "bookmaker": "Bet365",
-   "model_prob": 0.4771,
-   "ev": 0.0735,
+   "model_prob": 0.4784,
+   "ev": 0.0763,
    "won": false,
    "profit": -1.0,
    "clv": -0.08249138842930359,
    "clv_pinnacle": -0.08428069450186026
+  },
+  {
+   "date": "2020-12-28",
+   "match": "Boavista - Sp Braga",
+   "score": "1-4",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 5.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2075,
+   "ev": 0.0373,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.12323958509025634,
+   "clv_pinnacle": -0.14352429866987448
+  },
+  {
+   "date": "2021-01-26",
+   "match": "Boavista - Sp Lisbon",
+   "score": "0-2",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 7.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.148,
+   "ev": 0.0358,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.07655240916014261,
+   "clv_pinnacle": 0.07680032031369577
+  },
+  {
+   "date": "2021-01-31",
+   "match": "Guimaraes - Maritimo",
+   "score": "1-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 5.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2079,
+   "ev": 0.0397,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.14175380059165898,
+   "clv_pinnacle": 0.12095315783640048
   },
   {
    "date": "2021-02-05",
@@ -348,12 +432,27 @@
    "selection": "2",
    "odds": 3.75,
    "bookmaker": "Bet365",
-   "model_prob": 0.2762,
-   "ev": 0.0359,
+   "model_prob": 0.2753,
+   "ev": 0.0322,
    "won": true,
    "profit": 2.75,
    "clv": 0.18525199093987865,
    "clv_pinnacle": 0.18747326873762948
+  },
+  {
+   "date": "2021-02-08",
+   "match": "Benfica - Famalicao",
+   "score": "2-0",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 6.5,
+   "bookmaker": "Bet365",
+   "model_prob": 0.16,
+   "ev": 0.0401,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.022251455382918728,
+   "clv_pinnacle": 0.03284282664581384
   },
   {
    "date": "2021-04-10",
@@ -363,8 +462,8 @@
    "selection": "1",
    "odds": 7.5,
    "bookmaker": "Bet365",
-   "model_prob": 0.1403,
-   "ev": 0.0522,
+   "model_prob": 0.1419,
+   "ev": 0.064,
    "won": false,
    "profit": -1.0,
    "clv": -0.05116799544367889,
@@ -378,8 +477,8 @@
    "selection": "1",
    "odds": 9.5,
    "bookmaker": "Bet365",
-   "model_prob": 0.1148,
-   "ev": 0.091,
+   "model_prob": 0.1179,
+   "ev": 0.1205,
    "won": false,
    "profit": -1.0,
    "clv": -0.14294506131436568,
@@ -393,8 +492,8 @@
    "selection": "1",
    "odds": 4.75,
    "bookmaker": "Bet365",
-   "model_prob": 0.2215,
-   "ev": 0.052,
+   "model_prob": 0.2221,
+   "ev": 0.0552,
    "won": false,
    "profit": -1.0,
    "clv": -0.06109615944437241,
@@ -408,8 +507,8 @@
    "selection": "2",
    "odds": 4.0,
    "bookmaker": "Bet365",
-   "model_prob": 0.2605,
-   "ev": 0.0421,
+   "model_prob": 0.2627,
+   "ev": 0.051,
    "won": false,
    "profit": -1.0,
    "clv": 0.08983499171481246,
@@ -423,8 +522,8 @@
    "selection": "1",
    "odds": 7.5,
    "bookmaker": "Bet365",
-   "model_prob": 0.1456,
-   "ev": 0.0921,
+   "model_prob": 0.1481,
+   "ev": 0.1109,
    "won": false,
    "profit": -1.0,
    "clv": -0.05557829302615158,
@@ -438,8 +537,8 @@
    "selection": "2",
    "odds": 8.0,
    "bookmaker": "Bet365",
-   "model_prob": 0.1345,
-   "ev": 0.0763,
+   "model_prob": 0.1357,
+   "ev": 0.0859,
    "won": false,
    "profit": -1.0,
    "clv": -0.0011366760671792653,
@@ -453,12 +552,57 @@
    "selection": "2",
    "odds": 12.0,
    "bookmaker": "Bet365",
-   "model_prob": 0.0913,
-   "ev": 0.0957,
+   "model_prob": 0.0942,
+   "ev": 0.1299,
    "won": false,
    "profit": -1.0,
    "clv": 0.17762154907526062,
    "clv_pinnacle": 0.15559936037523858
+  },
+  {
+   "date": "2021-05-11",
+   "match": "Nacional - Benfica",
+   "score": "1-3",
+   "market": "1X2",
+   "selection": "1",
+   "odds": 12.0,
+   "bookmaker": "Betway",
+   "model_prob": 0.0893,
+   "ev": 0.0714,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.38991333613961343,
+   "clv_pinnacle": 0.41940701371029054
+  },
+  {
+   "date": "2021-05-11",
+   "match": "Nacional - Benfica",
+   "score": "1-3",
+   "market": "1X2",
+   "selection": "X",
+   "odds": 6.0,
+   "bookmaker": "Betway",
+   "model_prob": 0.1741,
+   "ev": 0.0448,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.09833982432710386,
+   "clv_pinnacle": 0.11933373118707213
+  },
+  {
+   "date": "2021-05-11",
+   "match": "Sp Lisbon - Boavista",
+   "score": "1-0",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 12.0,
+   "bookmaker": "Bet365",
+   "model_prob": 0.0859,
+   "ev": 0.0311,
+   "won": false,
+   "profit": -1.0,
+   "clv": 0.006078218145040726,
+   "clv_pinnacle": -0.05992871842367986
   },
   {
    "date": "2021-05-19",
@@ -468,8 +612,8 @@
    "selection": "1",
    "odds": 3.2,
    "bookmaker": "Bet365",
-   "model_prob": 0.3243,
-   "ev": 0.0378,
+   "model_prob": 0.3273,
+   "ev": 0.0473,
    "won": false,
    "profit": -1.0,
    "clv": 0.3541077962440973,
@@ -483,8 +627,8 @@
    "selection": "1",
    "odds": 5.0,
    "bookmaker": "Bet365",
-   "model_prob": 0.2134,
-   "ev": 0.0672,
+   "model_prob": 0.2146,
+   "ev": 0.0729,
    "won": false,
    "profit": -1.0,
    "clv": -0.04483938262259024,
@@ -498,8 +642,8 @@
    "selection": "2",
    "odds": 8.0,
    "bookmaker": "Bet365",
-   "model_prob": 0.1327,
-   "ev": 0.0617,
+   "model_prob": 0.1342,
+   "ev": 0.0739,
    "won": false,
    "profit": -1.0,
    "clv": 0.2569033357946895,
@@ -513,12 +657,27 @@
    "selection": "1",
    "odds": 1.9,
    "bookmaker": "Bet365",
-   "model_prob": 0.5784,
-   "ev": 0.099,
+   "model_prob": 0.576,
+   "ev": 0.0943,
    "won": true,
    "profit": 0.8999999999999999,
    "clv": 0.22175826702340729,
    "clv_pinnacle": 0.22690174702323884
+  },
+  {
+   "date": "2022-02-07",
+   "match": "Moreirense - Belenenses",
+   "score": "4-1",
+   "market": "1X2",
+   "selection": "2",
+   "odds": 4.33,
+   "bookmaker": "Bet365",
+   "model_prob": 0.2385,
+   "ev": 0.0327,
+   "won": false,
+   "profit": -1.0,
+   "clv": -0.20866952252597182,
+   "clv_pinnacle": -0.23574959986453314
   },
   {
    "date": "2022-03-05",
@@ -528,42 +687,27 @@
    "selection": "1",
    "odds": 4.75,
    "bookmaker": "Bet365",
-   "model_prob": 0.2192,
-   "ev": 0.0412,
+   "model_prob": 0.2203,
+   "ev": 0.0464,
    "won": false,
    "profit": -1.0,
    "clv": 0.252971545353873,
    "clv_pinnacle": 0.18906939087517483
   },
   {
-   "date": "2022-08-21",
-   "match": "Sp Braga - Maritimo",
-   "score": "5-0",
+   "date": "2022-05-14",
+   "match": "Moreirense - Vizela",
+   "score": "4-1",
    "market": "1X2",
    "selection": "2",
-   "odds": 9.0,
+   "odds": 5.5,
    "bookmaker": "Bet365",
-   "model_prob": 0.115,
-   "ev": 0.0351,
+   "model_prob": 0.1884,
+   "ev": 0.0362,
    "won": false,
    "profit": -1.0,
-   "clv": -0.28980003946416955,
-   "clv_pinnacle": -0.31283977956328546
-  },
-  {
-   "date": "2023-09-17",
-   "match": "Guimaraes - Portimonense",
-   "score": "1-2",
-   "market": "1X2",
-   "selection": "2",
-   "odds": 7.0,
-   "bookmaker": "Bet365",
-   "model_prob": 0.1491,
-   "ev": 0.0439,
-   "won": true,
-   "profit": 6.0,
-   "clv": 0.01330553683610658,
-   "clv_pinnacle": -0.016143939013498865
+   "clv": 0.2574467805766303,
+   "clv_pinnacle": 0.23372794184565748
   }
  ],
  "data": {
@@ -572,7 +716,7 @@
  },
  "warnings": [
   "Resultados históricos simulados não garantem desempenho futuro.",
-  "Amostra de 19 apostas é pequena: conclusões sobre rentabilidade não são fiáveis.",
+  "Amostra de 28 apostas é pequena: conclusões sobre rentabilidade não são fiáveis.",
   "O intervalo de confiança de 95% do yield inclui zero ou valores negativos: não há evidência estatística de rentabilidade.",
   "O modelo é menos preciso do que as odds de fecho sem margem (log loss 1X2): vantagens aparentes são provavelmente ruído ou erro do modelo."
  ]
