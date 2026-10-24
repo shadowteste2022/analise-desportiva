@@ -73,7 +73,8 @@ function staticPath(path) {
   return `data/${u.pathname.replace('/api/', '')}.json`;
 }
 async function api(path, opts) {
-  const r = await fetch(window.STATIC ? staticPath(path) : path, opts);
+  // no-cache = revalidate with GitHub Pages (cheap, ETag) so an hourly update never mixes a new page with old data
+  const r = await fetch(window.STATIC ? staticPath(path) : path, {cache: 'no-cache', ...opts});
   if (window.STATIC && r.status === 404) throw new Error('Este jogo já não está na lista atual (os dados são atualizados de hora a hora).');
   const body = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(body.detail ? JSON.stringify(body.detail) : r.statusText);
