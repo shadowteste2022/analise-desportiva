@@ -111,6 +111,7 @@ def analyze(ev: dict, sport_key: str, log: bool = True) -> dict:
         "key": key,
         "identification": {"sport": sport, "league": sport_key, "competition": competition, "home": home,
                            "away": away, "date": kick.date().isoformat(), "time": kick.strftime("%H:%M"),
+                           "kickoff": kick.isoformat(),
                            "venue": "—" if sport == "Ténis" else f"Casa de {home} (pavilhão/estádio não indicado)"},
         "data_status": {"odds": [{"source": "the-odds-api.com", "fetched_at": last,
                                   "note": f"odds de {n_books} casas"}],

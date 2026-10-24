@@ -37,6 +37,10 @@ def get_model(league: str):
     return model, df, meta
 
 
+def _iso(ts) -> str | None:
+    return None if pd.isna(ts) else ts.isoformat()
+
+
 def _form(df: pd.DataFrame, team: str, before, n: int = 5, venue: str | None = None) -> dict:
     d = df[df.Date < before]
     if venue == "home":
@@ -204,6 +208,7 @@ def analyze(row, fx_meta: dict, log: bool = True) -> dict:
         "sport": "Futebol", "league": league, "competition": fd.LEAGUE_NAMES.get(league, league),
         "home": home, "away": away, "date": when.date().isoformat(),
         "time": row.get("Time") if isinstance(row.get("Time"), str) else None,
+        "kickoff": _iso(fd.kickoffs(pd.DataFrame([row])).iloc[0]),
         "venue": f"Casa de {home} (estádio não indicado pela fonte)"}}
     notes = ["Lesões, suspensões e onzes prováveis: sem fonte integrada no MVP — verificar manualmente.",
              "Só jogos do campeonato contam; taças e competições europeias não entram no modelo nem no descanso.",

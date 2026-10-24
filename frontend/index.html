@@ -115,7 +115,10 @@ async function viewFixtures() {
     store.set('filters', JSON.stringify(s));
     // competitions of other sports are hidden while a sport is chosen
     document.querySelectorAll('#f-league option[data-sport]').forEach(o => o.hidden = !!s.sport && o.dataset.sport !== s.sport);
-    let rows = data.fixtures.filter(x => (!s.sport || x.sport === s.sport) && (!s.league || x.league === s.league)
+    // hide games that kicked off over 2 h ago even if the hourly update is late (the data may be hours old)
+    const cutoff = Date.now() - 2 * 3600e3;
+    let rows = data.fixtures.filter(x => !(x.kickoff && Date.parse(x.kickoff) < cutoff))
+      .filter(x => (!s.sport || x.sport === s.sport) && (!s.league || x.league === s.league)
       && (!s.cat || x.category === s.cat) && (!s.q || (x.home + ' ' + x.away).toLowerCase().includes(s.q)));
     if (s.sort === 'ev') rows.sort((a, b) => (b.best?.ev ?? -9) - (a.best?.ev ?? -9));
     else rows.sort((a, b) => (a.date + (a.time || '')).localeCompare(b.date + (b.time || '')));
