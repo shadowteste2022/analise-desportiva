@@ -74,6 +74,17 @@ def test_recommendation_only_with_value():
     assert recommend([], "A", "B")["kind"] == "sem_dados"
 
 
+def test_opportunities_skip_negative_ev_and_bad_data():
+    from app.analysis import opportunities
+    rows = [_row("1X2", "1", 0.62, 1.55, -0.04, mk.SEM_VALOR),
+            _row("1X2", "X", 0.30, 5.0, 0.50, mk.INCONCLUSIVO, ["EV estimado +50%", f"odd 50% {mk.OUTLIER_TEXT} — erro"]),
+            _row("OU2.5", "Mais", 0.55, 1.95, 0.0725, mk.INCONCLUSIVO), _row("BTTS", "Sim", 0.5, 2.05, 0.025, mk.INCONCLUSIVO)]
+    r = {"identification": {"home": "Benfica", "away": "Porto", "sport": "Futebol"}, "markets": rows}
+    opps = opportunities(r)
+    assert [o["label"] for o in opps] == ["Mais de 2.5 golos", "Ambas marcam"]  # outlier and negative EV left out
+    assert opps[0]["licensed_pt"] is False and opps[0]["odds"] == 1.95
+
+
 def test_pick_labels():
     from app.analysis import pick_label
     assert pick_label("OU2.5", "Mais", "A", "B") == "Mais de 2.5 golos"

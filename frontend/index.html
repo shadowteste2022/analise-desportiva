@@ -91,6 +91,32 @@ function oddsApiNote(q) {
   if (q.used == null) return `Odds ao vivo: quota da The Odds API indisponível${q.error ? ` (${esc(q.error)})` : ''}, a usar as últimas odds guardadas. `;
   return `Odds ao vivo (The Odds API): ${q.used} de ${q.budget ?? '—'} créditos usados neste período${q.skipped.length ? `; ${q.skipped.length} competições ficaram para as próximas atualizações para respeitar o orçamento (mostram as últimas odds guardadas ou "sem odds")` : ''}. `;
 }
+// "Melhores oportunidades do dia": highest estimated EV across every game starting in the next 24 h, all sports.
+// Shown as a starting point to compare prices, never as recommended bets (no league has a validated edge).
+function renderOpportunities(fixtures) {
+  const card = document.getElementById('opps-card');
+  const ptOnly = store.get('opps-pt') === '1';
+  const now = Date.now(), horizon = now + 24 * 3600e3;
+  const all = fixtures.filter(x => x.kickoff && Date.parse(x.kickoff) > now && Date.parse(x.kickoff) < horizon)
+    .flatMap(x => (x.opps || []).map(o => ({...o, x})));
+  const rows = all.filter(o => !ptOnly || o.licensed_pt).sort((a, b) => b.ev - a.ev).slice(0, 15);
+  card.innerHTML = `<h2>Melhores oportunidades do dia</h2>
+    <p class="small muted">As apostas com maior valor esperado (EV) <b>estimado</b> nos jogos das próximas 24 horas, em todas as modalidades.
+    <b>Não são apostas recomendadas:</b> nenhuma liga tem vantagem validada no backtest, o EV estimado tem erro e uma odd acima das outras
+    pode durar pouco. Sirvam para comparar odds, não como garantia de lucro.</p>
+    <label class="small"><input type="checkbox" id="opps-pt" ${ptOnly ? 'checked' : ''}> Só casas licenciadas em Portugal (SRIJ)</label>
+    ${rows.length ? `<div class="tbl"><table><tr><th>Hora</th><th>Jogo</th><th>Aposta</th><th>Odd</th><th>Prob. estimada</th><th>EV estimado</th><th>Categoria</th></tr>
+      ${rows.map(o => `<tr class="click" data-key="${esc(o.x.key)}"><td>${esc(o.x.date.slice(5))} ${esc(o.x.time || '')}</td>
+      <td><b>${esc(o.x.home)}</b> – <b>${esc(o.x.away)}</b><br><span class="muted small">${esc(o.x.competition)} · ${esc(o.x.sport)}</span></td>
+      <td><b>${esc(o.label)}</b></td>
+      <td>${num(o.odds)} <span class="muted small">${esc(o.bookmaker)}</span> ${o.licensed_pt ? '<span class="badge b-VALOR">SRIJ</span>' : '<span class="badge b-DADOS">sem licença PT</span>'}</td>
+      <td>${pct(o.prob)}</td><td>${sign(o.ev)}</td><td>${badge(o.category)}</td></tr>`).join('')}</table></div>`
+    : `<p class="muted">${ptOnly ? 'Nenhuma oportunidade em casas licenciadas pelo SRIJ nas próximas 24 horas. As odds da Betano, Betclic e Bwin PT só aparecem com a chave da odds-api.io (plano pago).'
+        : 'Nenhuma aposta com EV estimado positivo nos jogos das próximas 24 horas.'}</p>`}`;
+  document.getElementById('opps-pt').onchange = e => { store.set('opps-pt', e.target.checked ? '1' : '0'); renderOpportunities(fixtures); };
+  card.querySelectorAll('tr.click').forEach(tr => tr.onclick = () => location.hash = '#/match/' + encodeURIComponent(tr.dataset.key));
+}
+
 let fixturesCache = null;
 async function viewFixtures() {
   const data = fixturesCache || await api('/api/fixtures');
@@ -101,7 +127,7 @@ async function viewFixtures() {
     .sort((a, b) => (a.sport !== 'Futebol') - (b.sport !== 'Futebol') || a.sport.localeCompare(b.sport) || a.competition.localeCompare(b.competition));
   const PAGE = 150;
   let limit = PAGE;
-  $app.innerHTML = `<div class="card"><h2>Próximos jogos</h2>
+  $app.innerHTML = `<div class="card" id="opps-card"></div><div class="card"><h2>Próximos jogos</h2>
     <div class="filters">
       <select id="f-sport"><option value="">Todas as modalidades</option>${sports.map(s => `<option>${esc(s)}</option>`).join('')}</select>
       <select id="f-league"><option value="">Todas as competições</option>${comps.map(x => `<option value="${esc(x.league)}" data-sport="${esc(x.sport)}">${esc(x.competition)}</option>`).join('')}</select>
@@ -141,6 +167,7 @@ async function viewFixtures() {
   }
   const v = k => document.getElementById('f-' + k).value;
   render();
+  renderOpportunities(data.fixtures);
   api('/api/alerts').then(a => document.getElementById('alerts').innerHTML = a.length ? `<table><tr><th>Jogo</th><th>Mercado</th><th>Casa</th><th>Odd inicial → atual</th><th>Variação</th></tr>
     ${a.map(r => `<tr><td>${esc(r.match_key.split('|').slice(2).join(' – '))}</td><td>${esc(r.market)} ${esc(r.selection)}</td><td>${esc(r.bookmaker)}</td>
     <td>${num(r.first_odds)} → ${num(r.last_odds)}</td><td>${sign(r.change)}</td></tr>`).join('')}</table>` : 'Sem variações significativas registadas.');

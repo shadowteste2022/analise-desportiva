@@ -345,7 +345,19 @@ def summarize(r: dict) -> dict:
             "probs_1x2": ((r["predictions"] or {}).get("probabilities", {}).get("1X2")
                           or (r["predictions"] or {}).get("probabilities", {}).get("Vencedor")),
             "best": best and {k: best[k] for k in ("market", "selection", "best_odds", "ev", "category")},
-            "value_count": cats.count(mk.VALOR)}
+            "value_count": cats.count(mk.VALOR), "opps": opportunities(r)}
+
+
+def opportunities(r: dict, n: int = 3) -> list[dict]:
+    """The game's best-EV selections for the day's ranking. Prices flagged as probable data errors or stale odds
+    are left out: they would top the ranking with value that is not really there."""
+    ident = r["identification"]
+    rows = [x for x in r["markets"] if x["ev"] is not None and x["ev"] > 0
+            and not any(mk.OUTLIER_TEXT in reason for reason in x["reasons"])]
+    rows.sort(key=lambda x: x["ev"], reverse=True)
+    return [{"label": pick_label(x["market"], x["selection"], ident["home"], ident["away"], ident["sport"]),
+             "odds": x["best_odds"], "bookmaker": x["bookmaker"], "licensed_pt": x.get("licensed_pt", False),
+             "prob": x["model_prob"], "ev": x["ev"], "category": x["category"]} for x in rows[:n]]
 
 
 def find_fixture(key: str):
