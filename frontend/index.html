@@ -240,7 +240,7 @@ async function viewMatch(key) {
         return `<h3>Odds por operador — ${esc(mk)}</h3><div class="tbl"><table><tr><th>Operador</th>${sels.map(s => `<th>${esc(s)}</th>`).join('')}</tr>
         ${Object.entries(books).map(([b, s]) => `<tr><td>${esc(b)}</td>${sels.map(k => `<td class="${s[k] === best[k] ? 'best' : ''}">${num(s[k])}</td>`).join('')}</tr>`).join('')}</table></div>`; }).join('')}
       <p class="small muted">"Melhor odd" escolhe primeiro entre operadores licenciados pelo SRIJ (únicos legais em Portugal); só sem esses usa uma odd internacional, marcada "sem licença PT", como referência.
-      Exclui agregados (máximo/média do mercado) e a Betfair Exchange (odds antes de comissão). Mercados sem odd ficam como SEM DADOS SUFICIENTES.</p>
+      Exclui agregados (máximo/média do mercado) e exchanges como Betfair e Matchbook (odds antes de comissão). Mercados sem odd ficam como SEM DADOS SUFICIENTES.</p>
       ${r.alerts?.length ? `<div class="warn">Variações de odds: ${r.alerts.map(a => `${esc(a.market)} ${esc(a.selection)} ${esc(a.bookmaker)} ${num(a.first_odds)}→${num(a.last_odds)}`).join('; ')}</div>` : ''}</div>`;
   }
   html += `<div class="card"><h2>E. Conclusão</h2><p><b>${esc(c.summary)}</b></p>

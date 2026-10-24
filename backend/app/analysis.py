@@ -14,6 +14,13 @@ from app.models import blend, dixon_coles
 
 MODEL_VERSION = "dixon-coles-v1"
 EXCLUDED_FROM_BEST = set(fd.AGGREGATES.values()) | {"Betfair Exchange"}  # not bettable as-is / pre-commission
+# Betting exchanges and prediction markets quote prices before their 2-5% commission, so their "best odds" overstate EV
+EXCHANGES = ("betfair", "matchbook", "smarkets", "betdaq", "polymarket", "kalshi", "novig", "prophetx", "betopenly",
+             "limitless")
+
+
+def _excluded(book: str) -> bool:
+    return book in EXCLUDED_FROM_BEST or any(x in book.lower() for x in EXCHANGES)
 MEMO_SECONDS = 300
 STAT_COLS = ["Date", "HomeTeam", "AwayTeam", "FTHG", "FTAG", "HxG", "AxG"]
 _models: dict[str, tuple] = {}
@@ -80,7 +87,7 @@ def _rest_days(df: pd.DataFrame, team: str, when) -> int | None:
 
 def _best(books: dict[str, dict[str, float]], sel: str) -> tuple[float | None, str | None, bool]:
     """Best price, preferring SRIJ-licensed books: only those can legally take bets from Portugal."""
-    cands = [(s[sel], b) for b, s in books.items() if b not in EXCLUDED_FROM_BEST and sel in s]
+    cands = [(s[sel], b) for b, s in books.items() if not _excluded(b) and sel in s]
     pt = [c for c in cands if c[1] in odds_api_io.bookmakers()]
     if pt:
         return (*max(pt), True)

@@ -31,3 +31,6 @@ def test_best_prefers_srij_licensed():
     books = {"Bet365": {"1": 2.30}, "Betano PT": {"1": 2.10}, "Betclic PT": {"1": 2.15}}
     assert analysis._best(books, "1") == (2.15, "Betclic PT", True)
     assert analysis._best({"Bet365": {"1": 2.30}}, "1") == (2.30, "Bet365", False)
+    # exchanges quote before commission: never the "best odds"
+    assert analysis._best({"Bet365": {"1": 2.30}, "Matchbook · live": {"1": 2.6}, "Betfair · live": {"1": 2.7}}, "1") \
+        == (2.30, "Bet365", False)
