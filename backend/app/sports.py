@@ -154,7 +154,7 @@ def analyze(ev: dict, sport_key: str, log: bool = True) -> dict:
                         "matrix": None, "top_scores": [],
                         "method": f"Consenso do mercado sem margem (Shin) — média de {n_books} casas"}
         if probs else None,
-        "markets": rows, "odds": odds, "conclusion": analysis._conclusion(rows, conf, list(NOTES)),
+        "markets": rows, "odds": analysis.public_odds(odds), "conclusion": analysis._conclusion(rows, conf, list(NOTES)),
         "recommendation": analysis.recommend(rows, home, away, sport)}
     if log and rows:
         db.log_predictions([{"match_key": key, "league": sport_key, "match_date": kick.date().isoformat(),

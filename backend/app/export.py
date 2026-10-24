@@ -50,7 +50,7 @@ def export(out: Path) -> dict:
         log.exception("Falha ao analisar as outras modalidades")
         others = []
     for report in others + football:
-        report["alerts"] = db.odds_moves(report["key"])
+        report["alerts"] = analysis.public_alerts(db.odds_moves(report["key"]))
         _write(data / "match" / f"{slug(report['key'])}.json", report)
         summaries.append(analysis.summarize(report))
     db.prune_snapshots()
@@ -58,9 +58,11 @@ def export(out: Path) -> dict:
     live = {"enabled": odds_api.enabled(),
             **{k: odds_api.quota.get(k) for k in ("used", "remaining", "budget", "allowed_now", "error")},
             "skipped": sorted(set(odds_api.quota["skipped"]))}
-    _write(data / "fixtures.json", {"fixtures": summaries, "source": meta, "generated_at": generated, "odds_api": live})
+    legal = {"pt_only": settings.pt_only, "sources": [n for n, on in (("odds-api.io", odds_api_io.enabled()),) if on]}
+    _write(data / "fixtures.json", {"fixtures": summaries, "source": meta, "generated_at": generated, "odds_api": live,
+                                    "legal": legal})
     _write(data / "history.json", analysis.settled_history(5000))
-    _write(data / "alerts.json", db.odds_moves())
+    _write(data / "alerts.json", analysis.public_alerts(db.odds_moves()))
     _write(data / "backtests.json", backtest.load_all())
     page = (FRONTEND / "index.html").read_text(encoding="utf-8")
     page = page.replace("</head>", "<script>window.STATIC = true;</script>\n</head>", 1)

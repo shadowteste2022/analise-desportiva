@@ -38,6 +38,9 @@ class Settings(BaseSettings):
     xg_weight: float = 0.0  # share of xG in the fitting target (0 = goals only); see README backtest
     min_team_matches: int = 10
     ev_margin: float = 0.03  # minimum EV per unit for "VALOR POTENCIAL"
+    # Only SRIJ-licensed bookmakers (legal in Portugal) for prices, best bets and the odds tables shown to visitors.
+    # Unlicensed books still feed the no-vig market reference behind the probabilities.
+    pt_only: bool = False
     devig_method: str = "shin"  # proportional | power | shin; Shin corrects the favourite-longshot bias
     max_market_divergence: float = 0.12  # |model - no-vig market| above this -> inconclusive
     odds_outlier: float = 0.15  # best odds this far above the market's fair odds -> data error/stale, inconclusive

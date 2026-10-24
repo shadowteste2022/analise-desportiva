@@ -92,7 +92,7 @@ def match(key: str = Query(..., max_length=200)):
         report = sports.find(key)
     if report is None:
         raise HTTPException(404, "Jogo não encontrado nos próximos jogos")
-    report["alerts"] = db.odds_moves(key)
+    report["alerts"] = analysis.public_alerts(db.odds_moves(key))
     return report
 
 
@@ -103,7 +103,7 @@ def history(limit: int = Query(500, ge=1, le=5000)):
 
 @app.get("/api/alerts")
 def alerts():
-    return db.odds_moves()
+    return analysis.public_alerts(db.odds_moves())
 
 
 @app.get("/api/backtests")

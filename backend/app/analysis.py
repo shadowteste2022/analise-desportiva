@@ -9,7 +9,7 @@ import pandas as pd
 
 from app import db, markets as mk
 from app.config import settings
-from app.data import football_data as fd, odds_api, odds_api_io
+from app.data import football_data as fd, odds_api, odds_api_io, srij
 from app.models import blend, dixon_coles
 
 MODEL_VERSION = "dixon-coles-v1"
@@ -86,12 +86,26 @@ def _rest_days(df: pd.DataFrame, team: str, when) -> int | None:
 
 
 def _best(books: dict[str, dict[str, float]], sel: str) -> tuple[float | None, str | None, bool]:
-    """Best price, preferring SRIJ-licensed books: only those can legally take bets from Portugal."""
+    """Best price, preferring SRIJ-licensed books: only those can legally take bets from Portugal. With PT_ONLY,
+    unlicensed books are never the best price (they still feed the market reference used for probabilities)."""
     cands = [(s[sel], b) for b, s in books.items() if not _excluded(b) and sel in s]
-    pt = [c for c in cands if c[1] in odds_api_io.bookmakers()]
+    pt = [c for c in cands if srij.licensed(c[1])]
     if pt:
         return (*max(pt), True)
+    if settings.pt_only:
+        return None, None, False
     return (*max(cands), False) if cands else (None, None, False)
+
+
+def public_odds(odds: dict) -> dict:
+    """The odds tables shown to visitors: with PT_ONLY, only SRIJ-licensed bookmakers."""
+    if not settings.pt_only:
+        return odds
+    return {m: {b: s for b, s in books.items() if srij.licensed(b)} for m, books in odds.items()}
+
+
+def public_alerts(moves: list[dict]) -> list[dict]:
+    return [a for a in moves if not settings.pt_only or srij.licensed(a["bookmaker"])]
 
 
 def outcome(market: str, sel: str, hg: int, ag: int) -> bool:
@@ -119,6 +133,8 @@ def evaluate_markets(probs: dict, odds: dict, conf: str | None) -> list[dict]:
             cat, reasons = mk.classify(p if conf else None, best, conf, market_p)
             if best and not licensed:
                 reasons.append("odd de referência de operador sem licença SRIJ — não disponível legalmente em Portugal")
+            if best is None and books and settings.pt_only:
+                reasons = ["sem odd de casa licenciada pelo SRIJ (o site só usa casas legais em Portugal)"]
             best_ev = mk.ev(p, best) if best and conf else None  # no EV without a reliable estimate
             rows.append({
                 "market": market, "selection": sel, "model_prob": round(p, 4),
@@ -332,7 +348,7 @@ def analyze(row, fx_meta: dict, log: bool = True) -> dict:
     _apply_validation(rows, v)
     report["data_status"]["model_validation"] = v
     report["markets"] = rows
-    report["odds"] = odds
+    report["odds"] = public_odds(odds)
     report["conclusion"] = _conclusion(rows, conf, notes)
     report["recommendation"] = recommend(rows, home, away)
     if log:

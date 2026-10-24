@@ -27,6 +27,22 @@ def test_find_event_by_names_and_day():
     assert odds_api_io.find_event([EVENT], "Benfica", "Braga", pd.Timestamp("2026-10-25")) is None
 
 
+def test_pt_only_never_uses_unlicensed_books(monkeypatch):
+    from app.config import settings
+    from app.data import srij
+    assert srij.licensed("Betano PT") and srij.licensed("Bwin PT · live") and srij.licensed("Placard")
+    assert not srij.licensed("Bet365") and not srij.licensed("Betclic FR · live")
+    monkeypatch.setattr(settings, "pt_only", True)
+    assert analysis._best({"Bet365": {"1": 2.30}}, "1") == (None, None, False)
+    assert analysis._best({"Bet365": {"1": 2.30}, "Bwin PT": {"1": 2.1}}, "1") == (2.1, "Bwin PT", True)
+    odds = {"1X2": {"Bet365": {"1": 2.3, "X": 3.4, "2": 3.2}, "Média do mercado": {"1": 2.2, "X": 3.3, "2": 3.1},
+                    "Betano PT": {"1": 2.15, "X": 3.3, "2": 3.0}}}
+    assert analysis.public_odds(odds) == {"1X2": {"Betano PT": {"1": 2.15, "X": 3.3, "2": 3.0}}}
+    rows = analysis.evaluate_markets({"1X2": {"1": 0.45, "X": 0.28, "2": 0.27}},
+                                     {"1X2": {k: v for k, v in odds["1X2"].items() if k != "Betano PT"}}, "alta")
+    assert all(r["best_odds"] is None and "SRIJ" in r["reasons"][0] for r in rows)
+
+
 def test_best_prefers_srij_licensed():
     books = {"Bet365": {"1": 2.30}, "Betano PT": {"1": 2.10}, "Betclic PT": {"1": 2.15}}
     assert analysis._best(books, "1") == (2.15, "Betclic PT", True)
