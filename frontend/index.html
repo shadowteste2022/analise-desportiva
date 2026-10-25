@@ -245,7 +245,7 @@ function renderBars() {
       `<button class="chip ${d === k ? 'on' : ''}" data-day="${d}">${dayName(d)}<span class="n">${fx.filter(x => onDay(x, d)).length}</span></button>`).join('')}</div>
     <div class="chips sport" role="group" aria-label="Modalidade"><button class="chip ${!S.f.sport ? 'on' : ''}" data-sport="">Todas<span class="n">${dayGames.length}</span></button>
       ${sports.map(s => `<button class="chip ${S.f.sport === s ? 'on' : ''}" data-sport="${esc(s)}">${icon(s)} ${esc(s)}<span class="n">${dayGames.filter(x => x.sport === s).length}</span></button>`).join('')}</div>`;
-  const upd = () => { S.limit = 80; S.f.league = ''; store.set('filters5', JSON.stringify(S.f)); renderBars(); renderFilters(); renderHighlights(); renderList(); };
+  const upd = () => { S.limit = 80; S.f.league = ''; store.set('filters5', JSON.stringify(S.f)); renderBars(); renderFilters(); renderHighlights(); renderList(); renderTables(); };
   document.querySelectorAll('[data-day]').forEach(c => c.onclick = () => { S.f.when = c.dataset.day; upd(); });
   document.querySelectorAll('[data-sport]').forEach(c => c.onclick = () => { S.f.sport = c.dataset.sport; upd(); });
 }
@@ -492,15 +492,17 @@ async function renderTables() {
     tablesData = tablesData || await Promise.all([api('/api/tables'), api('/api/rankings').catch(() => [])])
       .then(([sims, ranks]) => [...sims.map(t => ({...t, kind: 'sim', sport: 'Futebol'})), ...ranks.map(t => ({...t, kind: 'rank'}))]);
   } catch (e) { box.innerHTML = err(e); return; }
-  if (!tablesData.length) { box.innerHTML = '<p class="muted small">Sem classificações disponíveis.</p>'; return; }
-  const sel = tablesData.some(t => t.league === store.get('table-league')) ? store.get('table-league') : tablesData[0].league;
+  // only the sport chosen at the top (all of them with "Todas")
+  const list = tablesData.filter(t => !S.f.sport || t.sport === S.f.sport);
+  if (!list.length) { box.innerHTML = `<p class="muted small">Sem classificações nem rankings${S.f.sport ? ` de ${esc(S.f.sport)}` : ''} por agora.</p>`; return; }
+  const sel = list.some(t => t.league === store.get('table-league')) ? store.get('table-league') : list[0].league;
   // one menu, grouped by sport: football leagues with a real table first, then every league's strength ranking
-  const groups = [['Futebol — classificação e simulação', tablesData.filter(t => t.kind === 'sim')],
-    ...[...new Set(tablesData.filter(t => t.kind === 'rank').map(t => t.sport))].sort((x, y) => sportRank(x) - sportRank(y))
-      .map(sp => [`${icon(sp)} ${sp} — ranking de força`, tablesData.filter(t => t.kind === 'rank' && t.sport === sp)])].filter(([, l]) => l.length);
+  const groups = [['Futebol — classificação e simulação', list.filter(t => t.kind === 'sim')],
+    ...[...new Set(list.filter(t => t.kind === 'rank').map(t => t.sport))].sort((x, y) => sportRank(x) - sportRank(y))
+      .map(sp => [`${icon(sp)} ${sp} — ranking de força`, list.filter(t => t.kind === 'rank' && t.sport === sp)])].filter(([, l]) => l.length);
   box.innerHTML = `<select id="t-league" aria-label="Competição">${groups.map(([label, list]) => `<optgroup label="${esc(label)}">${list.map(t =>
       `<option value="${esc(t.league)}" ${t.league === sel ? 'selected' : ''}>${esc(t.competition)}</option>`).join('')}</optgroup>`).join('')}</select>
-    <span class="small muted"> ${tablesData.length} competições</span><div id="t-body"></div>`;
+    <span class="small muted"> ${list.length} competições</span><div id="t-body"></div>`;
   const showSim = t => {
     const n = t.teams.length, bar = p => `${pct(p, 0)}<span class="bar" style="width:${Math.round(p * 50)}px"></span>`;
     return `<div class="tbl"><table><tr><th>#</th><th>Equipa</th><th>J</th><th>Pts</th><th class="hide-sm">DG</th>
@@ -520,7 +522,7 @@ async function renderTables() {
       as fontes grátis não dão a tabela desta época. Treinado em ${t.matches} jogos (época de 2024 e jogos registados desde 26/10/2026, até ${esc(t.last_result)}).
       * = equipa sem jogos registados nesta época (pode já não estar nesta liga).</p>`;
   };
-  const show = lg => { const t = tablesData.find(x => x.league === lg) || tablesData[0];
+  const show = lg => { const t = list.find(x => x.league === lg) || list[0];
     document.getElementById('t-body').innerHTML = t.kind === 'sim' ? showSim(t) : showRank(t); };
   document.getElementById('t-league').onchange = e => { store.set('table-league', e.target.value); show(e.target.value); };
   show(sel);
