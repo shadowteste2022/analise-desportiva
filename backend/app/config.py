@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     # odds-api.io: the only feed found with SRIJ-licensed books (Betano PT, Betclic PT, Bwin PT)
     odds_api_io_key: str | None = None
     odds_api_io_bookmakers: str = "Betano PT,Betclic PT,Bwin PT"
-    # OddsPapi: free plan (250 requests/month) with SRIJ-licensed Betano PT and Bwin PT
+    # OddsPapi: free plan (250 requests/month) with SRIJ-licensed Betano PT
     oddspapi_key: str | None = None
     oddspapi_monthly_budget: int = 250
     oddspapi_reset_day: int = Field(1, ge=1, le=28)

@@ -67,7 +67,7 @@ def export(out: Path) -> dict:
             "skipped": sorted(set(odds_api.quota["skipped"]))}
     legal = {"pt_only": settings.pt_only,
              "sources": [n for n, on in (("odds-api.io", odds_api_io.enabled()),
-                                         ("OddsPapi (Betano PT, Bwin PT)", oddspapi.enabled())) if on],
+                                         ("OddsPapi (Betano PT)", oddspapi.enabled())) if on],
              "oddspapi": {k: oddspapi.state[k] for k in ("used", "limit", "error", "skipped")}}
     _write(data / "fixtures.json", {"fixtures": summaries, "source": meta, "generated_at": generated, "odds_api": live,
                                     "legal": legal})

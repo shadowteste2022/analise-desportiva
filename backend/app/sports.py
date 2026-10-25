@@ -139,7 +139,7 @@ def analyze(ev: dict, sport_key: str, log: bool = True) -> dict:
         for market, books in _app_markets(pt).items():
             odds.setdefault(market, {}).update(books)
         if pt:
-            sources.append({"source": "OddsPapi", "fetched_at": updated, "note": "Betano PT e Bwin PT (licenciadas SRIJ)"})
+            sources.append({"source": "OddsPapi", "fetched_at": updated, "note": "Betano PT (licenciada SRIJ)"})
     return build(sport_key, sport, competition, home, away, kick, odds, sources, NOTES, log)
 
 
@@ -151,11 +151,11 @@ def _app_markets(odds: dict) -> dict:
 
 def from_oddspapi(f: dict, log: bool = True) -> dict:
     """A game only the Portuguese books list (e.g. Liga Portugal 2, Liga BPI): probabilities from the no-vig
-    consensus of Betano PT and Bwin PT."""
+    consensus of the Portuguese books (none with Betano PT alone)."""
     kick = f["kickoff"].tz_convert(LOCAL_TZ)
-    sources = [{"source": "OddsPapi", "fetched_at": f.get("updated"), "note": "Betano PT e Bwin PT (licenciadas SRIJ)"}]
-    notes = NOTES[:2] + ["Odds só de casas licenciadas pelo SRIJ (Betano PT e Bwin PT): com 2 casas, o consenso é "
-                         "uma referência mais fraca do que a média de muitas casas."]
+    sources = [{"source": "OddsPapi", "fetched_at": f.get("updated"), "note": "Betano PT (licenciada SRIJ)"}]
+    notes = NOTES[:2] + ["Odds só da Betano PT (licenciada SRIJ): com uma única casa não há consenso de mercado, por "
+                         "isso este jogo fica sem probabilidades nem melhor aposta."]
     return build(f"oddspapi_{f['tournament']}", "Futebol", f["competition"], f["home"], f["away"], kick,
                  _app_markets(f["odds"]), sources, notes, log)
 

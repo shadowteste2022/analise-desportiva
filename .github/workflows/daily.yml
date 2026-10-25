@@ -31,7 +31,7 @@ jobs:
       ODDS_API_MONTHLY_BUDGET: ${{ vars.ODDS_API_MONTHLY_BUDGET || '500' }}
       ODDS_API_RESET_DAY: ${{ vars.ODDS_API_RESET_DAY || '1' }}
       ODDS_API_IO_KEY: ${{ secrets.ODDS_API_IO_KEY }}                 # optional: SRIJ-licensed odds (paid)
-      ODDSPAPI_KEY: ${{ secrets.ODDSPAPI_KEY }}                       # SRIJ-licensed Betano PT / Bwin PT (free plan)
+      ODDSPAPI_KEY: ${{ secrets.ODDSPAPI_KEY }}                       # SRIJ-licensed Betano PT (free plan)
       ODDSPAPI_RESET_DAY: ${{ vars.ODDSPAPI_RESET_DAY || '1' }}
       PT_ONLY: ${{ vars.PT_ONLY || 'false' }}                         # only bookmakers licensed in Portugal
     steps:

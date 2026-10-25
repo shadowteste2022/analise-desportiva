@@ -1,4 +1,4 @@
-"""Odds from SRIJ-licensed bookmakers (Betano PT, Bwin PT) via OddsPapi (https://oddspapi.io). Requires ODDSPAPI_KEY.
+"""Odds from the SRIJ-licensed Betano PT via OddsPapi (https://oddspapi.io). Requires ODDSPAPI_KEY.
 
 Free plan: 250 requests per billing period. Verified with the API on 24/10/2026:
 - /v4/account is free and reports `request_limit`, `request_count` and the subscription start (`valid_from`);

@@ -240,7 +240,7 @@ def _fixture_odds(row, league: str, fx_meta: dict) -> tuple[dict, list[dict]]:
         for market, books in pt.items():
             odds.setdefault(market, {}).update({b: dict(s) for b, s in books.items()})
         sources.append({"source": "OddsPapi", "fetched_at": last,
-                        "note": "Betano PT e Bwin PT (licenciadas SRIJ)" if pt else "jogo sem odds da Betano PT / Bwin PT"})
+                        "note": "Betano PT (licenciada SRIJ)" if pt else "jogo sem odds da Betano PT"})
     return odds, sources
 
 
