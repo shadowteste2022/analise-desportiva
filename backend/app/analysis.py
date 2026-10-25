@@ -1,4 +1,5 @@
 """Pre-match report per fixture (sections A-E) built only from fetched data; missing data is reported, never filled in."""
+import itertools
 import json
 import threading
 import time
@@ -22,6 +23,8 @@ EXCHANGES = ("betfair", "matchbook", "smarkets", "betdaq", "polymarket", "kalshi
 def _excluded(book: str) -> bool:
     return book in EXCLUDED_FROM_BEST or any(x in book.lower() for x in EXCHANGES)
 MEMO_SECONDS = 300
+NO_OPPORTUNITY = ("Não foi identificada uma oportunidade com valor estatístico suficientemente convincente nas "
+                  "condições atuais.")
 STAT_COLS = ["Date", "HomeTeam", "AwayTeam", "FTHG", "FTAG", "HxG", "AxG"]
 _models: dict[str, tuple] = {}
 _validation_cache: dict[tuple, dict] = {}
@@ -108,11 +111,21 @@ def public_alerts(moves: list[dict]) -> list[dict]:
     return [a for a in moves if not settings.pt_only or srij.licensed(a["bookmaker"])]
 
 
-def outcome(market: str, sel: str, hg: int, ag: int) -> bool:
+def outcome(market: str, sel: str, hg: int, ag: int) -> bool | None:
+    """Whether the selection won; None when the stake is returned (draw no bet on a draw)."""
+    res = "1" if hg > ag else "X" if hg == ag else "2"
     if market == "1X2":
-        return {"1": hg > ag, "X": hg == ag, "2": hg < ag}[sel]
+        return sel == res
+    if market == "DC":
+        return res in sel
+    if market == "DNB":
+        return None if res == "X" else sel == res
     if market == "BTTS":
         return (hg > 0 and ag > 0) == (sel == "Sim")
+    if market.startswith("AH"):
+        return (hg - ag + float(market[2:]) > 0) == (sel == "1")
+    if market[:2] in ("GC", "GF"):
+        return ((hg if market[:2] == "GC" else ag) > float(market[2:])) == (sel == "Mais")
     line = float(market[2:])
     return (hg + ag > line) == (sel == "Mais")
 
@@ -120,7 +133,10 @@ def outcome(market: str, sel: str, hg: int, ag: int) -> bool:
 def evaluate_markets(probs: dict, odds: dict, conf: str | None) -> list[dict]:
     """One row per market selection with every number the decision depends on."""
     rows = []
+    draw = (probs.get("1X2") or probs.get("Vencedor") or {}).get("X")
     for market, sels in probs.items():
+        # draw no bet returns the stake on a draw: EV per unit staked is the conditional EV times P(no draw)
+        scale = 1 - draw if market == "DNB" and draw is not None else 1
         books = odds.get(market, {})
         avg = books.get(fd.AGGREGATES["Avg"])
         avg_margin = mk.devig(avg)[1] if avg and len(avg) == len(sels) else None
@@ -135,7 +151,8 @@ def evaluate_markets(probs: dict, odds: dict, conf: str | None) -> list[dict]:
                 reasons.append("odd de referência de operador sem licença SRIJ — não disponível legalmente em Portugal")
             if best is None and books and settings.pt_only:
                 reasons = ["sem odd de casa licenciada pelo SRIJ (o site só usa casas legais em Portugal)"]
-            best_ev = mk.ev(p, best) if best and conf else None  # no EV without a reliable estimate
+            best_ev = mk.ev(p, best) * scale if best and conf else None  # no EV without a reliable estimate
+            market_ev = mk.ev(market_p, best) * scale if best and market_p else None
             rows.append({
                 "market": market, "selection": sel, "model_prob": round(p, 4),
                 "fair_odds": round(mk.fair_odds(p), 2) if p > 0 else None,
@@ -145,6 +162,11 @@ def evaluate_markets(probs: dict, odds: dict, conf: str | None) -> list[dict]:
                 "bookmaker_margin": round(margin, 4) if margin is not None else None,
                 "market_avg_margin": round(avg_margin, 4) if avg_margin is not None else None,
                 "ev": round(best_ev, 4) if best_ev is not None else None,
+                # the lower of two estimates (ours and the no-vig market's): the value both agree on
+                "ev_conservative": round(min(best_ev, market_ev), 4) if None not in (best_ev, market_ev) else None,
+                # lowest price worth taking: fair odds plus the safety margin
+                "min_odds": round(mk.fair_odds(p) * (1 + settings.ev_margin), 2) if p > 0 else None,
+                "n_books": sum(1 for b, s in books.items() if not _excluded(b) and sel in s),
                 "confidence": conf, "category": cat, "reasons": reasons})
     return rows
 
@@ -171,6 +193,19 @@ def validation(league: str) -> dict:
                       f"backtest nesta liga: {'modelo menos preciso do que as odds de fecho' if not accurate else 'CLV médio não positivo'}"
                       " — vantagem não demonstrada"}
     return _validation_cache[key]
+
+
+def add_evidence(rows: list[dict], history: str | None, v: dict, model_probs: dict | None) -> None:
+    """Evidence quality per selection; model_probs are the model's own (pre-blend) estimates, None without a model."""
+    for r in rows:
+        model_p = (model_probs or {}).get(r["market"], {}).get(r["selection"])
+        r["evidence"] = mk.evidence(r["n_books"], history, v, model_p, r["market_prob_no_vig"])
+
+
+def rank_score(r: dict) -> float:
+    """Ranking of checkable selections: conservative EV, discounted by evidence quality when positive."""
+    e = r["ev_conservative"]
+    return e * r["evidence"]["score"] / 100 if e > 0 else e
 
 
 def _apply_validation(rows: list[dict], v: dict) -> None:
@@ -215,6 +250,15 @@ def pick_label(market: str, sel: str, home: str, away: str, sport: str = "Futebo
         return {"1": f"Vitória {home}", "X": "Empate", "2": f"Vitória {away}"}.get(sel, sel)
     if market == "BTTS":
         return "Ambas marcam" if sel == "Sim" else "Não marcam ambas"
+    if market == "DC":
+        return {"1X": f"{home} ou empate", "12": f"{home} ou {away}", "X2": f"Empate ou {away}"}.get(sel, sel)
+    if market == "DNB":
+        return f"{home if sel == '1' else away} (empate anula)"
+    if market.startswith("AH"):
+        h = float(market[2:])
+        return f"{home} {h:+g}" if sel == "1" else f"{away} {-h:+g}"
+    if market[:2] in ("GC", "GF"):
+        return f"{sel} de {market[2:]} golos — {home if market[:2] == 'GC' else away}"
     if market.startswith("OU"):
         unit = {"Futebol": "golos", "Hóquei no gelo": "golos", "Andebol": "golos", "Basquetebol": "pontos",
                 "Futebol americano": "pontos", "Futebol australiano": "pontos", "Râguebi": "pontos",
@@ -236,25 +280,28 @@ def recommend(rows: list[dict], home: str, away: str, sport: str = "Futebol") ->
     likely = max(main, key=lambda r: r["model_prob"]) if main else None
     out = {"most_likely": likely and {"label": label(likely), "prob": likely["model_prob"]}}
     if not ok:
-        return {**out, "kind": "sem_dados",
+        return {**out, "kind": "sem_dados", "verdict": NO_OPPORTUNITY,
                 "text": "Sem odds que se possam comparar com o mercado: não há melhor aposta para este jogo."}
-    b = max(value or ok, key=lambda r: r["ev"])
-    pick = {"label": label(b), "odds": b["best_odds"], "bookmaker": b["bookmaker"], "ev": b["ev"],
-            "prob": b["model_prob"], "licensed_pt": b.get("licensed_pt", False)}
+    b = max(value or ok, key=rank_score)
+    pick = {"label": label(b), "odds": b["best_odds"], "bookmaker": b["bookmaker"], "ev": b["ev_conservative"],
+            "ev_model": b["ev"], "prob": b["model_prob"], "licensed_pt": b.get("licensed_pt", False),
+            "min_odds": b["min_odds"], "evidence": b["evidence"], "score": round(rank_score(b), 4)}
     if value:
         return {**out, **pick, "kind": "valor",
                 "text": f"Aposta com valor potencial: {label(b)} @ {b['best_odds']} ({b['bookmaker']}), EV estimado "
-                        f"{b['ev']:+.1%}. É uma estimativa, não uma garantia: use stakes pequenas."}
-    if b["ev"] > 0:
+                        f"{pick['ev']:+.1%}. É uma estimativa, não uma garantia: use stakes pequenas."}
+    out["verdict"] = NO_OPPORTUNITY
+    if pick["ev"] > 0:
         # the classification reason, not the EV figure itself or the licensing note appended after it
         main_reasons = [x for x in b["reasons"] if not x.startswith("EV estimado") and "SRIJ" not in x]
         why = (main_reasons or b["reasons"] or [""])[0]
         return {**out, **pick, "kind": "melhor_opcao",
-                "text": f"Melhor opção: {label(b)} @ {b['best_odds']} ({b['bookmaker']}), EV estimado {b['ev']:+.1%}. "
+                "text": f"Melhor opção: {label(b)} @ {b['best_odds']} ({b['bookmaker']}), EV conservador {pick['ev']:+.1%}, "
+                        f"evidência {b['evidence']['label']} ({b['evidence']['score']}/100). "
                         f"Não validada ({why}): é a aposta mais favorável deste jogo, não uma aposta garantida."}
     return {**out, **pick, "kind": "sem_valor",
             "text": f"Nenhuma opção com EV positivo neste jogo: a menos desfavorável é {label(b)} @ {b['best_odds']} "
-                    f"({b['bookmaker']}), EV estimado {b['ev']:+.1%}. A margem das casas come o valor: melhor não apostar."}
+                    f"({b['bookmaker']}), EV conservador {pick['ev']:+.1%}. A margem das casas come o valor: melhor não apostar."}
 
 
 def checkable(rows: list[dict]) -> list[dict]:
@@ -339,6 +386,9 @@ def analyze(row, fx_meta: dict, log: bool = True) -> dict:
     model_probs = mk.market_probs(m)
     bw = blend.load()
     probs, blended = blend.apply(model_probs, odds, bw and bw["weights"])
+    # double chance / draw no bet from the (blended) result; team goals and handicaps only from the model matrix
+    probs = {**probs, **mk.derived_markets(probs["1X2"], m)}
+    model_probs = {**model_probs, **mk.derived_markets(model_probs["1X2"], m)}
     top = sorted(((float(m[i, j]), f"{i}-{j}") for i in range(7) for j in range(7)), reverse=True)[:10]
     report["predictions"] = {
         "expected_goals": {home: round(lam, 2), away: round(mu, 2)}, "probabilities": probs,
@@ -352,6 +402,7 @@ def analyze(row, fx_meta: dict, log: bool = True) -> dict:
     rows = evaluate_markets(probs, odds, conf)
     v = validation(league)
     _apply_validation(rows, v)
+    add_evidence(rows, conf, v, model_probs)
     report["data_status"]["model_validation"] = v
     report["markets"] = rows
     report["odds"] = public_odds(odds)
@@ -363,7 +414,7 @@ def analyze(row, fx_meta: dict, log: bool = True) -> dict:
                              "model_prob": r["model_prob"], "odds": r["best_odds"], "ev": r["ev"],
                              "category": r["category"], "confidence": conf, "model_version": MODEL_VERSION}
                             for r in rows])
-        db.snapshot_odds(key, odds, odds_sources[-1]["fetched_at"] or fx_meta["fetched_at"])
+        db.snapshot_odds(key, odds, db.now())  # when we saw these prices: one source's time would mislabel the others
     return report
 
 
@@ -378,12 +429,12 @@ def list_fixtures(league: str | None = None) -> tuple[list[dict], dict]:
 
 def summarize(r: dict) -> dict:
     """One fixture-list row from a full report."""
-    best = max(checkable(r["markets"]), key=lambda x: x["ev"], default=None)  # same filter as the best bet
+    best = max(checkable(r["markets"]), key=rank_score, default=None)  # same filter and order as the best bet
     cats = [x["category"] for x in r["markets"]]
     top = next((c for c in (mk.VALOR, mk.INCONCLUSIVO, mk.SEM_VALOR) if c in cats), mk.SEM_DADOS)
     rec = r.get("recommendation") or {}
     return {"key": r["key"], **r["identification"], "category": top,
-            "pick": {k: rec.get(k) for k in ("kind", "label", "odds", "ev", "bookmaker", "licensed_pt")}
+            "pick": {k: rec.get(k) for k in ("kind", "label", "odds", "ev", "bookmaker", "licensed_pt", "score")}
             if rec.get("label") else None,
             "confidence": (r.get("data_status") or {}).get("confidence"),
             "probs_1x2": ((r["predictions"] or {}).get("probabilities", {}).get("1X2")
@@ -397,11 +448,12 @@ def opportunities(r: dict, n: int = 3) -> list[dict]:
     (a no-vig market reference exists) and pass both checks: not a probable data error or stale price, and not a
     model estimate far from the market. Those would top the ranking with value that is not really there."""
     ident = r["identification"]
-    rows = [x for x in checkable(r["markets"]) if x["ev"] > 0]
-    rows.sort(key=lambda x: x["ev"], reverse=True)
+    rows = [x for x in checkable(r["markets"]) if x["ev_conservative"] > 0]
+    rows.sort(key=rank_score, reverse=True)
     return [{"label": pick_label(x["market"], x["selection"], ident["home"], ident["away"], ident["sport"]),
              "odds": x["best_odds"], "bookmaker": x["bookmaker"], "licensed_pt": x.get("licensed_pt", False),
-             "prob": x["model_prob"], "ev": x["ev"], "category": x["category"]} for x in rows[:n]]
+             "prob": x["model_prob"], "ev": x["ev_conservative"], "evidence": x["evidence"]["score"],
+             "min_odds": x["min_odds"], "score": round(rank_score(x), 4), "category": x["category"]} for x in rows[:n]]
 
 
 def find_fixture(key: str):
@@ -428,3 +480,57 @@ def settled_history(limit: int = 500) -> list[dict]:
         r["result"] = f"{score[0]}-{score[1]}" if score else None
         r["won"] = outcome(r["market"], r["selection"], *score) if score else None
     return rows
+
+
+def performance(rows: list[dict]) -> dict:
+    """Live track record of the logged predictions once results are in: calibration (log loss, Brier) per market
+    group and the simulated result of every positive-EV selection at the logged price. Only the latest logged
+    estimate per selection counts, so hourly re-logging does not weigh a game more."""
+    latest = {}
+    for r in rows:  # rows come newest first
+        if r.get("won") is not None:
+            latest.setdefault((r["match_key"], r["market"], r["selection"]), r)
+    groups: dict[str, list] = {}
+    for r in latest.values():
+        g = r["market"] if r["market"] in ("1X2", "Vencedor", "OU2.5", "BTTS") else "outros"
+        groups.setdefault(g, []).append(r)
+        groups.setdefault("todos", []).append(r)
+    out = {}
+    for g, rs in groups.items():
+        p = np.clip([r["model_prob"] for r in rs], 1e-6, 1 - 1e-6)
+        y = np.array([bool(r["won"]) for r in rs], dtype=float)
+        bets = [r for r in rs if r.get("ev") is not None and r["ev"] > 0 and r.get("odds")]
+        profit = sum(r["odds"] - 1 if r["won"] else -1 for r in bets)
+        out[g] = {"selections": len(rs), "games": len({r["match_key"] for r in rs}),
+                  "log_loss": round(float(-(y * np.log(p) + (1 - y) * np.log(1 - p)).mean()), 4),
+                  "brier": round(float(((p - y) ** 2).mean()), 4),
+                  "bets": len(bets), "profit": round(profit, 2), "roi": round(profit / len(bets), 4) if bets else None}
+    calib = []
+    allp = [(r["model_prob"], bool(r["won"])) for r in latest.values()]
+    for k in range(10):
+        b = [(pp, w) for pp, w in allp if min(int(pp * 10), 9) == k]
+        if b:
+            calib.append({"from": k / 10, "to": (k + 1) / 10, "n": len(b),
+                          "predicted": round(float(np.mean([pp for pp, _ in b])), 4),
+                          "observed": round(float(np.mean([w for _, w in b])), 4)})
+    return {"markets": out, "calibration": calib,
+            "note": "Previsões ao vivo registadas por este site; amostras pequenas não permitem conclusões."}
+
+
+def odds_timeline(match_key: str) -> dict | None:
+    """Best price per selection over time for the match result market, from the stored snapshots (one per change).
+    Each bookmaker's last price is carried forward until it changes; with PT_ONLY only licensed books count."""
+    rows = [r for r in db.odds_series(match_key) if r["market"] in ("1X2", "Vencedor") and not _excluded(r["bookmaker"])
+            and (not settings.pt_only or srij.licensed(r["bookmaker"]))]
+    if not rows:
+        return None
+    last, series = {}, {}
+    for t, group in itertools.groupby(rows, key=lambda r: r["fetched_at"]):
+        for r in group:
+            last[(r["selection"], r["bookmaker"])] = r["odds"]
+        for sel in {s for s, _ in last}:
+            best = max(v for (s, _), v in last.items() if s == sel)
+            pts = series.setdefault(sel, [])
+            if not pts or pts[-1][1] != best:
+                pts.append([t, best])
+    return {"market": rows[0]["market"], "series": series}

@@ -254,6 +254,22 @@ frontend/static/risk.js  simulação Monte Carlo da banca, no browser
 - **Probabilidade final**: no 1X2 e no O/U 2,5, quando há odd média pré-jogo, é a combinação modelo + mercado com os
   pesos de `data/blend.json`, gerado pelo backtest. Nos outros mercados (outras linhas e BTTS) é só o Dixon-Coles,
   porque não há odds históricas desses mercados para validar a combinação. O relatório de cada jogo mostra as duas.
+- **Mercados derivados**: dupla hipótese e empate anula saem da probabilidade final 1X2; golos por equipa (0,5–2,5) e
+  handicap ±1,5 saem só da matriz do Dixon-Coles. Nenhuma fonte dá odds destes mercados, por isso aparecem com a
+  probabilidade, a odd justa e a odd mínima, para comparar na casa. No empate anula, a odd justa usa a probabilidade
+  condicionada a não haver empate e o EV desconta a devolução do stake.
+- **Odd mínima** = odd justa × (1 + `EV_MARGIN`): abaixo dela a aposta não compensa a margem de segurança.
+- **Qualidade da evidência** (0–100, separada da probabilidade): 4 partes de 25 — n.º de casas com preço, histórico das
+  equipas, validação fora da amostra da liga e acordo entre o modelo e o mercado sem margem. «forte» exige liga validada.
+- **Motor da melhor aposta**: entre as seleções verificáveis (há referência de mercado e nenhum alerta de erro de
+  odd ou divergência), ordena pelo **EV conservador** — o menor entre o EV do modelo e o EV contra o mercado sem
+  margem — multiplicado pela evidência quando é positivo. Sem `VALOR POTENCIAL`, a página diz «Não foi identificada
+  uma oportunidade com valor estatístico suficientemente convincente nas condições atuais.» e mostra a melhor opção
+  como não validada.
+- **Desempenho ao vivo** (página Histórico): log loss, Brier, calibração e lucro simulado das seleções com EV positivo,
+  usando a última estimativa registada de cada seleção.
+- **Movimento das odds**: cada atualização guarda só os preços que mudaram, com a hora a que foram observados; a página
+  do jogo mostra a evolução da melhor odd do resultado.
 
 ## Backtest: 8 épocas e modelo combinado com o mercado (24/10/2026)
 
@@ -407,6 +423,7 @@ com uma fonte de xG histórica autorizada.
 | GET | `/api/fixtures?league=P1` | próximos jogos com resumo e categoria |
 | GET | `/api/match?key=P1\|2026-10-24\|Casa\|Fora` | relatório completo A–E |
 | GET | `/api/history` | previsões registadas e resultado real |
+| GET | `/api/performance` | métricas das previsões já resolvidas (log loss, Brier, calibração, ROI simulado) |
 | GET | `/api/alerts` | variações de odds acima de `ODDS_MOVE_ALERT` |
 | GET | `/api/backtests` | resultados guardados |
 | POST | `/api/admin/backtest` | corre o backtest de todas as ligas, ≈10 min (cabeçalho `X-Admin-Token`) |

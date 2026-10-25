@@ -116,6 +116,18 @@ function when(x) {
   const label = diff === 0 ? 'Hoje' : diff === 1 ? 'Amanhã' : d.toLocaleDateString('pt-PT', {weekday: 'short', day: '2-digit', month: '2-digit'});
   return `${label} ${hm}`;
 }
+const MK_NAME = {'1X2': 'Resultado', Vencedor: 'Vencedor', DC: 'Dupla hipótese', DNB: 'Empate anula', BTTS: 'Ambas marcam'};
+const mkName = m => MK_NAME[m] || (m.startsWith('OU') ? `Total ${m.slice(2)}` : m.startsWith('GC') ? `Golos casa ${m.slice(2)}`
+  : m.startsWith('GF') ? `Golos fora ${m.slice(2)}` : m.startsWith('AH') ? `Handicap casa ${m.slice(2)}` : m);
+// evidence quality (0-100) is how far the estimate can be trusted, never a probability of winning
+const evBadge = e => e == null ? '' : `<span class="badge ${{forte: 'b-VALOR', moderada: 'b-INC'}[e.label] || 'b-DADOS'}" title="Qualidade da evidência">evidência ${e.score}/100</span>`;
+function spark(pts) {  // best price over time as a small inline SVG line
+  if (pts.length < 2) return '';
+  const t = pts.map(p => Date.parse(p[0])), v = pts.map(p => p[1]);
+  const [t0, t1, lo, hi] = [Math.min(...t), Math.max(...t), Math.min(...v), Math.max(...v)];
+  const xy = pts.map((_, i) => `${(120 * (t[i] - t0) / ((t1 - t0) || 1)).toFixed(1)},${(28 - 24 * (v[i] - lo) / ((hi - lo) || 1)).toFixed(1)}`);
+  return `<svg width="124" height="32" viewBox="-2 0 124 32" role="img" aria-label="evolução da melhor odd"><polyline points="${xy.join(' ')}" fill="none" stroke="var(--accent)" stroke-width="2"/></svg>`;
+}
 const licenceBadge = ok => ok ? '<span class="badge b-VALOR">SRIJ</span>' : '<span class="badge b-DADOS">sem licença PT</span>';
 const goMatch = el => el.querySelectorAll('[data-key]').forEach(t => t.onclick = () => location.hash = '#/match/' + encodeURIComponent(t.dataset.key));
 
@@ -127,10 +139,11 @@ function renderOpportunities(fixtures, legal) {
   const now = Date.now(), horizon = now + 24 * 3600e3;
   const all = fixtures.filter(x => x.kickoff && Date.parse(x.kickoff) > now && Date.parse(x.kickoff) < horizon)
     .flatMap(x => (x.opps || []).map(o => ({...o, x})));
-  const rows = all.filter(o => !ptOnly || o.licensed_pt).sort((a, b) => b.ev - a.ev).slice(0, 15);
+  const rows = all.filter(o => !ptOnly || o.licensed_pt).sort((a, b) => (b.score ?? b.ev) - (a.score ?? a.ev)).slice(0, 15);
   const top = rows.slice(0, 3), rest = rows.slice(3);
   card.innerHTML = `<h2>Aposta do dia</h2>
-    <p class="small muted">As apostas mais favoráveis (maior valor esperado <b>estimado</b>) dos jogos das próximas 24 horas, em todas as modalidades.
+    <p class="small muted">As apostas mais favoráveis dos jogos das próximas 24 horas, em todas as modalidades, ordenadas pelo <b>EV conservador</b>
+    (o menor entre o nosso EV e o do mercado sem margem) ponderado pela qualidade da evidência.
     São estimativas, não garantias: nenhuma liga tem vantagem validada no backtest e uma odd acima das outras pode durar pouco.</p>
     ${legal?.pt_only ? '' : `<label class="small"><input type="checkbox" id="opps-pt" ${ptOnly ? 'checked' : ''}> Só casas licenciadas em Portugal (SRIJ)</label>`}
     ${top.length ? `<div class="hero">${top.map((o, i) => `<div class="pick" data-key="${esc(o.x.key)}">
@@ -138,9 +151,10 @@ function renderOpportunities(fixtures, legal) {
         <span><b>${esc(o.x.home)}</b> – <b>${esc(o.x.away)}</b><br><span class="muted small">${esc(o.x.competition)}</span></span>
         <span class="bet">${esc(o.label)}</span>
         <span class="meta"><span>Odd <b>${num(o.odds)}</b> · ${esc(o.bookmaker)} ${licenceBadge(o.licensed_pt)}</span>
-          <span>Prob. <b>${pct(o.prob)}</b></span><span>EV <b>${sign(o.ev)}</b></span></span>
+          <span>Prob. <b>${pct(o.prob)}</b></span><span>EV <b>${sign(o.ev)}</b></span><span>Odd mín. ${num(o.min_odds)}</span></span>
+        ${o.evidence != null ? `<span class="small muted">Evidência ${o.evidence}/100</span>` : ''}
         <span class="small" style="color:var(--accent)">Ver análise →</span></div>`).join('')}</div>`
-      : `<p class="muted">${ptOnly ? 'Ainda não há apostas favoráveis em casas licenciadas pelo SRIJ nas próximas 24 horas.' : 'Nenhuma aposta com EV estimado positivo nos jogos das próximas 24 horas.'}</p>`}
+      : `<p class="muted">Não foi identificada uma oportunidade com valor estatístico suficientemente convincente nas condições atuais${ptOnly ? ' (casas licenciadas pelo SRIJ, próximas 24 horas)' : ' (próximas 24 horas)'}.</p>`}
     ${rest.length ? `<h3>Mais oportunidades</h3><div class="tbl"><table><tr><th>Quando</th><th>Jogo</th><th>Aposta</th><th>Odd</th><th class="hide-sm">Prob.</th><th>EV</th></tr>
       ${rest.map(o => `<tr class="click" data-key="${esc(o.x.key)}"><td>${when(o.x)}</td>
       <td><b>${esc(o.x.home)}</b> – <b>${esc(o.x.away)}</b><br><span class="muted small">${esc(o.x.competition)} · ${esc(o.x.sport)}</span></td>
@@ -242,11 +256,14 @@ async function viewMatch(key) {
   const rec = r.recommendation;
   let html = `<p><a href="#/">← Jogos</a></p>
     ${rec ? `<div class="card" style="border-left:4px solid var(${{valor: '--ok', melhor_opcao: '--warn'}[rec.kind] || '--no'})"><h2>Melhor aposta</h2>
-      <p style="font-size:16px">${rec.label ? `<b>${esc(rec.label)}</b> @ ${num(rec.odds)} <span class="muted">(${esc(rec.bookmaker)})</span> · EV ${sign(rec.ev)}
+      ${rec.verdict ? `<p><b>${esc(rec.verdict)}</b></p>` : ''}
+      <p style="font-size:16px">${rec.label ? `<b>${esc(rec.label)}</b> @ ${num(rec.odds)} <span class="muted">(${esc(rec.bookmaker)})</span> · EV conservador ${sign(rec.ev)} ${evBadge(rec.evidence)}
         <span class="badge ${(PICK_TAG[rec.kind] || [])[0] || 'b-SEM'}">${(PICK_TAG[rec.kind] || [])[1] || ''}</span>
         ${rec.licensed_pt ? '<span class="badge b-VALOR">SRIJ</span>' : '<span class="badge b-DADOS">sem licença PT</span>'}`
         : '<b>Sem melhor aposta</b>'}</p>
       <p>${esc(rec.text)}</p>
+      ${rec.label ? `<p class="small">Odd mínima para valer a pena: <b>${num(rec.min_odds)}</b> (odd justa + ${esc('3%')} de margem de segurança). EV só do modelo: ${sign(rec.ev_model)}.
+        ${rec.evidence ? `Evidência: ${Object.entries(rec.evidence.parts).map(([k, v]) => `${esc(k)} ${v}/25`).join(' · ')}.` : ''}</p>` : ''}
       ${rec.most_likely ? `<p class="small muted">Resultado mais provável: <b>${esc(rec.most_likely.label)}</b> (${pct(rec.most_likely.prob)}). Ser provável não quer dizer que valha a pena apostar: só vale quando a odd paga mais do que essa probabilidade.</p>` : ''}
       <p class="small muted">Análise estatística, não aconselhamento financeiro. Aposte apenas o que pode perder.</p></div>` : ''}
     <div class="card"><h2>A. ${esc(home)} – ${esc(away)}</h2><div class="grid kv">
@@ -285,19 +302,26 @@ async function viewMatch(key) {
       <p class="small muted">Mais prováveis: ${pr.top_scores.slice(0, 5).map(s => `${esc(s.score)} (${pct(s.prob)})`).join(', ')}</p></div></div></div>`;
   }
   if (r.markets?.length) {
-    html += `<div class="card"><h2>D. Comparação de odds e valor esperado</h2><div class="tbl"><table><tr><th>Mercado</th><th>Seleção</th><th>Prob. modelo</th><th>Odd justa</th>
-      <th>Melhor odd</th><th>Casa</th><th>Prob. implícita</th><th>Mercado s/ margem</th><th>Margem casa</th><th>EV</th><th>Categoria</th><th>Motivos</th></tr>
-      ${r.markets.map(x => `<tr><td>${esc(x.market)}</td><td>${esc(x.selection)}</td><td>${pct(x.model_prob)}</td><td>${num(x.fair_odds)}</td>
-      <td>${num(x.best_odds)}</td><td>${esc(x.bookmaker || '—')}${x.bookmaker ? (x.licensed_pt ? ' <span class="badge b-VALOR">SRIJ</span>' : ' <span class="badge b-DADOS">sem licença PT</span>') : ''}</td><td>${pct(x.implied_prob)}</td><td>${pct(x.market_prob_no_vig)}</td>
-      <td>${pct(x.bookmaker_margin)}</td><td>${sign(x.ev)}</td><td>${badge(x.category)}</td><td class="small">${esc(x.reasons.join('; '))}</td></tr>`).join('')}</table></div>
+    html += `<div class="card"><h2>D. Comparação de mercados, odds e valor esperado</h2>
+      <p class="small muted">"Odd mínima" = odd justa + 3%: abaixo dela a aposta não compensa. Mercados sem odd de nenhuma fonte (dupla hipótese, empate anula, golos por equipa, handicap)
+      mostram só a probabilidade e a odd mínima, para comparar com a casa. Golos por equipa e handicap vêm só do modelo (sem mercado para o calibrar).</p>
+      <div class="tbl"><table><tr><th>Mercado</th><th>Seleção</th><th>Prob.</th><th>Odd justa</th><th>Odd mínima</th>
+      <th>Melhor odd</th><th>Casa</th><th class="hide-sm">Prob. implícita</th><th class="hide-sm">Mercado s/ margem</th><th class="hide-sm">Margem casa</th><th>EV</th><th>EV conservador</th><th>Evidência</th><th>Categoria</th><th class="hide-sm">Motivos</th></tr>
+      ${r.markets.map(x => `<tr><td>${esc(mkName(x.market))}</td><td>${esc(x.selection)}</td><td>${pct(x.model_prob)}</td><td>${num(x.fair_odds)}</td><td>${num(x.min_odds)}</td>
+      <td>${num(x.best_odds)}</td><td>${esc(x.bookmaker || '—')}${x.bookmaker ? (x.licensed_pt ? ' <span class="badge b-VALOR">SRIJ</span>' : ' <span class="badge b-DADOS">sem licença PT</span>') : ''}</td><td class="hide-sm">${pct(x.implied_prob)}</td><td class="hide-sm">${pct(x.market_prob_no_vig)}</td>
+      <td class="hide-sm">${pct(x.bookmaker_margin)}</td><td>${sign(x.ev)}</td><td>${sign(x.ev_conservative)}</td><td>${x.evidence && x.best_odds ? x.evidence.score : '—'}</td><td>${badge(x.category)}</td><td class="small hide-sm">${esc(x.reasons.join('; '))}</td></tr>`).join('')}</table></div>
       ${Object.entries(r.odds || {}).filter(([, b]) => Object.keys(b).length).map(([mk, books]) => {
         // selection order and "best" come from the markets table: JS objects reorder numeric keys ("1","2" before "X")
         const rows = r.markets.filter(x => x.market === mk), sels = rows.map(x => x.selection);
         const best = Object.fromEntries(rows.map(x => [x.selection, x.best_odds]));
-        return `<h3>Odds por operador — ${esc(mk)}</h3><div class="tbl"><table><tr><th>Operador</th>${sels.map(s => `<th>${esc(s)}</th>`).join('')}</tr>
+        return `<h3>Odds por operador — ${esc(mkName(mk))}</h3><div class="tbl"><table><tr><th>Operador</th>${sels.map(s => `<th>${esc(s)}</th>`).join('')}</tr>
         ${Object.entries(books).map(([b, s]) => `<tr><td>${esc(b)}</td>${sels.map(k => `<td class="${s[k] === best[k] ? 'best' : ''}">${num(s[k])}</td>`).join('')}</tr>`).join('')}</table></div>`; }).join('')}
       <p class="small muted">"Melhor odd" escolhe primeiro entre operadores licenciados pelo SRIJ (únicos legais em Portugal); só sem esses usa uma odd internacional, marcada "sem licença PT", como referência.
       Exclui agregados (máximo/média do mercado) e exchanges como Betfair e Matchbook (odds antes de comissão). Mercados sem odd ficam como SEM DADOS SUFICIENTES.</p>
+      ${r.odds_history ? `<h3>Movimento da melhor odd — ${esc(mkName(r.odds_history.market))}</h3><div class="tbl"><table><tr><th>Seleção</th><th>Primeira</th><th>Atual</th><th>Variação</th><th>Evolução</th></tr>
+        ${Object.entries(r.odds_history.series).map(([sel, pts]) => { const a = pts[0][1], b = pts[pts.length - 1][1];
+          return `<tr><td>${esc({'1': home, X: 'Empate', '2': away}[sel] || sel)}</td><td>${num(a)} <span class="muted small">${esc(new Date(pts[0][0]).toLocaleString('pt-PT'))}</span></td><td>${num(b)}</td><td>${sign(b / a - 1)}</td><td>${spark(pts)}</td></tr>`; }).join('')}</table></div>
+        <p class="small muted">Melhor odd de cada seleção a cada atualização (só mudanças são guardadas).</p>` : ''}
       ${r.alerts?.length ? `<div class="warn">Variações de odds: ${r.alerts.map(a => `${esc(a.market)} ${esc(a.selection)} ${esc(a.bookmaker)} ${num(a.first_odds)}→${num(a.last_odds)}`).join('; ')}</div>` : ''}</div>`;
   }
   html += `<div class="card"><h2>E. Conclusão</h2><p><b>${esc(c.summary)}</b></p>
@@ -310,14 +334,24 @@ async function viewMatch(key) {
 
 // ---------- Histórico ----------
 async function viewHistory() {
-  const rows = await api('/api/history');
+  const [rows, perf] = await Promise.all([api('/api/history'), api('/api/performance').catch(() => null)]);
+  const pm = perf ? Object.entries(perf.markets) : [];
   const settled = rows.filter(r => r.won != null && r.category === 'VALOR POTENCIAL' && r.odds);
   const profit = settled.reduce((s, r) => s + (r.won ? r.odds - 1 : -1), 0);
   $app.innerHTML = `<div class="card"><h2>Histórico de previsões</h2>
     <p class="small muted">Todas as previsões geradas ficam registadas (append-only) e são confrontadas com o resultado real quando este chega à fonte.
     Previsões "VALOR POTENCIAL" já resolvidas: ${settled.length} · resultado simulado com stake 1u: ${num(profit)}u. Amostras pequenas não permitem conclusões.</p>
+    ${pm.length ? `<h3>Desempenho ao vivo</h3><p class="small muted">${esc(perf.note)} Conta a última estimativa de cada seleção. Log loss e Brier: menor é melhor.
+      "Apostas" = seleções com EV estimado positivo, ao preço registado, stake 1u.</p>
+      <div class="tbl"><table><tr><th>Mercado</th><th>Jogos</th><th>Seleções</th><th>Log loss</th><th>Brier</th><th>Apostas</th><th>Lucro</th><th>ROI</th></tr>
+      ${pm.map(([g, m]) => `<tr><td>${esc(g === 'todos' ? 'Todos' : g === 'outros' ? 'Outros mercados' : mkName(g))}</td><td>${m.games}</td><td>${m.selections}</td><td>${num(m.log_loss, 4)}</td><td>${num(m.brier, 4)}</td>
+      <td>${m.bets}</td><td>${num(m.profit)}u</td><td>${sign(m.roi)}</td></tr>`).join('')}</table></div>
+      ${perf.calibration.length ? `<h3>Calibração</h3><div class="tbl"><table><tr><th>Probabilidade prevista</th><th>N</th><th>Média prevista</th><th>Frequência real</th></tr>
+      ${perf.calibration.map(c => `<tr><td>${pct(c.from, 0)}–${pct(c.to, 0)}</td><td>${c.n}</td><td>${pct(c.predicted)}</td><td>${pct(c.observed)}</td></tr>`).join('')}</table></div>` : ''}`
+      : '<p class="muted">Ainda não há previsões com resultado conhecido.</p>'}
+    <h3>Previsões com odd</h3><p class="small muted">Mercados sem odd (só probabilidade) contam nas métricas acima mas não aparecem na lista.</p>
     <div class="tbl"><table><tr><th>Jogo</th><th>Data</th><th>Mercado</th><th>Prob.</th><th>Odd</th><th>EV</th><th>Categoria</th><th>Resultado</th><th>Acerto</th></tr>
-    ${rows.map(r => `<tr><td>${esc(r.home)} – ${esc(r.away)}</td><td>${esc(r.match_date)}</td><td>${esc(r.market)} ${esc(r.selection)}</td><td>${pct(r.model_prob)}</td>
+    ${rows.filter(r => r.odds).map(r => `<tr><td>${esc(r.home)} – ${esc(r.away)}</td><td>${esc(r.match_date)}</td><td>${esc(mkName(r.market))} ${esc(r.selection)}</td><td>${pct(r.model_prob)}</td>
     <td>${num(r.odds)}</td><td>${sign(r.ev)}</td><td>${badge(r.category)}</td><td>${esc(r.result || 'pendente')}</td><td>${r.won == null ? '—' : r.won ? '✔' : '✘'}</td></tr>`).join('')}</table></div></div>`;
 }
 

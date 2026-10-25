@@ -99,3 +99,43 @@ def classify(p: float | None, odds: float | None, conf: str | None,
         reasons.append("confiança estatística baixa (amostra pequena)")
         return INCONCLUSIVO, reasons
     return VALOR, reasons
+
+
+TEAM_LINES = (0.5, 1.5, 2.5)
+HANDICAPS = (-1.5, 1.5)  # half lines only: whole and quarter lines can push, which the EV maths does not model
+
+
+def derived_markets(p1x2: dict[str, float], m: np.ndarray | None = None) -> dict[str, dict[str, float]]:
+    """Markets that follow from the match result (double chance, draw no bet) and, with the scoreline matrix, team
+    goals and handicaps. Draw no bet is given as the probability conditional on no draw: the stake is returned on a
+    draw, so its fair odds are 1/p, and evaluate_markets scales its EV back by P(no draw)."""
+    p1, px, p2 = p1x2["1"], p1x2["X"], p1x2["2"]
+    out = {"DC": {"1X": p1 + px, "12": p1 + p2, "X2": px + p2}, "DNB": {"1": p1 / (p1 + p2), "2": p2 / (p1 + p2)}}
+    if m is not None:
+        i, j = np.indices(m.shape)
+        for line in TEAM_LINES:
+            for key, goals in (("GC", i), ("GF", j)):
+                over = m[goals > line].sum()
+                out[f"{key}{line}"] = {"Mais": over, "Menos": 1 - over}
+        for h in HANDICAPS:
+            cover = m[i - j + h > 0].sum()
+            out[f"AH{h:+g}"] = {"1": cover, "2": 1 - cover}
+    return {k: {s: float(p) for s, p in v.items()} for k, v in out.items()}
+
+
+def evidence(n_books: int, history: str | None, validation: dict, model_p: float | None,
+             market_p: float | None) -> dict:
+    """How much the estimate can be trusted (0-100), kept apart from the probability itself. Four parts of 25:
+    breadth of the market, team history behind the model, out-of-sample validation, model/market agreement."""
+    parts = {
+        "casas": 25 if n_books >= 4 else 16 if n_books >= 2 else 8 if n_books == 1 else 0,
+        "histórico": {"alta": 25, "média": 18, "baixa": 10}.get(history, 0),
+        "validação": 25 if validation.get("validated") else 10 if validation.get("model_log_loss") is not None else 0,
+        "acordo modelo/mercado": 0}
+    if model_p is not None and market_p is not None:
+        d = abs(model_p - market_p)
+        parts["acordo modelo/mercado"] = 25 if d <= 0.03 else 15 if d <= 0.06 else 5 if d <= 0.12 else 0
+    score = sum(parts.values())
+    # "forte" needs out-of-sample validation: without it, agreement and breadth alone cannot show an edge
+    strong = score >= 70 and validation.get("validated")
+    return {"score": score, "label": "forte" if strong else "moderada" if score >= 40 else "fraca", "parts": parts}

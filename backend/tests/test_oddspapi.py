@@ -9,7 +9,7 @@ from app.data import oddspapi
 
 
 def outcome(price, active=True):
-    return {"players": {"0": {"active": active, "price": price}}}
+    return {"players": {"0": {"active": active, "price": price, "changedAt": "2026-10-25T11:30:00Z"}}}
 
 
 def raw_fixture(fid, p1, p2, start, book="betano.pt", prices=(2.1, 3.4, 3.5), suspended=False, active_market=True):
@@ -32,6 +32,7 @@ def test_parse_keeps_active_used_markets():
     assert a["1X2"] == {"Betano PT": {"1": 2.1, "X": 3.4, "2": 3.5}}
     assert a["OU2.5"] == {"Betano PT": {"Mais": 1.9, "Menos": 1.95}}
     assert "BTTS" not in a  # one outcome at 1.0 is not a price
+    assert rows[0]["updated"] == "2026-10-25T11:30:00Z"  # odds change time, not the fixture's updatedAt
     assert "1X2" in rows[1]["odds"]  # marketActive=false alone does not drop a priced market
 
 

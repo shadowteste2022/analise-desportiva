@@ -166,10 +166,13 @@ def build(sport_key: str, sport: str, competition: str, home: str, away: str, ki
     last = max((s["fetched_at"] or "" for s in sources), default="") or None
     n_books = len(odds.get("Vencedor", {}))
     probs = consensus(odds)
+    if "X" in probs.get("Vencedor", {}):  # three-way result (football): double chance and draw no bet follow from it
+        probs.update(mk.derived_markets(probs["Vencedor"]))
     conf = confidence(n_books)
     rows = analysis.evaluate_markets(probs, odds, conf) if probs else []
     validation = analysis.validation(sport_key)
     analysis._apply_validation(rows, validation)
+    analysis.add_evidence(rows, None, validation, None)  # no own model: the evidence is the market alone
     report = {
         "key": key,
         "identification": {"sport": sport, "league": sport_key, "competition": competition, "home": home,
@@ -192,7 +195,7 @@ def build(sport_key: str, sport: str, competition: str, home: str, away: str, ki
                              "category": r["category"], "confidence": conf, "model_version": MODEL_VERSION}
                             for r in rows])
         db.snapshot_odds(key, {m: {b: s for b, s in books.items() if b != AGGREGATES["Avg"]}
-                               for m, books in odds.items()}, last or db.now())
+                               for m, books in odds.items()}, db.now())  # observation time, as for football
     return report
 
 

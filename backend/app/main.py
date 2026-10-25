@@ -93,12 +93,18 @@ def match(key: str = Query(..., max_length=200)):
     if report is None:
         raise HTTPException(404, "Jogo não encontrado nos próximos jogos")
     report["alerts"] = analysis.public_alerts(db.odds_moves(key))
+    report["odds_history"] = analysis.odds_timeline(key)
     return report
 
 
 @app.get("/api/history")
 def history(limit: int = Query(500, ge=1, le=5000)):
     return analysis.settled_history(limit)
+
+
+@app.get("/api/performance")
+def performance():
+    return analysis.performance(analysis.settled_history(5000))
 
 
 @app.get("/api/alerts")

@@ -57,6 +57,7 @@ def export(out: Path) -> dict:
             log.exception("Falha ao analisar %s – %s (OddsPapi)", f.get("home"), f.get("away"))
     for report in others + football + portuguese:
         report["alerts"] = analysis.public_alerts(db.odds_moves(report["key"]))
+        report["odds_history"] = analysis.odds_timeline(report["key"])
         _write(data / "match" / f"{slug(report['key'])}.json", report)
         summaries.append(analysis.summarize(report))
     db.prune_snapshots()
@@ -70,7 +71,9 @@ def export(out: Path) -> dict:
              "oddspapi": {k: oddspapi.state[k] for k in ("used", "limit", "error", "skipped")}}
     _write(data / "fixtures.json", {"fixtures": summaries, "source": meta, "generated_at": generated, "odds_api": live,
                                     "legal": legal})
-    _write(data / "history.json", analysis.settled_history(5000))
+    history = analysis.settled_history(5000)
+    _write(data / "history.json", history)
+    _write(data / "performance.json", analysis.performance(analysis.settled_history(200000)))
     _write(data / "alerts.json", analysis.public_alerts(db.odds_moves()))
     _write(data / "backtests.json", backtest.load_all())
     page = (FRONTEND / "index.html").read_text(encoding="utf-8")

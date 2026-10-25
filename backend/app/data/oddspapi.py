@@ -164,7 +164,7 @@ def parse(raw: list[dict], book: str) -> list[dict]:
         b = (f.get("bookmakerOdds") or {}).get(book) or {}
         if b.get("suspended") or not b.get("bookmakerIsActive", True):
             continue
-        odds = {}
+        odds, changed = {}, []
         for mid, (market, sels) in MARKETS.items():
             m = (b.get("markets") or {}).get(mid)
             if not m:  # marketActive is often false on priced, open markets: rely on fixture/outcome flags
@@ -174,12 +174,14 @@ def parse(raw: list[dict], book: str) -> list[dict]:
                 p = (((m.get("outcomes") or {}).get(oid) or {}).get("players") or {}).get("0") or {}
                 if p.get("active") and isinstance(p.get("price"), (int, float)) and p["price"] > 1:
                     prices[sel] = float(p["price"])
+                    changed.append(p.get("changedAt") or "")
             if len(prices) == len(sels):
                 odds[market] = {BOOKS[book]: prices}
         if odds:
             out.append({"id": f["fixtureId"], "tournament": f.get("tournamentId"), "start": f.get("startTime"),
                         "p1": f.get("participant1Id"), "p2": f.get("participant2Id"), "odds": odds,
-                        "updated": f.get("updatedAt")})
+                        # last price change; the fixture's updatedAt is about its details, not the odds
+                        "updated": max(changed) or f.get("updatedAt")})
     return out
 
 

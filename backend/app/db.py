@@ -36,13 +36,16 @@ def now() -> str:
 
 
 def log_predictions(rows: list[dict]) -> None:
-    """Append-only; the same prediction at the same odds is stored once."""
+    """Append-only; the same prediction at the same odds is stored once. NULL odds (no price) escape the UNIQUE
+    constraint, so the NOT EXISTS check with IS (NULL-safe equality) is what deduplicates those."""
     with closing(connect()) as con, con:
         con.executemany(
             """INSERT OR IGNORE INTO predictions (created_at, match_key, league, match_date, home, away, market,
                selection, model_prob, odds, ev, category, confidence, model_version)
-               VALUES (:created_at, :match_key, :league, :match_date, :home, :away, :market, :selection,
-                       :model_prob, :odds, :ev, :category, :confidence, :model_version)""",
+               SELECT :created_at, :match_key, :league, :match_date, :home, :away, :market, :selection,
+                      :model_prob, :odds, :ev, :category, :confidence, :model_version
+               WHERE NOT EXISTS (SELECT 1 FROM predictions WHERE match_key = :match_key AND market = :market
+                                 AND selection = :selection AND model_version = :model_version AND odds IS :odds)""",
             [{"created_at": now(), **r} for r in rows])
 
 
@@ -86,6 +89,14 @@ def odds_moves(match_key: str | None = None) -> list[dict]:
     for r in rows:
         r["change"] = r["last_odds"] / r["first_odds"] - 1
     return [r for r in rows if abs(r["change"]) >= settings.odds_move_alert]
+
+
+def odds_series(match_key: str) -> list[dict]:
+    """Every stored price change of a match, oldest first."""
+    with closing(connect()) as con:
+        return [dict(r) for r in con.execute(
+            "SELECT market, selection, bookmaker, odds, fetched_at FROM odds_snapshots WHERE match_key = ? "
+            "ORDER BY fetched_at", (match_key,))]
 
 
 def history(limit: int = 500) -> list[dict]:

@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+from scipy.stats import poisson
 
 from app import markets as mk
 
@@ -55,8 +56,9 @@ def test_classify(p, odds, conf, market_p, expected):
     assert mk.classify(p, odds, conf, market_p)[0] == expected
 
 
-def _row(market, sel, p, odds, ev, cat, reasons=("motivo",), market_p=0.5):
+def _row(market, sel, p, odds, ev, cat, reasons=("motivo",), market_p=0.5, evidence=50):
     return {"market": market, "selection": sel, "model_prob": p, "best_odds": odds, "bookmaker": "Bk", "ev": ev,
+            "ev_conservative": ev, "min_odds": round(1.03 / p, 2), "evidence": {"score": evidence, "label": "moderada"},
             "category": cat, "reasons": list(reasons), "market_prob_no_vig": market_p}
 
 
@@ -117,3 +119,51 @@ def test_confidence_thresholds():
     assert mk.confidence(15, 50) == "baixa"
     assert mk.confidence(25, 50) == "média"
     assert mk.confidence(45, 50) == "alta"
+
+
+def test_derived_markets_are_consistent():
+    from app.analysis import outcome
+    m = np.outer(poisson.pmf(np.arange(11), 1.6), poisson.pmf(np.arange(11), 1.1)); m /= m.sum()
+    base = mk.market_probs(m)
+    d = mk.derived_markets(base["1X2"], m)
+    p = base["1X2"]
+    assert d["DC"]["1X"] == pytest.approx(p["1"] + p["X"]) and d["DNB"]["1"] == pytest.approx(p["1"] / (p["1"] + p["2"]))
+    assert d["AH-1.5"]["1"] < p["1"] < d["AH+1.5"]["1"]  # winning by 2+ < winning < not losing by 2+
+    assert d["GC0.5"]["Mais"] == pytest.approx(1 - m[0, :].sum()) and d["GF0.5"]["Mais"] == pytest.approx(1 - m[:, 0].sum())
+    assert outcome("DC", "X2", 1, 1) and not outcome("DC", "12", 0, 0) and outcome("DNB", "1", 2, 2) is None
+    assert outcome("AH-1.5", "1", 3, 1) and outcome("AH-1.5", "2", 2, 1) and outcome("AH+1.5", "1", 0, 1)
+    assert outcome("GC1.5", "Mais", 2, 0) and outcome("GF0.5", "Menos", 3, 0)
+
+
+def test_draw_no_bet_ev_counts_the_refund():
+    from app.analysis import evaluate_markets
+    probs = {"1X2": {"1": 0.5, "X": 0.25, "2": 0.25}, "DNB": {"1": 2 / 3, "2": 1 / 3}}
+    odds = {"DNB": {"Betano PT": {"1": 1.6, "2": 2.6}, "Bwin PT": {"1": 1.55, "2": 2.55}}}
+    r = next(x for x in evaluate_markets(probs, odds, "alta") if x["market"] == "DNB" and x["selection"] == "1")
+    assert r["ev"] == pytest.approx(0.5 * 1.6 + 0.25 - 1, abs=1e-4)  # win pays, draw refunds, loss loses
+    assert r["min_odds"] == pytest.approx(1.5 * 1.03, abs=0.01) and r["n_books"] == 2
+
+
+def test_evidence_score_and_conservative_ranking():
+    from app.analysis import NO_OPPORTUNITY, recommend
+    strong = mk.evidence(6, "alta", {"validated": True}, 0.50, 0.51)
+    weak = mk.evidence(1, None, {"validated": False, "reason": "sem backtest"}, None, 0.5)
+    assert strong["score"] == 100 and strong["label"] == "forte" and weak["score"] == 8 and weak["label"] == "fraca"
+    assert mk.evidence(6, "alta", {"validated": False, "model_log_loss": 1.0}, 0.50, 0.51)["label"] == "moderada"
+    rows = [_row("1X2", "1", 0.5, 2.2, 0.10, mk.INCONCLUSIVO, evidence=10),  # bigger EV, thin evidence
+            _row("OU2.5", "Mais", 0.55, 1.95, 0.07, mk.INCONCLUSIVO, evidence=90)]
+    r = recommend(rows, "Benfica", "Porto")
+    assert r["label"] == "Mais de 2.5 golos" and r["verdict"] == NO_OPPORTUNITY
+
+
+def test_performance_uses_latest_estimate_per_selection():
+    from app.analysis import performance
+    rows = [  # newest first, as the database returns them
+        {"match_key": "k1", "market": "1X2", "selection": "1", "model_prob": 0.6, "odds": 1.9, "ev": 0.14, "won": True},
+        {"match_key": "k1", "market": "1X2", "selection": "1", "model_prob": 0.4, "odds": 2.0, "ev": -0.2, "won": True},
+        {"match_key": "k1", "market": "1X2", "selection": "2", "model_prob": 0.2, "odds": 4.0, "ev": -0.2, "won": False},
+        {"match_key": "k2", "market": "DNB", "selection": "1", "model_prob": 0.7, "odds": 1.4, "ev": -0.02, "won": None}]
+    out = performance(rows)
+    t = out["markets"]["todos"]
+    assert t["selections"] == 2 and t["bets"] == 1 and t["profit"] == pytest.approx(0.9)  # void DNB left out
+    assert t["brier"] == pytest.approx(((0.6 - 1) ** 2 + 0.2 ** 2) / 2)

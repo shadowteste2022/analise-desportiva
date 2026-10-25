@@ -34,6 +34,8 @@ def test_fixtures_and_report(client):
     assert "Lesões" in " ".join(r["conclusion"]["uncertainties"])
     hist = client.get("/api/history").json()
     assert any(h["match_key"] == fx["key"] for h in hist)
+    assert ("DC", "1X") in by and by[("DC", "1X")]["min_odds"] and r["recommendation"]["verdict"]
+    assert "markets" in client.get("/api/performance").json()
 
 
 def test_static_export(client, tmp_path):
@@ -47,6 +49,7 @@ def test_static_export(client, tmp_path):
     assert export.slug("P1|2026-10-24|Nott'm Forest|Man City") == "P1_2026_10_24_Nott_m_Forest_Man_City"  # = JS slug
     assert "window.STATIC = true" in (site / "index.html").read_text(encoding="utf-8")
     assert (site / "static" / "risk.js").exists()
+    assert (site / "data" / "performance.json").exists()
 
 
 def test_report_with_live_lines_and_blend(client, monkeypatch):
@@ -116,3 +119,12 @@ def test_clean_rejects_bad_rows():
     df = fd.clean(raw)
     assert len(df) == 1 and df.Date.iloc[0] == pd.Timestamp("2026-08-07") and pd.isna(df.B365H.iloc[0])
     assert fd.season_codes(pd.Timestamp("2026-10-23").date(), 3) == ["2425", "2526", "2627"]
+
+
+def test_predictions_without_odds_are_logged_once():
+    from app import db
+    row = {"match_key": "T0|2030-01-01|A|B", "league": "T0", "match_date": "2030-01-01", "home": "A", "away": "B",
+           "market": "DC", "selection": "1X", "model_prob": 0.7, "odds": None, "ev": None,
+           "category": "SEM DADOS SUFICIENTES", "confidence": "alta", "model_version": "t"}
+    db.log_predictions([row]); db.log_predictions([row])  # hourly re-run, still no price
+    assert sum(r["match_key"] == row["match_key"] for r in db.history(5000)) == 1
