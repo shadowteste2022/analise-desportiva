@@ -2,7 +2,8 @@
 
 Plataforma de análise estatística pré-jogo para futebol: recolhe dados reais, estima probabilidades com um modelo
 Dixon-Coles, compara com as odds de vários operadores, calcula o valor esperado (EV) e classifica cada mercado.
-Inclui backtesting walk-forward, simulação de risco e um registo de todas as previsões.
+Inclui backtesting walk-forward e um registo de todas as previsões. A interface é uma página única: a lista de
+jogos, a análise de cada jogo aberta lá dentro e uma seleção pessoal dos jogos a acompanhar.
 
 > **Não garante resultados nem lucros.** É uma ferramenta de análise e simulação; não faz apostas.
 > O próprio backtest (8 épocas, abaixo) mostra que nem o modelo nem a combinação modelo + mercado **superam as odds
@@ -40,17 +41,14 @@ Testes (40 em Python e 4 em JavaScript, com dados sintéticos e sem rede):
 ```bash
 cd backend && ../.venv/Scripts/python -m pytest -q
 ```
-```bash
-node --test frontend/tests/risk.test.js
-```
 
 Em Linux/macOS use `.venv/bin/python` em vez de `.venv/Scripts/python`.
 
 ## Publicar grátis no GitHub Pages (atualização de hora a hora)
 
 O site publicado é estático: de hora a hora, um GitHub Action corre a mesma análise da API, grava o resultado em
-ficheiros JSON e publica-os com a página. Não há servidor nem chaves expostas, e o simulador de risco corre no
-browser (`frontend/static/risk.js`).
+ficheiros JSON e publica-os com a página. Não há servidor nem chaves expostas. A página verifica dados novos a
+cada 5 minutos e a seleção de cada visitante fica guardada no próprio browser.
 
 ```
 .github/workflows/daily.yml   de hora a hora (e a pedido): análises → Pages
@@ -215,8 +213,7 @@ backend/app/
   db.py                  SQLite: registo de previsões e snapshots de odds
   export.py              exportação estática para o GitHub Pages
   main.py                API FastAPI e serviço da interface
-frontend/index.html      interface (HTML + JS, Chart.js via CDN); funciona com a API ou com os JSON estáticos
-frontend/static/risk.js  simulação Monte Carlo da banca, no browser
+frontend/index.html      interface de página única (HTML + JS, sem dependências); funciona com a API ou com os JSON estáticos
 ```
 
 **Decisões e desvios à stack proposta**, para manter o MVP pequeno e fácil de correr:

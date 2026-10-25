@@ -8,7 +8,6 @@ from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI, Header, HTTPException, Query
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
 
 from app import analysis, backtest, db, sports
 from app.config import ROOT, settings
@@ -137,7 +136,6 @@ async def refresh():
     return {"status": "cache expirada"}
 
 
-app.mount("/static", StaticFiles(directory=FRONTEND / "static"), name="static")
 
 
 @app.get("/")

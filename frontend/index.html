@@ -4,68 +4,148 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Análise Desportiva</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="static/risk.js"></script>
 <style>
-:root{--bg:#f6f7f9;--card:#fff;--fg:#1b1f24;--muted:#5f6b7a;--line:#e3e6ea;--accent:#1f6feb;
-  --ok:#1a7f37;--okbg:#dafbe1;--warn:#9a6700;--warnbg:#fff8c5;--no:#57606a;--nobg:#eef1f4;--bad:#cf222e;--badbg:#ffebe9;--onaccent:#fff}
-@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--card:#161b22;--fg:#e6edf3;--muted:#8d96a0;--line:#30363d;
-  --accent:#58a6ff;--ok:#3fb950;--okbg:#12261a;--warn:#d29922;--warnbg:#2b2111;--no:#8d96a0;--nobg:#21262d;--bad:#f85149;--badbg:#2d1214;--onaccent:#0d1117}}
+:root{--bg:#f3f5f8;--card:#fff;--fg:#141a22;--muted:#5d6876;--line:#e2e6eb;--soft:#f6f8fa;--accent:#0b7a5c;--accent2:#0f5ec7;
+  --ok:#137a3a;--okbg:#ddf6e5;--warn:#8a5a00;--warnbg:#fff3c4;--no:#56606b;--nobg:#eceff3;--bad:#c4232e;--badbg:#ffe8e8;--onaccent:#fff;
+  --p1:#0f5ec7;--px:#9aa4b0;--p2:#d9480f;--shadow:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.08)}
+@media (prefers-color-scheme:dark){:root{--bg:#0b0f14;--card:#131a22;--fg:#e7edf3;--muted:#8e99a6;--line:#26303b;--soft:#18212b;--accent:#2fbf8f;--accent2:#5aa2ff;
+  --ok:#3fcf73;--okbg:#10301d;--warn:#e0a82e;--warnbg:#2e2410;--no:#9aa4b0;--nobg:#1e2731;--bad:#ff6b6b;--badbg:#3a1616;--onaccent:#04140e;
+  --p1:#5aa2ff;--px:#6b7682;--p2:#ff8a4c;--shadow:none}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-header{background:var(--card);border-bottom:1px solid var(--line);padding:12px 16px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
-header h1{font-size:17px;margin:0}
-nav{display:flex;gap:4px;flex-wrap:wrap}
-nav a{padding:6px 10px;border-radius:6px;color:var(--muted);text-decoration:none}
-nav a.on{background:var(--nobg);color:var(--fg);font-weight:600}
-main{max-width:1200px;margin:0 auto;padding:16px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px}
-.card h2{font-size:15px;margin:0 0 12px}
-.card h3{font-size:13px;margin:16px 0 6px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
-.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-input,select,button{font:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--fg)}
-button{cursor:pointer;background:var(--accent);color:var(--onaccent);border:0}
-.tbl{width:100%;overflow-x:auto}
-table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
-th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
-th{color:var(--muted);font-weight:600;font-size:12px}
-tr.click{cursor:pointer} tr.click:hover{background:var(--nobg)}
-.badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+a{color:var(--accent2)}
+/* header */
+.top{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line)}
+.top .in{max-width:1100px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;letter-spacing:-.01em}
+.brand i{width:28px;height:28px;border-radius:8px;background:var(--accent);display:grid;place-items:center;color:var(--onaccent);font-style:normal;font-size:15px}
+.upd{margin-left:auto;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.upd .dot{width:8px;height:8px;border-radius:50%;background:var(--ok)}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:7px 12px;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--accent)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--onaccent);font-weight:600}
+.btn.sm{padding:4px 9px;font-size:12px}
+.slip-btn .n{display:inline-block;min-width:20px;padding:0 6px;border-radius:999px;background:var(--onaccent);color:var(--accent);font-size:12px;margin-left:6px;text-align:center}
+main{max-width:1100px;margin:0 auto;padding:16px}
+.notice{border-left:4px solid var(--accent);padding:10px 14px;background:var(--card);border-radius:8px;margin:0 0 14px;font-size:13px;box-shadow:var(--shadow)}
+h2{font-size:17px;margin:22px 0 10px;letter-spacing:-.01em}
+h3{font-size:12px;margin:14px 0 6px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.muted{color:var(--muted)} .small{font-size:12px}
+/* top picks */
+.hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.pick{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:6px;box-shadow:var(--shadow)}
+.pick:hover{border-color:var(--accent)}
+.pick .rank{font-size:12px;color:var(--muted);font-weight:600}
+.pick .bet{font-size:17px;font-weight:700}
+.pick .meta{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:13px;color:var(--muted)} .pick .meta b{color:var(--fg)}
+/* filters */
+.filters{position:sticky;top:53px;z-index:4;background:var(--bg);padding:8px 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chips{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:3px}
+.chip{border:0;background:none;padding:5px 11px;border-radius:7px;cursor:pointer;color:var(--muted)}
+.chip.on{background:var(--accent);color:var(--onaccent);font-weight:600}
+.filters select,.filters input[type=search]{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:7px 10px;max-width:220px}
+.filters input[type=search]{flex:1;min-width:160px}
+.tog{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);cursor:pointer}
+/* game list */
+.day{font-size:13px;font-weight:700;color:var(--muted);margin:18px 2px 6px;text-transform:capitalize}
+.game{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:8px;box-shadow:var(--shadow);overflow:hidden}
+.game.open{border-color:var(--accent)}
+.game{scroll-margin-top:130px}
+.row{display:grid;grid-template-columns:52px minmax(0,1fr) 170px minmax(0,230px) 36px;gap:12px;align-items:center;padding:10px 12px;cursor:pointer}
+.row:hover{background:var(--soft)}
+.row:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.time{font-weight:700;font-variant-numeric:tabular-nums}
+.time small{display:block;font-weight:400;color:var(--muted);font-size:11px}
+.teams{min-width:0} .teams b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.teams .comp{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.pbar{display:flex;height:8px;border-radius:4px;overflow:hidden;background:var(--nobg)}
+.pbar span{display:block}
+.plab{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:3px;font-variant-numeric:tabular-nums}
+.pk{font-size:13px;min-width:0} .pk b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.star{border:0;background:none;font-size:20px;line-height:1;cursor:pointer;color:var(--muted);padding:4px}
+.star[aria-pressed=true]{color:#e3a008}
+.badge{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap}
 .b-VALOR{background:var(--okbg);color:var(--ok)} .b-INC{background:var(--warnbg);color:var(--warn)}
 .b-SEM{background:var(--nobg);color:var(--no)} .b-DADOS{background:var(--badbg);color:var(--bad)}
-.muted{color:var(--muted)} .small{font-size:12px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
-.kv div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dashed var(--line);padding:3px 0}
-.warn{background:var(--warnbg);color:var(--warn);padding:10px 12px;border-radius:8px;margin:8px 0}
-.heat td{text-align:center;width:44px;font-size:12px}
-.best{font-weight:700;color:var(--ok)}
+.more{display:block;margin:12px auto}
+/* inline analysis */
+.detail{border-top:1px solid var(--line);padding:14px;background:var(--soft)}
+.verdict{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--no);border-radius:10px;padding:12px 14px}
+.verdict.valor{border-left-color:var(--ok)} .verdict.melhor_opcao{border-left-color:var(--warn)}
+.verdict .big{font-size:17px;font-weight:700;margin:4px 0}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:10px 0}
+.fact{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.fact span{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.fact b{font-size:15px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:12px 0 10px;overflow-x:auto}
+.tab{border:0;background:none;padding:8px 12px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap}
+.tab.on{color:var(--fg);border-bottom-color:var(--accent);font-weight:600}
+.tbl{width:100%;overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+th{color:var(--muted);font-weight:600;font-size:12px;background:var(--soft)}
+td.best{font-weight:700;color:var(--ok)}
+.add{border:1px solid var(--line);background:var(--card);border-radius:6px;cursor:pointer;padding:2px 8px;font-size:12px}
+.add.on{background:var(--accent);border-color:var(--accent);color:var(--onaccent)}
+.warn{background:var(--warnbg);color:var(--warn);padding:9px 12px;border-radius:8px;margin:8px 0;font-size:13px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
 ul{margin:4px 0;padding-left:20px}
-.hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:8px 0 4px}
-.pick{border:1px solid var(--line);border-radius:10px;padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:6px}
-.pick:hover{border-color:var(--accent)}
-.pick .bet{font-size:18px;font-weight:700}
-.pick .meta{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px}
-.rank{font-size:12px;font-weight:700;color:var(--muted)}
-.notice{border-left:4px solid var(--accent);padding:8px 12px;background:var(--nobg);border-radius:6px;margin:0 0 12px;font-size:13px}
-details.status summary{cursor:pointer;color:var(--muted);font-size:12px}
-footer{max-width:1200px;margin:0 auto;padding:8px 16px 32px;color:var(--muted);font-size:12px}
+/* selection panel */
+#slip{position:fixed;top:0;right:0;bottom:0;width:min(400px,100%);background:var(--card);border-left:1px solid var(--line);z-index:8;
+  transform:translateX(100%);transition:transform .2s;display:flex;flex-direction:column;box-shadow:-8px 0 24px rgba(0,0,0,.12)}
+#slip.open{transform:none}
+#slip header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line)}
+#slip header h2{margin:0}
+#slip .body{overflow-y:auto;padding:12px 16px;flex:1}
+.sel{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.sel .g{font-size:12px;color:var(--muted)}
+.sel .l{font-weight:700;margin:2px 0}
+.sel .m{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:12px;color:var(--muted)} .sel .m b{color:var(--fg)}
+.sel .x{float:right;border:0;background:none;cursor:pointer;color:var(--muted);font-size:16px}
+.changed{color:var(--warn);font-size:12px}
+.sum{border-top:1px solid var(--line);padding:12px 16px;background:var(--soft)}
+.sum .kv div{display:flex;justify-content:space-between;padding:2px 0}
+#shade{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:7;display:none}
+#shade.on{display:block}
+details.how{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-top:24px}
+details.how summary{cursor:pointer;font-weight:600}
+footer{max-width:1100px;margin:0 auto;padding:8px 16px 32px;color:var(--muted);font-size:12px}
 footer a{color:var(--muted)}
-@media (max-width:700px){.hide-sm{display:none} th,td{white-space:normal;padding:6px 4px} main{padding:10px}}
 #gate{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:16px;z-index:9}
-#gate .card{max-width:480px}
-canvas{max-height:300px}
+#gate .box{max-width:480px;background:var(--card);border-radius:12px;padding:20px}
+@media (max-width:760px){
+  .row{grid-template-columns:46px minmax(0,1fr) 32px;gap:8px}
+  .row .probs{display:none}
+  .row .pk{grid-column:2/4;grid-row:2}
+  .upd .t{display:none}
+  .filters{position:static}
+  .filters select{max-width:none;flex:1}
+  .brand{font-size:15px}
+  main{padding:10px}
+  th,td{padding:6px 6px}
+  .hide-sm{display:none}
+}
 </style>
 </head>
 <body>
-<div id="gate"><div class="card"><h2>Aviso — maiores de 18 anos</h2>
-<p>Esta ferramenta faz análise estatística e simulação. Não efetua apostas e não garante resultados nem lucros.
+<div id="gate"><div class="box"><h2 style="margin-top:0">Aviso — maiores de 18 anos</h2>
+<p>Esta ferramenta faz análise estatística. Não efetua apostas e não garante resultados nem lucros.
 As probabilidades são estimativas com erro. Apostar envolve risco de perda. Se o jogo deixou de ser diversão, procure ajuda
 (em Portugal: <b>SICAD — 1414</b>).</p>
-<button id="gate-ok">Tenho 18 anos ou mais e compreendo</button></div></div>
+<button class="btn pri" id="gate-ok">Tenho 18 anos ou mais e compreendo</button></div></div>
 
-<header><h1>Análise Desportiva</h1>
-<nav id="nav"><a href="#/">Jogos</a><a href="#/history">Histórico</a><a href="#/backtest">Backtesting</a><a href="#/risk">Risco</a><a href="#/about">Metodologia</a></nav></header>
+<div class="top"><div class="in">
+  <div class="brand"><i aria-hidden="true">%</i>Análise Desportiva</div>
+  <div class="upd" id="upd"></div>
+  <button class="btn pri slip-btn" id="slip-open">A minha seleção<span class="n" id="slip-n">0</span></button>
+</div></div>
 <main id="app"><p class="muted">A carregar…</p></main>
+<div id="shade"></div>
+<aside id="slip" aria-label="A minha seleção"><header><h2>A minha seleção</h2><button class="btn sm" id="slip-close">Fechar</button></header>
+  <div class="body" id="slip-body"></div><div class="sum" id="slip-sum"></div></aside>
 <footer>Análise estatística, não aconselhamento financeiro. Proibido a menores de 18 anos. Aposte só o que pode perder e nunca para recuperar perdas.
 Ajuda: <b>SICAD 1414</b>. Casas legais em Portugal: <a href="https://www.srij.turismodeportugal.pt/pt/jogo-online/entidades-licenciadas/" target="_blank" rel="noopener">lista oficial do SRIJ</a>.</footer>
 
@@ -77,7 +157,8 @@ const num = (x, d = 2) => x == null ? '—' : Number(x).toFixed(d);
 const sign = x => x == null ? '—' : (x >= 0 ? '+' : '') + (x * 100).toFixed(1) + '%';
 const badge = c => `<span class="badge b-${{'VALOR POTENCIAL':'VALOR','VALOR INCONCLUSIVO':'INC','SEM VALOR IDENTIFICADO':'SEM','SEM DADOS SUFICIENTES':'DADOS'}[c]||'SEM'}">${esc(c)}</span>`;
 const store = {get(k){try{return localStorage.getItem(k)}catch{return null}}, set(k,v){try{localStorage.setItem(k,v)}catch{}}};
-let charts = [];
+const REFRESH_MS = 5 * 60e3;  // the data changes hourly; checking every 5 min keeps an open page current
+
 // Static site (GitHub Pages): the same API answers, precomputed by backend/app/export.py into relative JSON files.
 const slug = k => k.replace(/[^A-Za-z0-9]+/g, '_').replace(/^_+|_+$/g, '');  // same rule as export.slug
 function staticPath(path) {
@@ -88,368 +169,415 @@ function staticPath(path) {
 async function api(path, opts) {
   // no-cache = revalidate with GitHub Pages (cheap, ETag) so an hourly update never mixes a new page with old data
   const r = await fetch(window.STATIC ? staticPath(path) : path, {cache: 'no-cache', ...opts});
-  if (window.STATIC && r.status === 404) throw new Error('Este jogo já não está na lista atual (os dados são atualizados de hora a hora).');
+  if (window.STATIC && r.status === 404) throw new Error('Este jogo já não está na lista atual.');
   const body = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(body.detail ? JSON.stringify(body.detail) : r.statusText);
   return body;
 }
-function chart(el, cfg) { charts.push(new Chart(el, cfg)); }
-const err = e => `<div class="card warn">Erro: ${esc(e.message)}</div>`;
+const err = e => `<div class="warn">Erro: ${esc(e.message)}</div>`;
 
 if (!store.get('age-ok')) document.getElementById('gate').style.display = 'flex';
 document.getElementById('gate-ok').onclick = () => { store.set('age-ok', '1'); document.getElementById('gate').style.display = 'none'; };
 
-// ---------- Jogos ----------
-function oddsApiNote(q) {
-  if (!q || !q.enabled) return '';
-  if (q.used == null) return `Odds ao vivo: quota da The Odds API indisponível${q.error ? ` (${esc(q.error)})` : ''}, a usar as últimas odds guardadas. `;
-  return `Odds ao vivo (The Odds API): ${q.used} de ${q.budget ?? '—'} créditos usados neste período${q.skipped.length ? `; ${q.skipped.length} competições ficaram para as próximas atualizações para respeitar o orçamento (mostram as últimas odds guardadas ou "sem odds")` : ''}. `;
-}
-// "Melhores oportunidades do dia": highest estimated EV across every game starting in the next 24 h, all sports.
-// Shown as a starting point to compare prices, never as recommended bets (no league has a validated edge).
-// "Hoje 20:30", "Amanhã 15:00", "sáb 26/10 18:00" in the visitor's time zone
-function when(x) {
-  if (!x.kickoff) return `${esc(x.date)} ${esc(x.time || '')}`;
-  const d = new Date(x.kickoff), today = new Date(), day = 864e5;
-  const diff = Math.round((new Date(d.toDateString()) - new Date(today.toDateString())) / day);
-  const hm = d.toLocaleTimeString('pt-PT', {hour: '2-digit', minute: '2-digit'});
-  const label = diff === 0 ? 'Hoje' : diff === 1 ? 'Amanhã' : d.toLocaleDateString('pt-PT', {weekday: 'short', day: '2-digit', month: '2-digit'});
-  return `${label} ${hm}`;
-}
+// ---------- wording ----------
 const MK_NAME = {'1X2': 'Resultado', Vencedor: 'Vencedor', DC: 'Dupla hipótese', DNB: 'Empate anula', BTTS: 'Ambas marcam'};
 const mkName = m => MK_NAME[m] || (m.startsWith('OU') ? `Total ${m.slice(2)}` : m.startsWith('GC') ? `Golos casa ${m.slice(2)}`
   : m.startsWith('GF') ? `Golos fora ${m.slice(2)}` : m.startsWith('AH') ? `Handicap casa ${m.slice(2)}` : m);
-// evidence quality (0-100) is how far the estimate can be trusted, never a probability of winning
-const evBadge = e => e == null ? '' : `<span class="badge ${{forte: 'b-VALOR', moderada: 'b-INC'}[e.label] || 'b-DADOS'}" title="Qualidade da evidência">evidência ${e.score}/100</span>`;
+const UNIT = {Futebol: 'golos', 'Hóquei no gelo': 'golos', Andebol: 'golos', Basquetebol: 'pontos', 'Futebol americano': 'pontos',
+  'Futebol australiano': 'pontos', 'Râguebi': 'pontos', 'Ténis': 'jogos', Basebol: 'corridas', 'Críquete': 'corridas', MMA: 'rondas', Boxe: 'rondas', Voleibol: 'pontos'};
+// same wording as analysis.pick_label
+function selLabel(m, s, home, away, sport = 'Futebol') {
+  if (m === '1X2' || m === 'Vencedor') return {'1': `Vitória ${home}`, X: 'Empate', '2': `Vitória ${away}`}[s] || s;
+  if (m === 'BTTS') return s === 'Sim' ? 'Ambas marcam' : 'Não marcam ambas';
+  if (m === 'DC') return {'1X': `${home} ou empate`, '12': `${home} ou ${away}`, X2: `Empate ou ${away}`}[s] || s;
+  if (m === 'DNB') return `${s === '1' ? home : away} (empate anula)`;
+  if (m.startsWith('AH')) { const h = +m.slice(2); return s === '1' ? `${home} ${h > 0 ? '+' : ''}${h}` : `${away} ${-h > 0 ? '+' : ''}${-h}`; }
+  if (m.startsWith('GC') || m.startsWith('GF')) return `${s} de ${m.slice(2)} golos — ${m.startsWith('GC') ? home : away}`;
+  if (m.startsWith('OU')) return `${s} de ${m.slice(2)} ${UNIT[sport] || ''}`.trim();
+  return `${m} ${s}`;
+}
+const PICK_TAG = {valor: ['b-VALOR', 'valor potencial'], melhor_opcao: ['b-INC', 'não validada'], sem_valor: ['b-SEM', 'EV negativo']};
+const evBadge = e => e == null ? '' : `<span class="badge ${{forte: 'b-VALOR', moderada: 'b-INC'}[e.label] || 'b-DADOS'}" title="Qualidade da evidência (não é a probabilidade)">evidência ${e.score}/100</span>`;
+const licence = ok => ok ? '<span class="badge b-VALOR">SRIJ</span>' : '<span class="badge b-DADOS">sem licença PT</span>';
+const hm = iso => new Date(iso).toLocaleTimeString('pt-PT', {hour: '2-digit', minute: '2-digit'});
+const dt = iso => iso ? new Date(iso).toLocaleString('pt-PT', {day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'}) : '—';
+function dayLabel(x) {
+  if (!x.kickoff) return x.date;
+  const d = new Date(x.kickoff), diff = Math.round((new Date(d.toDateString()) - new Date(new Date().toDateString())) / 864e5);
+  return diff === 0 ? 'Hoje' : diff === 1 ? 'Amanhã' : d.toLocaleDateString('pt-PT', {weekday: 'long', day: 'numeric', month: 'long'});
+}
 function spark(pts) {  // best price over time as a small inline SVG line
   if (pts.length < 2) return '';
   const t = pts.map(p => Date.parse(p[0])), v = pts.map(p => p[1]);
   const [t0, t1, lo, hi] = [Math.min(...t), Math.max(...t), Math.min(...v), Math.max(...v)];
   const xy = pts.map((_, i) => `${(120 * (t[i] - t0) / ((t1 - t0) || 1)).toFixed(1)},${(28 - 24 * (v[i] - lo) / ((hi - lo) || 1)).toFixed(1)}`);
-  return `<svg width="124" height="32" viewBox="-2 0 124 32" role="img" aria-label="evolução da melhor odd"><polyline points="${xy.join(' ')}" fill="none" stroke="var(--accent)" stroke-width="2"/></svg>`;
+  return `<svg width="124" height="32" viewBox="-2 0 124 32" role="img" aria-label="evolução da melhor odd"><polyline points="${xy.join(' ')}" fill="none" stroke="var(--accent2)" stroke-width="2"/></svg>`;
 }
-const licenceBadge = ok => ok ? '<span class="badge b-VALOR">SRIJ</span>' : '<span class="badge b-DADOS">sem licença PT</span>';
-const goMatch = el => el.querySelectorAll('[data-key]').forEach(t => t.onclick = () => location.hash = '#/match/' + encodeURIComponent(t.dataset.key));
-
-// "Aposta do dia": the highest estimated EV among checkable bets of every game starting in the next 24 h, all sports.
-// Top 3 as cards, the next ones in a table. Honest framing: no league has a validated edge, the EV is an estimate.
-function renderOpportunities(fixtures, legal) {
-  const card = document.getElementById('opps-card');
-  const ptOnly = legal?.pt_only || store.get('opps-pt') === '1';
-  const now = Date.now(), horizon = now + 24 * 3600e3;
-  const all = fixtures.filter(x => x.kickoff && Date.parse(x.kickoff) > now && Date.parse(x.kickoff) < horizon)
-    .flatMap(x => (x.opps || []).map(o => ({...o, x})));
-  const rows = all.filter(o => !ptOnly || o.licensed_pt).sort((a, b) => (b.score ?? b.ev) - (a.score ?? a.ev)).slice(0, 15);
-  const top = rows.slice(0, 3), rest = rows.slice(3);
-  card.innerHTML = `<h2>Aposta do dia</h2>
-    <p class="small muted">As apostas mais favoráveis dos jogos das próximas 24 horas, em todas as modalidades, ordenadas pelo <b>EV conservador</b>
-    (o menor entre o nosso EV e o do mercado sem margem) ponderado pela qualidade da evidência.
-    São estimativas, não garantias: nenhuma liga tem vantagem validada no backtest e uma odd acima das outras pode durar pouco.</p>
-    ${legal?.pt_only ? '' : `<label class="small"><input type="checkbox" id="opps-pt" ${ptOnly ? 'checked' : ''}> Só casas licenciadas em Portugal (SRIJ)</label>`}
-    ${top.length ? `<div class="hero">${top.map((o, i) => `<div class="pick" data-key="${esc(o.x.key)}">
-        <span class="rank">#${i + 1} · ${when(o.x)} · ${esc(o.x.sport)}</span>
-        <span><b>${esc(o.x.home)}</b> – <b>${esc(o.x.away)}</b><br><span class="muted small">${esc(o.x.competition)}</span></span>
-        <span class="bet">${esc(o.label)}</span>
-        <span class="meta"><span>Odd <b>${num(o.odds)}</b> · ${esc(o.bookmaker)} ${licenceBadge(o.licensed_pt)}</span>
-          <span>Prob. <b>${pct(o.prob)}</b></span><span>EV <b>${sign(o.ev)}</b></span><span>Odd mín. ${num(o.min_odds)}</span></span>
-        ${o.evidence != null ? `<span class="small muted">Evidência ${o.evidence}/100</span>` : ''}
-        <span class="small" style="color:var(--accent)">Ver análise →</span></div>`).join('')}</div>`
-      : `<p class="muted">Não foi identificada uma oportunidade com valor estatístico suficientemente convincente nas condições atuais${ptOnly ? ' (casas licenciadas pelo SRIJ, próximas 24 horas)' : ' (próximas 24 horas)'}.</p>`}
-    ${rest.length ? `<h3>Mais oportunidades</h3><div class="tbl"><table><tr><th>Quando</th><th>Jogo</th><th>Aposta</th><th>Odd</th><th class="hide-sm">Prob.</th><th>EV</th></tr>
-      ${rest.map(o => `<tr class="click" data-key="${esc(o.x.key)}"><td>${when(o.x)}</td>
-      <td><b>${esc(o.x.home)}</b> – <b>${esc(o.x.away)}</b><br><span class="muted small">${esc(o.x.competition)} · ${esc(o.x.sport)}</span></td>
-      <td><b>${esc(o.label)}</b></td><td>${num(o.odds)} <span class="muted small">${esc(o.bookmaker)}</span> ${licenceBadge(o.licensed_pt)}</td>
-      <td class="hide-sm">${pct(o.prob)}</td><td>${sign(o.ev)}</td></tr>`).join('')}</table></div>` : ''}`;
-  const box = document.getElementById('opps-pt');
-  if (box) box.onchange = e => { store.set('opps-pt', e.target.checked ? '1' : '0'); renderOpportunities(fixtures, legal); };
-  goMatch(card);
+function probBar(p) {
+  if (!p) return '<span class="small muted">sem probabilidades</span>';
+  const parts = [['1', 'var(--p1)'], ['X', 'var(--px)'], ['2', 'var(--p2)']].filter(([k]) => p[k] != null);
+  return `<div class="pbar">${parts.map(([k, c]) => `<span style="width:${(p[k] * 100).toFixed(1)}%;background:${c}"></span>`).join('')}</div>
+    <div class="plab">${parts.map(([k]) => `<span>${k} ${pct(p[k], 0)}</span>`).join('')}</div>`;
 }
 
+// ---------- state ----------
+const S = {data: null, reports: new Map(), open: new Set(), tab: {}, allMarkets: {}, limit: 60,
+  f: Object.assign({when: 'all', sport: '', league: '', q: '', onlyPick: false, onlyMine: false}, JSON.parse(store.get('filters2') || '{}')),
+  slip: JSON.parse(store.get('slip') || '[]')};
+const saveSlip = () => { store.set('slip', JSON.stringify(S.slip)); renderSlip(); };
+const inSlip = (key, market, sel) => S.slip.some(s => s.key === key && s.market === market && s.selection === sel);
+const followed = key => S.slip.some(s => s.key === key);
+
+// ---------- page ----------
+async function load(first) {
+  const data = await api('/api/fixtures');
+  const changed = !S.data || S.data.generated_at !== data.generated_at;
+  S.data = data;
+  renderUpd();
+  if (!changed && !first) return;
+  S.reports.clear();  // new hourly data: open analyses and the selection are refreshed from it
+  if (first) renderShell(); else { renderPicks(); renderList(); }
+  for (const key of S.open) openDetail(key, true);
+  refreshSlip();
+}
+function renderUpd() {
+  const g = S.data?.generated_at;
+  const mins = g ? Math.round((Date.now() - Date.parse(g)) / 60e3) : null;
+  document.getElementById('upd').innerHTML = g ? `<span class="dot"></span><span class="t">Dados de ${hm(g)} · </span>${mins < 1 ? 'agora' : `há ${mins} min`}` : '';
+}
 function legalNotice(legal) {
   if (!legal?.pt_only) return '';
   return legal.sources?.length
     ? `<div class="notice">Todas as odds e apostas deste site são de <b>casas licenciadas pelo SRIJ</b> (legais em Portugal).</div>`
     : `<div class="notice">O site só mostra odds de <b>casas licenciadas pelo SRIJ</b>, mas a fonte dessas odds ainda não está ativa: por agora não há apostas a mostrar.</div>`;
 }
-
-// The best bet of a game, always shown with how far it can be trusted
-const PICK_TAG = {valor: ['b-VALOR', 'valor potencial'], melhor_opcao: ['b-INC', 'não validada'], sem_valor: ['b-SEM', 'EV negativo']};
-function pickCell(p) {
-  if (!p) return '<span class="muted">— sem odds comparáveis</span>';
-  const [cls, tag] = PICK_TAG[p.kind] || ['b-SEM', ''];
-  return `<b>${esc(p.label)}</b> @ ${num(p.odds)} <span class="muted small">(${sign(p.ev)})</span> <span class="badge ${cls}">${tag}</span>`;
-}
-
-let fixturesCache = null;
-async function viewFixtures() {
-  const data = fixturesCache || await api('/api/fixtures');
-  fixturesCache = data;
-  const f = JSON.parse(store.get('filters') || '{}');
-  const sports = [...new Set(data.fixtures.map(x => x.sport))].sort((a, b) => (a !== 'Futebol') - (b !== 'Futebol') || a.localeCompare(b));
-  const comps = [...new Map(data.fixtures.map(x => [x.league, x])).values()]  // filter options from the data itself
-    .sort((a, b) => (a.sport !== 'Futebol') - (b.sport !== 'Futebol') || a.sport.localeCompare(b.sport) || a.competition.localeCompare(b.competition));
-  const PAGE = 150;
-  let limit = PAGE;
-  $app.innerHTML = `${legalNotice(data.legal)}<div class="card" id="opps-card"></div><div class="card"><h2>Todos os jogos</h2>
+function renderShell() {
+  const d = S.data, fx = live(d.fixtures);
+  const sports = [...new Set(fx.map(x => x.sport))].sort((a, b) => (a !== 'Futebol') - (b !== 'Futebol') || a.localeCompare(b));
+  const comps = [...new Map(fx.map(x => [x.league, x])).values()]
+    .sort((a, b) => (a.sport !== 'Futebol') - (b.sport !== 'Futebol') || a.competition.localeCompare(b.competition));
+  $app.innerHTML = `${legalNotice(d.legal)}
+    <section id="picks"></section>
+    <h2>Jogos</h2>
     <div class="filters">
-      <select id="f-when"><option value="">Qualquer dia</option><option value="0">Hoje</option><option value="1">Amanhã</option><option value="7">Próximos 7 dias</option></select>
-      <select id="f-sport"><option value="">Todas as modalidades</option>${sports.map(s => `<option>${esc(s)}</option>`).join('')}</select>
-      <select id="f-league"><option value="">Todas as competições</option>${comps.map(x => `<option value="${esc(x.league)}" data-sport="${esc(x.sport)}">${esc(x.competition)}</option>`).join('')}</select>
-      <select id="f-cat"><option value="">Todas as categorias</option>${['VALOR POTENCIAL','VALOR INCONCLUSIVO','SEM VALOR IDENTIFICADO','SEM DADOS SUFICIENTES'].map(c => `<option>${c}</option>`).join('')}</select>
-      <input id="f-q" placeholder="Pesquisar equipa ou jogador">
-      <select id="f-sort"><option value="date">Ordenar por data</option><option value="ev">Ordenar por EV</option></select>
-    </div><div class="tbl" id="fx"></div>
-    <p class="small muted">${data.generated_at ? `<b>Atualizado ${esc(new Date(data.generated_at).toLocaleString('pt-PT'))}</b> (de hora a hora).` : ''}
-    "Melhor aposta" = a opção mais favorável do jogo; só as marcadas "valor potencial" cumprem todos os critérios.</p>
-    <details class="status"><summary>Estado dos dados</summary><p class="small muted">${oddsApiNote(data.odds_api)}Jogos e histórico de futebol: ${esc(data.source.source)}, obtido ${esc(new Date(data.source.fetched_at).toLocaleString('pt-PT'))}${data.source.stale ? ' · <b>cache desatualizada</b>' : ''}.
-    Categoria = melhor classificação entre os mercados do jogo. Confiança = robustez da amostra, não probabilidade do resultado.</p></details></div>
-    <div class="card"><h2>Alertas de variação de odds</h2><div id="alerts" class="small muted">A carregar…</div></div>`;
-  for (const k of ['when','sport','league','cat','q','sort']) { const el = document.getElementById('f-' + k); if (f[k]) el.value = f[k]; el.oninput = () => { limit = PAGE; render(); }; }
-  function render() {
-    const s = {when: v('when'), sport: v('sport'), league: v('league'), cat: v('cat'), q: v('q').toLowerCase(), sort: v('sort')};
-    // day window in the visitor's time zone: 0 = today, 1 = tomorrow, 7 = today + next 6 days
-    const day0 = new Date(new Date().toDateString()).getTime(), dayMs = 864e5;
-    const inWhen = x => { if (!s.when) return true; if (!x.kickoff) return false; const t = Date.parse(x.kickoff);
-      return s.when === '7' ? t < day0 + 7 * dayMs : t >= day0 + +s.when * dayMs && t < day0 + (+s.when + 1) * dayMs; };
-    store.set('filters', JSON.stringify(s));
-    // competitions of other sports are hidden while a sport is chosen
-    document.querySelectorAll('#f-league option[data-sport]').forEach(o => o.hidden = !!s.sport && o.dataset.sport !== s.sport);
-    // hide games that kicked off over 2 h ago even if the hourly update is late (the data may be hours old)
-    const cutoff = Date.now() - 2 * 3600e3;
-    let rows = data.fixtures.filter(x => !(x.kickoff && Date.parse(x.kickoff) < cutoff))
-      .filter(x => inWhen(x) && (!s.sport || x.sport === s.sport) && (!s.league || x.league === s.league)
-      && (!s.cat || x.category === s.cat) && (!s.q || (x.home + ' ' + x.away).toLowerCase().includes(s.q)));
-    if (s.sort === 'ev') rows.sort((a, b) => (b.best?.ev ?? -9) - (a.best?.ev ?? -9));
-    else rows.sort((a, b) => (a.date + (a.time || '')).localeCompare(b.date + (b.time || '')));
-    const total = rows.length;
-    rows = rows.slice(0, limit);  // hundreds of games across all sports: render a page at a time
-    document.getElementById('fx').innerHTML = rows.length ? `<p class="small muted">${total} jogos</p><table><tr><th>Quando</th><th>Jogo</th><th class="hide-sm">Prob. 1 / X / 2</th>
-      <th>Melhor aposta</th><th class="hide-sm">Categoria</th><th class="hide-sm">Confiança</th></tr>${rows.map(x => `<tr class="click" data-key="${esc(x.key)}">
-      <td>${when(x)}</td><td><b>${esc(x.home)}</b> – <b>${esc(x.away)}</b><br><span class="muted small">${esc(x.competition)}${x.sport === 'Futebol' ? '' : ` · ${esc(x.sport)}`}</span></td>
-      <td class="hide-sm">${x.probs_1x2 ? [x.probs_1x2['1'], x.probs_1x2.X, x.probs_1x2['2']].filter(p => p != null).map(p => pct(p, 0)).join(' / ') : '—'}</td>
-      <td>${pickCell(x.pick)}</td>
-      <td class="hide-sm">${badge(x.category)}</td><td class="hide-sm">${esc(x.confidence || '—')}</td></tr>`).join('')}</table>
-      ${total > limit ? `<p><button id="more">Mostrar mais (${total - limit} restantes)</button></p>` : ''}` : '<p class="muted">Sem jogos para estes filtros.</p>';
-    document.querySelectorAll('tr.click').forEach(tr => tr.onclick = () => location.hash = '#/match/' + encodeURIComponent(tr.dataset.key));
-    const more = document.getElementById('more');
-    if (more) more.onclick = () => { limit += PAGE; render(); };
+      <div class="chips" role="group" aria-label="Quando">${[['all', 'Todos'], ['0', 'Hoje'], ['1', 'Amanhã'], ['7', '7 dias']].map(([v, l]) =>
+        `<button class="chip ${S.f.when === v ? 'on' : ''}" data-when="${v}">${l}</button>`).join('')}</div>
+      <select id="f-sport" aria-label="Modalidade"><option value="">Todas as modalidades</option>${sports.map(s => `<option>${esc(s)}</option>`).join('')}</select>
+      <select id="f-league" aria-label="Competição"><option value="">Todas as competições</option>${comps.map(x => `<option value="${esc(x.league)}" data-sport="${esc(x.sport)}">${esc(x.competition)}</option>`).join('')}</select>
+      <input type="search" id="f-q" placeholder="Pesquisar equipa ou jogador" aria-label="Pesquisar">
+      <label class="tog"><input type="checkbox" id="f-pick"> Só com aposta</label>
+      <label class="tog"><input type="checkbox" id="f-mine"> ★ Só a minha seleção</label>
+    </div>
+    <div id="list"></div>
+    <details class="how" id="how"><summary>Como funciona e desempenho</summary><div id="how-body" class="small"><p class="muted">A carregar…</p></div></details>`;
+  const fs = document.getElementById('f-sport'), fl = document.getElementById('f-league'), fq = document.getElementById('f-q');
+  fs.value = S.f.sport; fl.value = S.f.league; fq.value = S.f.q;
+  document.getElementById('f-pick').checked = S.f.onlyPick; document.getElementById('f-mine').checked = S.f.onlyMine;
+  const upd = () => { S.limit = 60; store.set('filters2', JSON.stringify(S.f)); renderList(); };
+  document.querySelectorAll('.chip').forEach(c => c.onclick = () => {
+    S.f.when = c.dataset.when; document.querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === c)); upd(); });
+  fs.onchange = () => { S.f.sport = fs.value; if (fs.value && fl.selectedOptions[0]?.dataset.sport !== fs.value) { fl.value = ''; S.f.league = ''; } upd(); };
+  fl.onchange = () => { S.f.league = fl.value; upd(); };
+  fq.oninput = () => { S.f.q = fq.value; upd(); };
+  document.getElementById('f-pick').onchange = e => { S.f.onlyPick = e.target.checked; upd(); };
+  document.getElementById('f-mine').onchange = e => { S.f.onlyMine = e.target.checked; upd(); };
+  document.getElementById('how').ontoggle = e => e.target.open && renderHow();
+  renderPicks(); renderList();
+}
+// games that kicked off over 2 h ago are hidden even if the hourly update is late
+const live = fx => fx.filter(x => !(x.kickoff && Date.parse(x.kickoff) < Date.now() - 2 * 3600e3));
+
+// "Aposta do dia": the engine's ranking (conservative EV x evidence) over games of the next 24 h
+function renderPicks() {
+  const now = Date.now(), horizon = now + 24 * 3600e3, d = S.data;
+  const rows = d.fixtures.filter(x => x.kickoff && Date.parse(x.kickoff) > now && Date.parse(x.kickoff) < horizon)
+    .flatMap(x => (x.opps || []).map(o => ({...o, x}))).filter(o => !d.legal?.pt_only || o.licensed_pt)
+    .sort((a, b) => (b.score ?? b.ev) - (a.score ?? a.ev)).slice(0, 3);
+  document.getElementById('picks').innerHTML = `<h2>Aposta do dia</h2>
+    ${rows.length ? `<div class="hero">${rows.map((o, i) => `<div class="pick" data-go="${esc(o.x.key)}" tabindex="0">
+      <span class="rank">#${i + 1} · ${dayLabel(o.x)} ${o.x.kickoff ? hm(o.x.kickoff) : ''} · ${esc(o.x.sport)}</span>
+      <span><b>${esc(o.x.home)}</b> – <b>${esc(o.x.away)}</b><br><span class="small muted">${esc(o.x.competition)}</span></span>
+      <span class="bet">${esc(o.label)}</span>
+      <span class="meta"><span>Odd <b>${num(o.odds)}</b> ${esc(o.bookmaker)}</span><span>Prob. <b>${pct(o.prob)}</b></span>
+        <span>EV <b>${sign(o.ev)}</b></span><span>Odd mín. <b>${num(o.min_odds)}</b></span>${o.evidence != null ? `<span>Evidência <b>${o.evidence}</b>/100</span>` : ''}</span></div>`).join('')}</div>
+      <p class="small muted">Ordenadas pelo EV conservador (o menor entre o nosso e o do mercado sem margem) ponderado pela qualidade da evidência.
+      Nenhuma liga tem vantagem validada no backtest: são as odds mais favoráveis, não apostas garantidas.</p>`
+    : '<p class="muted">Não foi identificada uma oportunidade com valor estatístico suficientemente convincente nas condições atuais (próximas 24 horas).</p>'}`;
+  document.querySelectorAll('[data-go]').forEach(el => el.onclick = el.onkeydown = e => {
+    if (e.type === 'keydown' && e.key !== 'Enter') return;
+    goTo(el.dataset.go);
+  });
+}
+function goTo(key) {
+  if (S.f.onlyMine && !followed(key) || S.f.when !== 'all' || S.f.sport || S.f.league || S.f.q || S.f.onlyPick) {
+    Object.assign(S.f, {when: 'all', sport: '', league: '', q: '', onlyPick: false, onlyMine: false});
+    store.set('filters2', JSON.stringify(S.f)); renderShell();
   }
-  const v = k => document.getElementById('f-' + k).value;
-  render();
-  renderOpportunities(data.fixtures, data.legal);
-  api('/api/alerts').then(a => document.getElementById('alerts').innerHTML = a.length ? `<table><tr><th>Jogo</th><th>Mercado</th><th>Casa</th><th>Odd inicial → atual</th><th>Variação</th></tr>
-    ${a.map(r => `<tr><td>${esc(r.match_key.split('|').slice(2).join(' – '))}</td><td>${esc(r.market)} ${esc(r.selection)}</td><td>${esc(r.bookmaker)}</td>
-    <td>${num(r.first_odds)} → ${num(r.last_odds)}</td><td>${sign(r.change)}</td></tr>`).join('')}</table>` : 'Sem variações significativas registadas.');
+  const fx = filtered(), i = fx.findIndex(x => x.key === key);
+  if (i >= S.limit) { S.limit = i + 10; renderList(); }
+  if (!S.open.has(key)) toggle(key);
+  document.querySelector(`.game[data-key="${CSS.escape(key)}"]`)?.scrollIntoView({block: 'start'});
+}
+function filtered() {
+  const f = S.f, day0 = new Date(new Date().toDateString()).getTime(), day = 864e5, q = f.q.toLowerCase();
+  const inWhen = x => { if (f.when === 'all') return true; if (!x.kickoff) return false; const t = Date.parse(x.kickoff);
+    return f.when === '7' ? t < day0 + 7 * day : t >= day0 + +f.when * day && t < day0 + (+f.when + 1) * day; };
+  return live(S.data.fixtures).filter(x => inWhen(x) && (!f.sport || x.sport === f.sport) && (!f.league || x.league === f.league)
+    && (!q || (x.home + ' ' + x.away + ' ' + x.competition).toLowerCase().includes(q)) && (!f.onlyPick || x.pick)
+    && (!f.onlyMine || followed(x.key)))
+    .sort((a, b) => (a.kickoff || a.date).localeCompare(b.kickoff || b.date));
+}
+function renderList() {
+  document.querySelectorAll('#f-league option[data-sport]').forEach(o => o.hidden = !!S.f.sport && o.dataset.sport !== S.f.sport);
+  const all = filtered(), rows = all.slice(0, S.limit);
+  let html = `<p class="small muted">${all.length} jogos · clique num jogo para ver a análise · ☆ junta-o à sua seleção</p>`, last = '';
+  for (const x of rows) {
+    const dl = dayLabel(x);
+    if (dl !== last) { html += `<div class="day">${esc(dl)}</div>`; last = dl; }
+    const p = x.pick, [cls, tag] = p ? PICK_TAG[p.kind] || ['b-SEM', ''] : [];
+    html += `<article class="game ${S.open.has(x.key) ? 'open' : ''}" data-key="${esc(x.key)}">
+      <div class="row" role="button" tabindex="0" aria-expanded="${S.open.has(x.key)}">
+        <div class="time">${x.kickoff ? hm(x.kickoff) : esc(x.time || '—')}</div>
+        <div class="teams"><b>${esc(x.home)}</b><b>${esc(x.away)}</b><span class="comp">${esc(x.competition)}${x.sport === 'Futebol' ? '' : ` · ${esc(x.sport)}`}</span></div>
+        <div class="probs">${probBar(x.probs_1x2)}</div>
+        <div class="pk">${p ? `<b>${esc(p.label)} @ ${num(p.odds)}</b><span class="small muted">${esc(p.bookmaker)} · EV ${sign(p.ev)}</span> <span class="badge ${cls}">${tag}</span>`
+          : '<span class="small muted">sem aposta comparável</span>'}</div>
+        <button class="star" aria-pressed="${followed(x.key)}" aria-label="Juntar à minha seleção" title="Juntar à minha seleção">${followed(x.key) ? '★' : '☆'}</button>
+      </div><div class="detail" ${S.open.has(x.key) ? '' : 'hidden'}></div></article>`;
+  }
+  if (!rows.length) html += '<p class="muted">Sem jogos para estes filtros.</p>';
+  if (all.length > rows.length) html += `<button class="btn more" id="more">Mostrar mais (${all.length - rows.length})</button>`;
+  const list = document.getElementById('list');
+  list.innerHTML = html;
+  list.querySelectorAll('.game').forEach(g => {
+    const key = g.dataset.key, row = g.querySelector('.row');
+    row.onclick = e => { if (!e.target.closest('.star')) toggle(key); };
+    row.onkeydown = e => { if ((e.key === 'Enter' || e.key === ' ') && e.target === row) { e.preventDefault(); toggle(key); } };
+    g.querySelector('.star').onclick = () => toggleFollow(key);
+    if (S.open.has(key)) openDetail(key);
+  });
+  const more = document.getElementById('more');
+  if (more) more.onclick = () => { S.limit += 60; renderList(); };
+}
+function toggle(key) {
+  const g = document.querySelector(`.game[data-key="${CSS.escape(key)}"]`);
+  if (S.open.has(key)) { S.open.delete(key); if (g) { g.classList.remove('open'); g.querySelector('.detail').hidden = true; g.querySelector('.row').setAttribute('aria-expanded', 'false'); } }
+  else { S.open.add(key); if (g) { g.classList.add('open'); g.querySelector('.detail').hidden = false; g.querySelector('.row').setAttribute('aria-expanded', 'true'); } openDetail(key); }
+  history.replaceState(null, '', S.open.has(key) ? '#/match/' + encodeURIComponent(key) : '#/');
+}
+async function report(key) {
+  if (!S.reports.has(key)) S.reports.set(key, api('/api/match?key=' + encodeURIComponent(key)));
+  try { return await S.reports.get(key); } catch (e) { S.reports.delete(key); throw e; }
+}
+async function openDetail(key) {
+  const box = document.querySelector(`.game[data-key="${CSS.escape(key)}"] .detail`);
+  if (!box) return;
+  if (!box.innerHTML) box.innerHTML = '<p class="muted">A carregar a análise…</p>';
+  try { box.innerHTML = detailHtml(await report(key)); bindDetail(box, key); }
+  catch (e) { box.innerHTML = err(e); }
 }
 
-// ---------- Jogo ----------
+// ---------- inline analysis ----------
+function detailHtml(r) {
+  const id = r.identification, ds = r.data_status || {}, pr = r.predictions, rec = r.recommendation, c = r.conclusion, k = r.key;
+  const tab = S.tab[k] || 'mercados';
+  const best = rec?.label ? r.markets.find(m => selLabel(m.market, m.selection, id.home, id.away, id.sport) === rec.label && m.best_odds === rec.odds) : null;
+  const tabs = [['mercados', 'Mercados'], ...(r.statistics ? [['stats', 'Estatísticas']] : []), ['odds', 'Odds'], ['detalhes', 'Dados e incertezas']];
+  return `${rec ? `<div class="verdict ${esc(rec.kind)}">
+      ${rec.verdict ? `<div class="small"><b>${esc(rec.verdict)}</b></div>` : ''}
+      ${rec.label ? `<div class="big">${esc(rec.label)} @ ${num(rec.odds)} <span class="small muted">${esc(rec.bookmaker)}</span></div>
+        <div>${licence(rec.licensed_pt)} <span class="badge ${(PICK_TAG[rec.kind] || [])[0] || 'b-SEM'}">${(PICK_TAG[rec.kind] || [])[1] || ''}</span> ${evBadge(rec.evidence)}
+        ${best ? addBtn(k, best, r, 'Juntar à seleção') : ''}</div>` : '<div class="big">Sem melhor aposta</div>'}
+      <p class="small" style="margin:6px 0 0">${esc(rec.text)}</p></div>` : ''}
+    <div class="facts">
+      ${rec?.label ? `<div class="fact"><span>EV conservador</span><b>${sign(rec.ev)}</b></div><div class="fact"><span>Odd mínima</span><b>${num(rec.min_odds)}</b></div>` : ''}
+      ${rec?.most_likely ? `<div class="fact"><span>Mais provável</span><b>${esc(rec.most_likely.label)}</b> <span class="small muted">${pct(rec.most_likely.prob)}</span></div>` : ''}
+      ${pr?.expected_goals ? `<div class="fact"><span>Golos esperados</span><b>${Object.values(pr.expected_goals).map(g => num(g)).join(' – ')}</b></div>` : ''}
+      <div class="fact"><span>Confiança</span><b>${esc(ds.confidence || 'insuficiente')}</b></div>
+      <div class="fact"><span>Analisado</span><b>${dt(ds.analysed_at)}</b></div>
+    </div>
+    <div class="tabs" role="tablist">${tabs.map(([t, l]) => `<button class="tab ${t === tab ? 'on' : ''}" role="tab" aria-selected="${t === tab}" data-tab="${t}">${l}</button>`).join('')}</div>
+    <div class="pane">${{mercados: marketsPane, stats: statsPane, odds: oddsPane, detalhes: detailsPane}[tab](r)}</div>`;
+}
+function addBtn(key, m, r, text) {
+  const on = inSlip(key, m.market, m.selection);
+  return `<button class="add ${on ? 'on' : ''}" data-add="${esc(m.market)}|${esc(m.selection)}" aria-pressed="${on}">${on ? '✓ Na seleção' : text || '+'}</button>`;
+}
+function marketsPane(r) {
+  if (!r.markets?.length) return `<p class="muted">${esc(r.conclusion?.summary || 'Sem mercados analisados.')}</p>`;
+  const all = S.allMarkets[r.key], rows = all ? r.markets : r.markets.filter(m => m.best_odds);
+  const hidden = r.markets.length - r.markets.filter(m => m.best_odds).length;
+  return `<div class="tbl"><table><tr><th></th><th>Mercado</th><th>Aposta</th><th>Prob.</th><th>Odd justa</th><th>Odd mín.</th><th>Melhor odd</th>
+      <th class="hide-sm">Casa</th><th>EV</th><th class="hide-sm">Evidência</th><th class="hide-sm">Categoria</th></tr>
+    ${rows.map(m => `<tr title="${esc(m.reasons.join('; '))}"><td>${addBtn(r.key, m, r)}</td><td>${esc(mkName(m.market))}</td><td>${esc(selLabel(m.market, m.selection, r.identification.home, r.identification.away, r.identification.sport))}</td>
+      <td>${pct(m.model_prob)}</td><td>${num(m.fair_odds)}</td><td>${num(m.min_odds)}</td><td>${num(m.best_odds)}</td>
+      <td class="hide-sm">${esc(m.bookmaker || '—')}</td><td>${sign(m.ev_conservative ?? m.ev)}</td><td class="hide-sm">${m.evidence && m.best_odds ? m.evidence.score : '—'}</td>
+      <td class="hide-sm">${badge(m.category)}</td></tr>`).join('')}</table></div>
+    ${hidden ? `<p><button class="btn sm" data-all="1">${all ? 'Mostrar só mercados com odd' : `Mostrar todos os mercados (+${hidden} sem odd: dupla hipótese, empate anula, golos por equipa, handicap)`}</button></p>` : ''}
+    <p class="small muted">EV = conservador (o menor entre o nosso e o do mercado sem margem). Odd mínima = odd justa + 3%: abaixo dela não compensa.
+    Mercados sem odd mostram a probabilidade e a odd mínima para comparar na casa. Passe o rato numa linha para ver os motivos.</p>`;
+}
 function formTable(obj, title) {
-  const teams = Object.keys(obj);
-  return `<h3>${title}</h3><div class="tbl"><table><tr><th>Equipa</th><th>J</th><th>Forma</th><th>Pts/J</th><th>GM</th><th>GS</th><th>xG</th><th>xGA</th></tr>
-  ${teams.map(t => { const s = obj[t]; return `<tr><td>${esc(t)}</td><td>${s.matches}</td><td>${esc(s.form || '—')}</td><td>${num(s.points_per_game)}</td>
-  <td>${num(s.goals_for)}</td><td>${num(s.goals_against)}</td><td>${num(s.xg_for)}</td><td>${num(s.xg_against)}</td></tr>`; }).join('')}</table></div>`;
+  return `<h3>${title}</h3><div class="tbl"><table><tr><th>Equipa</th><th>J</th><th>Forma</th><th>Pts/J</th><th>GM</th><th>GS</th><th class="hide-sm">xG</th><th class="hide-sm">xGA</th></tr>
+  ${Object.entries(obj).map(([t, s]) => `<tr><td>${esc(t)}</td><td>${s.matches}</td><td>${esc(s.form || '—')}</td><td>${num(s.points_per_game)}</td>
+  <td>${num(s.goals_for)}</td><td>${num(s.goals_against)}</td><td class="hide-sm">${num(s.xg_for)}</td><td class="hide-sm">${num(s.xg_against)}</td></tr>`).join('')}</table></div>`;
 }
-async function viewMatch(key) {
-  const r = await api('/api/match?key=' + encodeURIComponent(key));
-  const id = r.identification, ds = r.data_status || {}, st = r.statistics, pr = r.predictions, c = r.conclusion;
-  const [home, away] = [id.home, id.away];
-  const rec = r.recommendation;
-  let html = `<p><a href="#/">← Jogos</a></p>
-    ${rec ? `<div class="card" style="border-left:4px solid var(${{valor: '--ok', melhor_opcao: '--warn'}[rec.kind] || '--no'})"><h2>Melhor aposta</h2>
-      ${rec.verdict ? `<p><b>${esc(rec.verdict)}</b></p>` : ''}
-      <p style="font-size:16px">${rec.label ? `<b>${esc(rec.label)}</b> @ ${num(rec.odds)} <span class="muted">(${esc(rec.bookmaker)})</span> · EV conservador ${sign(rec.ev)} ${evBadge(rec.evidence)}
-        <span class="badge ${(PICK_TAG[rec.kind] || [])[0] || 'b-SEM'}">${(PICK_TAG[rec.kind] || [])[1] || ''}</span>
-        ${rec.licensed_pt ? '<span class="badge b-VALOR">SRIJ</span>' : '<span class="badge b-DADOS">sem licença PT</span>'}`
-        : '<b>Sem melhor aposta</b>'}</p>
-      <p>${esc(rec.text)}</p>
-      ${rec.label ? `<p class="small">Odd mínima para valer a pena: <b>${num(rec.min_odds)}</b> (odd justa + ${esc('3%')} de margem de segurança). EV só do modelo: ${sign(rec.ev_model)}.
-        ${rec.evidence ? `Evidência: ${Object.entries(rec.evidence.parts).map(([k, v]) => `${esc(k)} ${v}/25`).join(' · ')}.` : ''}</p>` : ''}
-      ${rec.most_likely ? `<p class="small muted">Resultado mais provável: <b>${esc(rec.most_likely.label)}</b> (${pct(rec.most_likely.prob)}). Ser provável não quer dizer que valha a pena apostar: só vale quando a odd paga mais do que essa probabilidade.</p>` : ''}
-      <p class="small muted">Análise estatística, não aconselhamento financeiro. Aposte apenas o que pode perder.</p></div>` : ''}
-    <div class="card"><h2>A. ${esc(home)} – ${esc(away)}</h2><div class="grid kv">
-    <div><span>Modalidade</span><b>${esc(id.sport)}</b></div><div><span>Competição</span><b>${esc(id.competition)}</b></div>
-    <div><span>Data / hora</span><b>${esc(id.date)} ${esc(id.time || '')}</b></div><div><span>Local</span><b>${esc(id.venue)}</b></div>
-    <div><span>Confiança estatística</span><b>${esc(ds.confidence || 'insuficiente')}</b></div>
-    <div><span>Último resultado nos dados</span><b>${esc(ds.results?.last_result || '—')}</b></div></div>
-    ${ds.model_validation ? `<div class="${ds.model_validation.validated ? 'small muted' : 'warn'}">Validação do modelo: ${esc(ds.model_validation.reason)}${ds.model_validation.market_log_loss ? ` (log loss 1X2 modelo ${num(ds.model_validation.model_log_loss, 4)} vs mercado ${num(ds.model_validation.market_log_loss, 4)})` : ''}</div>` : ''}
+function statsPane(r) {
+  const st = r.statistics, pr = r.predictions, [home, away] = [r.identification.home, r.identification.away];
+  return `${formTable(st.form, 'Forma recente (últimos 5)')}
+    ${formTable({[home + ' (casa)']: st.home_away[home], [away + ' (fora)']: st.home_away[away]}, 'Casa / fora (últimos 10)')}
+    <div class="grid2"><div><h3>Força (1 = média da liga)</h3><div class="tbl"><table>${st.ratings ? Object.entries(st.ratings).map(([t, x]) =>
+      `<tr><td>${esc(t)}</td><td>ataque ${num(x.attack)}</td><td>defesa ${num(x.defence)}</td></tr>`).join('') : ''}
+      <tr><td>Vantagem casa</td><td colspan="2">${num(st.home_advantage)}</td></tr>
+      <tr><td>Dias de descanso</td><td colspan="2">${esc(home)} ${st.rest_days[home] ?? '—'} · ${esc(away)} ${st.rest_days[away] ?? '—'}</td></tr></table></div></div>
+    <div><h3>Confrontos diretos</h3>${st.h2h.length ? `<div class="tbl"><table>${st.h2h.map(g => `<tr><td>${esc(g.date)}</td><td>${esc(g.home)} ${esc(g.score)} ${esc(g.away)}</td></tr>`).join('')}</table></div>` : '<p class="muted">Sem confrontos no período.</p>'}
+    ${pr?.top_scores?.length ? `<h3>Resultados mais prováveis</h3><p>${pr.top_scores.slice(0, 5).map(s => `${esc(s.score)} <span class="muted">(${pct(s.prob)})</span>`).join(' · ')}</p>` : ''}</div></div>`;
+}
+function oddsPane(r) {
+  const books = Object.entries(r.odds || {}).filter(([, b]) => Object.keys(b).length);
+  const oh = r.odds_history, [home, away] = [r.identification.home, r.identification.away];
+  return `${oh ? `<h3>Movimento da melhor odd — ${esc(mkName(oh.market))}</h3><div class="tbl"><table><tr><th>Aposta</th><th>Primeira</th><th>Atual</th><th>Variação</th><th class="hide-sm">Evolução</th></tr>
+      ${Object.entries(oh.series).map(([s, pts]) => { const a = pts[0][1], b = pts[pts.length - 1][1];
+        return `<tr><td>${esc({'1': home, X: 'Empate', '2': away}[s] || s)}</td><td>${num(a)} <span class="small muted">${dt(pts[0][0])}</span></td><td>${num(b)}</td><td>${sign(b / a - 1)}</td><td class="hide-sm">${spark(pts)}</td></tr>`; }).join('')}</table></div>` : ''}
+    ${r.alerts?.length ? `<div class="warn">Variações de odds: ${r.alerts.map(a => `${esc(mkName(a.market))} ${esc(a.selection)} ${esc(a.bookmaker)} ${num(a.first_odds)}→${num(a.last_odds)}`).join('; ')}</div>` : ''}
+    ${books.map(([mk, bk]) => {
+      // selection order and "best" come from the markets table: JS objects reorder numeric keys ("1","2" before "X")
+      const rows = r.markets.filter(x => x.market === mk), sels = rows.map(x => x.selection), best = Object.fromEntries(rows.map(x => [x.selection, x.best_odds]));
+      return `<h3>Odds por casa — ${esc(mkName(mk))}</h3><div class="tbl"><table><tr><th>Casa</th>${sels.map(s => `<th>${esc(s)}</th>`).join('')}</tr>
+      ${Object.entries(bk).map(([b, s]) => `<tr><td>${esc(b)}</td>${sels.map(x => `<td class="${s[x] === best[x] ? 'best' : ''}">${num(s[x])}</td>`).join('')}</tr>`).join('')}</table></div>`; }).join('') || '<p class="muted">Sem odds para este jogo.</p>'}`;
+}
+function detailsPane(r) {
+  const ds = r.data_status || {}, c = r.conclusion, pr = r.predictions;
+  return `${ds.model_validation ? `<div class="${ds.model_validation.validated ? 'small muted' : 'warn'}">Validação do modelo: ${esc(ds.model_validation.reason)}</div>` : ''}
     ${ds.error ? `<div class="warn">${esc(ds.error)}</div>` : ''}
-    <p class="small muted">${ds.results ? `Resultados: ${esc(ds.results.source)}, ${ds.results.matches} jogos, obtido ${esc(new Date(ds.results.fetched_at).toLocaleString('pt-PT'))}. ` : ''}
-    ${(ds.odds || []).map(o => `Odds: ${esc(o.source)} (${esc(o.note)}${o.fetched_at ? ', ' + esc(new Date(o.fetched_at).toLocaleString('pt-PT')) : ''}).`).join(' ')}
-    Análise gerada ${esc(ds.analysed_at ? new Date(ds.analysed_at).toLocaleString('pt-PT') : '—')}.</p></div>`;
-  if (st) {
-    html += `<div class="card"><h2>B. Análise estatística</h2>${formTable(st.form, 'Forma recente (últimos 5)')}
-      ${formTable({[home + ' (casa)']: st.home_away[home], [away + ' (fora)']: st.home_away[away]}, 'Casa / fora (últimos 10)')}
-      <div class="grid"><div><h3>Força (1 = média da liga)</h3><div class="kv">${st.ratings ? Object.entries(st.ratings).map(([t, x]) =>
-        `<div><span>${esc(t)}</span><span>ataque ${num(x.attack)} · defesa ${num(x.defence)} <span class="muted small">(maior = sofre mais)</span></span></div>`).join('') : '<div>—</div>'}
-        <div><span>Vantagem casa (multiplicador)</span><span>${num(st.home_advantage)}</span></div>
-        <div><span>Dias de descanso</span><span>${esc(home)}: ${st.rest_days[home] ?? '—'} · ${esc(away)}: ${st.rest_days[away] ?? '—'}</span></div></div></div>
-      <div><h3>Confrontos diretos</h3>${st.h2h.length ? `<ul>${st.h2h.map(g => `<li>${esc(g.date)}: ${esc(g.home)} ${esc(g.score)} ${esc(g.away)}</li>`).join('')}</ul>` : '<p class="muted">Sem confrontos no período.</p>'}</div></div>
-      <h3>Limitações dos dados</h3><ul>${c.uncertainties.map(u => `<li>${esc(u)}</li>`).join('')}</ul></div>`;
-  }
-  if (pr && !pr.matrix) {  // other sports: market consensus only, no goals model
-    html += `<div class="card"><h2>C. Probabilidades</h2><p class="small muted">${esc(pr.method)}. Não há modelo estatístico próprio para esta modalidade.</p>
-      <div class="kv">${Object.entries(pr.probabilities).map(([mk, s]) => `<div><span>${esc(mk)}</span><span>${Object.entries(s).map(([k, p]) => `${esc(k)} ${pct(p)}`).join(' · ')}</span></div>`).join('')}</div>
-      <p class="small muted">"1" = ${esc(home)}, "2" = ${esc(away)}.</p></div>`;
-  } else if (pr) {
-    const m = pr.matrix, mx = Math.max(...m.flat());
-    html += `<div class="card"><h2>C. Previsões do modelo</h2><p class="small muted">${esc(pr.method)}.
-      ${pr.blend ? `Combinado com o mercado pré-jogo em ${pr.blend.markets.map(esc).join(', ')} (pesos validados fora da amostra: ${Object.entries(pr.blend.weights).map(([k, w]) => `${esc(k)} modelo ${num(w.a)} · mercado ${num(w.b)}`).join('; ')});
-      só Dixon-Coles 1X2: ${Object.entries(pr.model_probabilities['1X2']).map(([k, p]) => `${esc(k)} ${pct(p)}`).join(' · ')}.` : 'Sem combinação com o mercado (sem pesos validados ou sem odd média).'}</p><div class="grid">
-      <div><h3>Golos esperados</h3><div class="kv">${Object.entries(pr.expected_goals).map(([t, g]) => `<div><span>${esc(t)}</span><b>${num(g)}</b></div>`).join('')}</div>
-      <h3>Probabilidades</h3><div class="kv">${Object.entries(pr.probabilities).map(([mk, s]) => `<div><span>${esc(mk)}</span><span>${Object.entries(s).map(([k, p]) => `${esc(k)} ${pct(p)}`).join(' · ')}</span></div>`).join('')}</div></div>
-      <div><h3>Distribuição de resultados (linhas: ${esc(home)}, colunas: ${esc(away)})</h3><table class="heat"><tr><th></th>${m.map((_, j) => `<th>${j}</th>`).join('')}</tr>
-      ${m.map((row, i) => `<tr><th>${i}</th>${row.map(p => `<td style="background:rgba(31,111,235,${(p / mx * .8).toFixed(2)})">${(p * 100).toFixed(1)}</td>`).join('')}</tr>`).join('')}</table>
-      <p class="small muted">Mais prováveis: ${pr.top_scores.slice(0, 5).map(s => `${esc(s.score)} (${pct(s.prob)})`).join(', ')}</p></div></div></div>`;
-  }
-  if (r.markets?.length) {
-    html += `<div class="card"><h2>D. Comparação de mercados, odds e valor esperado</h2>
-      <p class="small muted">"Odd mínima" = odd justa + 3%: abaixo dela a aposta não compensa. Mercados sem odd de nenhuma fonte (dupla hipótese, empate anula, golos por equipa, handicap)
-      mostram só a probabilidade e a odd mínima, para comparar com a casa. Golos por equipa e handicap vêm só do modelo (sem mercado para o calibrar).</p>
-      <div class="tbl"><table><tr><th>Mercado</th><th>Seleção</th><th>Prob.</th><th>Odd justa</th><th>Odd mínima</th>
-      <th>Melhor odd</th><th>Casa</th><th class="hide-sm">Prob. implícita</th><th class="hide-sm">Mercado s/ margem</th><th class="hide-sm">Margem casa</th><th>EV</th><th>EV conservador</th><th>Evidência</th><th>Categoria</th><th class="hide-sm">Motivos</th></tr>
-      ${r.markets.map(x => `<tr><td>${esc(mkName(x.market))}</td><td>${esc(x.selection)}</td><td>${pct(x.model_prob)}</td><td>${num(x.fair_odds)}</td><td>${num(x.min_odds)}</td>
-      <td>${num(x.best_odds)}</td><td>${esc(x.bookmaker || '—')}${x.bookmaker ? (x.licensed_pt ? ' <span class="badge b-VALOR">SRIJ</span>' : ' <span class="badge b-DADOS">sem licença PT</span>') : ''}</td><td class="hide-sm">${pct(x.implied_prob)}</td><td class="hide-sm">${pct(x.market_prob_no_vig)}</td>
-      <td class="hide-sm">${pct(x.bookmaker_margin)}</td><td>${sign(x.ev)}</td><td>${sign(x.ev_conservative)}</td><td>${x.evidence && x.best_odds ? x.evidence.score : '—'}</td><td>${badge(x.category)}</td><td class="small hide-sm">${esc(x.reasons.join('; '))}</td></tr>`).join('')}</table></div>
-      ${Object.entries(r.odds || {}).filter(([, b]) => Object.keys(b).length).map(([mk, books]) => {
-        // selection order and "best" come from the markets table: JS objects reorder numeric keys ("1","2" before "X")
-        const rows = r.markets.filter(x => x.market === mk), sels = rows.map(x => x.selection);
-        const best = Object.fromEntries(rows.map(x => [x.selection, x.best_odds]));
-        return `<h3>Odds por operador — ${esc(mkName(mk))}</h3><div class="tbl"><table><tr><th>Operador</th>${sels.map(s => `<th>${esc(s)}</th>`).join('')}</tr>
-        ${Object.entries(books).map(([b, s]) => `<tr><td>${esc(b)}</td>${sels.map(k => `<td class="${s[k] === best[k] ? 'best' : ''}">${num(s[k])}</td>`).join('')}</tr>`).join('')}</table></div>`; }).join('')}
-      <p class="small muted">"Melhor odd" escolhe primeiro entre operadores licenciados pelo SRIJ (únicos legais em Portugal); só sem esses usa uma odd internacional, marcada "sem licença PT", como referência.
-      Exclui agregados (máximo/média do mercado) e exchanges como Betfair e Matchbook (odds antes de comissão). Mercados sem odd ficam como SEM DADOS SUFICIENTES.</p>
-      ${r.odds_history ? `<h3>Movimento da melhor odd — ${esc(mkName(r.odds_history.market))}</h3><div class="tbl"><table><tr><th>Seleção</th><th>Primeira</th><th>Atual</th><th>Variação</th><th>Evolução</th></tr>
-        ${Object.entries(r.odds_history.series).map(([sel, pts]) => { const a = pts[0][1], b = pts[pts.length - 1][1];
-          return `<tr><td>${esc({'1': home, X: 'Empate', '2': away}[sel] || sel)}</td><td>${num(a)} <span class="muted small">${esc(new Date(pts[0][0]).toLocaleString('pt-PT'))}</span></td><td>${num(b)}</td><td>${sign(b / a - 1)}</td><td>${spark(pts)}</td></tr>`; }).join('')}</table></div>
-        <p class="small muted">Melhor odd de cada seleção a cada atualização (só mudanças são guardadas).</p>` : ''}
-      ${r.alerts?.length ? `<div class="warn">Variações de odds: ${r.alerts.map(a => `${esc(a.market)} ${esc(a.selection)} ${esc(a.bookmaker)} ${num(a.first_odds)}→${num(a.last_odds)}`).join('; ')}</div>` : ''}</div>`;
-  }
-  html += `<div class="card"><h2>E. Conclusão</h2><p><b>${esc(c.summary)}</b></p>
-    ${c.for.length ? `<h3>A favor</h3><ul>${c.for.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
-    ${c.against.length ? `<h3>Contra</h3><ul>${c.against.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
+    <h3>Conclusão</h3><p><b>${esc(c.summary)}</b></p>
+    ${c.against.length ? `<ul>${c.against.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
     <h3>Incertezas</h3><ul>${c.uncertainties.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
-    ${c.markets_without_value.length ? `<h3>Sem valor identificado</h3><p class="small">${c.markets_without_value.map(esc).join(', ')}</p>` : ''}</div>`;
-  $app.innerHTML = html;
+    <h3>Método e fontes</h3><p class="small">${pr ? esc(pr.method) + '. ' : ''}${ds.results ? `Resultados: ${esc(ds.results.source)}, ${ds.results.matches} jogos (último ${esc(ds.results.last_result)}). ` : ''}
+    ${(ds.odds || []).map(o => `Odds: ${esc(o.source)} — ${esc(o.note)}${o.fetched_at ? ` (${dt(o.fetched_at)})` : ''}.`).join(' ')}</p>`;
 }
-
-// ---------- Histórico ----------
-async function viewHistory() {
-  const [rows, perf] = await Promise.all([api('/api/history'), api('/api/performance').catch(() => null)]);
-  const pm = perf ? Object.entries(perf.markets) : [];
-  const settled = rows.filter(r => r.won != null && r.category === 'VALOR POTENCIAL' && r.odds);
-  const profit = settled.reduce((s, r) => s + (r.won ? r.odds - 1 : -1), 0);
-  $app.innerHTML = `<div class="card"><h2>Histórico de previsões</h2>
-    <p class="small muted">Todas as previsões geradas ficam registadas (append-only) e são confrontadas com o resultado real quando este chega à fonte.
-    Previsões "VALOR POTENCIAL" já resolvidas: ${settled.length} · resultado simulado com stake 1u: ${num(profit)}u. Amostras pequenas não permitem conclusões.</p>
-    ${pm.length ? `<h3>Desempenho ao vivo</h3><p class="small muted">${esc(perf.note)} Conta a última estimativa de cada seleção. Log loss e Brier: menor é melhor.
-      "Apostas" = seleções com EV estimado positivo, ao preço registado, stake 1u.</p>
-      <div class="tbl"><table><tr><th>Mercado</th><th>Jogos</th><th>Seleções</th><th>Log loss</th><th>Brier</th><th>Apostas</th><th>Lucro</th><th>ROI</th></tr>
-      ${pm.map(([g, m]) => `<tr><td>${esc(g === 'todos' ? 'Todos' : g === 'outros' ? 'Outros mercados' : mkName(g))}</td><td>${m.games}</td><td>${m.selections}</td><td>${num(m.log_loss, 4)}</td><td>${num(m.brier, 4)}</td>
-      <td>${m.bets}</td><td>${num(m.profit)}u</td><td>${sign(m.roi)}</td></tr>`).join('')}</table></div>
-      ${perf.calibration.length ? `<h3>Calibração</h3><div class="tbl"><table><tr><th>Probabilidade prevista</th><th>N</th><th>Média prevista</th><th>Frequência real</th></tr>
-      ${perf.calibration.map(c => `<tr><td>${pct(c.from, 0)}–${pct(c.to, 0)}</td><td>${c.n}</td><td>${pct(c.predicted)}</td><td>${pct(c.observed)}</td></tr>`).join('')}</table></div>` : ''}`
-      : '<p class="muted">Ainda não há previsões com resultado conhecido.</p>'}
-    <h3>Previsões com odd</h3><p class="small muted">Mercados sem odd (só probabilidade) contam nas métricas acima mas não aparecem na lista.</p>
-    <div class="tbl"><table><tr><th>Jogo</th><th>Data</th><th>Mercado</th><th>Prob.</th><th>Odd</th><th>EV</th><th>Categoria</th><th>Resultado</th><th>Acerto</th></tr>
-    ${rows.filter(r => r.odds).map(r => `<tr><td>${esc(r.home)} – ${esc(r.away)}</td><td>${esc(r.match_date)}</td><td>${esc(mkName(r.market))} ${esc(r.selection)}</td><td>${pct(r.model_prob)}</td>
-    <td>${num(r.odds)}</td><td>${sign(r.ev)}</td><td>${badge(r.category)}</td><td>${esc(r.result || 'pendente')}</td><td>${r.won == null ? '—' : r.won ? '✔' : '✘'}</td></tr>`).join('')}</table></div></div>`;
-}
-
-// ---------- Backtesting ----------
-async function viewBacktest() {
-  const list = await api('/api/backtests');
-  if (!list.length) { $app.innerHTML = `<div class="card"><h2>Backtesting</h2><p>Ainda não há backtests. Execute <code>python -m app.backtest</code> na pasta backend, ou use o endpoint de administração.</p></div>`; return; }
-  $app.innerHTML = list.map((b, k) => { const o = b.betting.overall;
-    const ll = x => x ? num(x.log_loss, 4) : '—';
-    const acc = Object.entries(b.accuracy).map(([mk, a]) => `<tr><td>${esc(mk)}</td><td><b>${ll(a.model_same_matches || a.model)}</b></td><td>${ll(a.dixon_coles_only)}</td>
-      <td>${ll(a.market_prematch_no_vig)}</td><td>${ll(a.market_closing_no_vig)}</td><td>${(a.model_same_matches || a.model).n}</td></tr>`).join('');
-    const seasons = Object.entries(b.by_season || {}).map(([s, x]) => `<tr><td>${esc(s)}</td><td><b>${num(x.final, 4)}</b></td><td>${num(x.dixon_coles, 4)}</td>
-      <td>${num(x.prematch, 4)}</td><td>${num(x.closing, 4)}</td><td>${x.n}</td></tr>`).join('');
-    return `<div class="card"><h2>${esc(b.competition)} · ${esc(b.period.from)} a ${esc(b.period.to)}</h2>
-    ${b.warnings.map(w => `<div class="warn">${esc(w)}</div>`).join('')}
-    <div class="grid kv"><div><span>Previsões</span><b>${b.predictions}</b></div><div><span>Apostas simuladas</span><b>${o.bets}</b></div>
-      <div><span>Ganhas / perdidas</span><b>${o.won ?? 0} / ${o.lost ?? 0}</b></div><div><span>Lucro (stake 1u)</span><b>${num(o.profit_units)}u</b></div>
-      <div><span>Yield / ROI por aposta</span><b>${sign(o.yield)}</b></div><div><span>IC 95% yield</span><b>${o.yield_ci95 ? sign(o.yield_ci95[0]) + ' a ' + sign(o.yield_ci95[1]) : '—'}</b></div>
-      <div><span>Drawdown máximo</span><b>${num(o.max_drawdown_units)}u</b></div><div><span>CLV vs média de fecho</span><b>${sign(o.avg_clv)}</b></div>
-      <div><span>CLV vs fecho Pinnacle (${o.clv_pinnacle_n || 0} apostas)</span><b>${sign(o.avg_clv_pinnacle)}</b></div>
-      <div><span>IC 95% CLV Pinnacle</span><b>${o.clv_pinnacle_ci95 ? sign(o.clv_pinnacle_ci95[0]) + ' a ' + sign(o.clv_pinnacle_ci95[1]) : '—'}</b></div>
-      <div><span>Apostas acima do fecho Pinnacle</span><b>${pct(o.share_beating_pinnacle)}</b></div></div>
-    <h3>Log loss (menor = melhor), mesmos jogos — fora da amostra</h3><div class="tbl"><table><tr><th>Mercado</th><th>Final (modelo + mercado)</th><th>Só Dixon-Coles</th><th>Mercado pré-jogo</th><th>Mercado fecho</th><th>N</th></tr>${acc}</table></div>
-    ${seasons ? `<h3>1X2 por época</h3><div class="tbl"><table><tr><th>Época</th><th>Final</th><th>Só Dixon-Coles</th><th>Pré-jogo</th><th>Fecho</th><th>N</th></tr>${seasons}</table></div>` : ''}
-    ${b.betting.by_market ? `<h3>Por mercado</h3><div class="tbl"><table><tr><th>Mercado</th><th>Apostas</th><th>Yield</th><th>IC 95%</th><th>Lucro</th></tr>${Object.entries(b.betting.by_market).map(([mk, s]) =>
-      `<tr><td>${esc(mk)}</td><td>${s.bets}</td><td>${sign(s.yield)}</td><td>${s.yield_ci95 ? sign(s.yield_ci95[0]) + ' a ' + sign(s.yield_ci95[1]) : '—'}</td><td>${num(s.profit_units)}u</td></tr>`).join('')}</table></div>` : ''}
-    <div class="grid"><div><h3>Calibração</h3><canvas id="cal${k}"></canvas></div><div><h3>Lucro acumulado (u)</h3><canvas id="eq${k}"></canvas></div></div>
-    <p class="small muted">Executado ${esc(b.run_at)} · ${esc(b.params.odds)} · margem EV ${pct(b.params.ev_margin, 0)} · ξ ${b.params.xi}</p></div>`; }).join('');
-  list.forEach((b, k) => {
-    chart(document.getElementById('cal' + k), {type: 'scatter', data: {datasets: [
-      {label: 'Modelo', data: b.calibration.map(c => ({x: c.predicted, y: c.observed})), pointRadius: b.calibration.map(c => Math.min(12, 3 + Math.sqrt(c.n) / 4))},
-      {label: 'Perfeita', type: 'line', data: [{x: 0, y: 0}, {x: 1, y: 1}], pointRadius: 0, borderDash: [4, 4]}]},
-      options: {scales: {x: {min: 0, max: 1, title: {display: true, text: 'Prevista'}}, y: {min: 0, max: 1, title: {display: true, text: 'Observada'}}}}});
-    chart(document.getElementById('eq' + k), {type: 'line', data: {labels: (b.betting.equity || []).map((_, i) => i + 1),
-      datasets: [{label: 'Lucro acumulado', data: b.betting.equity || [], pointRadius: 0}]}});
+function bindDetail(box, key) {
+  box.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { S.tab[key] = b.dataset.tab; openDetail(key); });
+  box.querySelectorAll('[data-all]').forEach(b => b.onclick = () => { S.allMarkets[key] = !S.allMarkets[key]; openDetail(key); });
+  box.querySelectorAll('[data-add]').forEach(b => b.onclick = async () => {
+    const [market, selection] = b.dataset.add.split('|'), r = await report(key);
+    toggleSel(r, r.markets.find(m => m.market === market && m.selection === selection));
+    openDetail(key);
   });
 }
 
-// ---------- Risco ----------
-function viewRisk() {
-  $app.innerHTML = `<div class="card"><h2>Simulação de risco (Monte Carlo)</h2>
-    <p class="small muted">Simula sequências de apostas independentes com stake fixa em % da banca. Mostra sempre o cenário em que o modelo não tem vantagem.</p>
-    <div class="filters"><label>Banca <input id="r-bankroll" type="number" value="100" min="1"></label>
-      <label>Stake % <input id="r-stake" type="number" value="1" step="0.5" min="0.1" max="50"></label>
-      <label>Nº apostas <input id="r-n" type="number" value="500" min="1" max="5000"></label>
-      <label>Prob. estimada % <input id="r-p" type="number" value="36" step="0.5" min="1" max="99"></label>
-      <label>Odd <input id="r-odds" type="number" value="3" step="0.05" min="1.01"></label><button id="r-go">Simular</button></div>
-    <div id="r-out"></div></div>`;
-  document.getElementById('r-go').onclick = async () => {
-    const g = id => Number(document.getElementById(id).value);
-    try {
-      const r = simulateRisk({bankroll: g('r-bankroll'), stake_pct: g('r-stake') / 100, n_bets: g('r-n'), prob: g('r-p') / 100, odds: g('r-odds')});
-      const sc = Object.entries(r.scenarios);
-      document.getElementById('r-out').innerHTML = `${r.warnings.map(w => `<div class="warn">${esc(w)}</div>`).join('')}
-        <div class="tbl"><table><tr><th>Cenário</th><th>EV</th><th>Banca final P5 / mediana / P95</th><th>P(perda)</th><th>P(perder 50%)</th><th>P(perder 90%)</th><th>Drawdown mediano</th><th>Pior série de derrotas (mediana / P95)</th></tr>
-        ${sc.map(([n, s]) => `<tr><td>${esc(n)}</td><td>${sign(s.ev_per_unit)}</td><td>${num(s.final_p5)} / ${num(s.final_median)} / ${num(s.final_p95)}</td>
-        <td>${pct(s.prob_loss)}</td><td>${pct(s.prob_lose_half)}</td><td>${pct(s.prob_ruin_90)}</td><td>${pct(s.max_drawdown_median)}</td>
-        <td>${s.longest_losing_streak_median} / ${s.longest_losing_streak_p95}</td></tr>`).join('')}</table></div><div class="grid">${sc.map((_, k) => `<div><h3>${esc(sc[k][0])}</h3><canvas id="rc${k}"></canvas></div>`).join('')}</div>`;
-      sc.forEach(([, s], k) => chart(document.getElementById('rc' + k), {type: 'line', data: {labels: s.sample_paths[0].map((_, i) => i),
-        datasets: s.sample_paths.map(p => ({data: p, pointRadius: 0, borderWidth: 1}))}, options: {plugins: {legend: {display: false}}}}));
-    } catch (e) { document.getElementById('r-out').innerHTML = err(e); }
-  };
+// ---------- my selection ----------
+function selFrom(r, m) {
+  const id = r.identification;
+  return {key: r.key, game: `${id.home} – ${id.away}`, competition: id.competition, kickoff: id.kickoff, market: m.market, selection: m.selection,
+    label: selLabel(m.market, m.selection, id.home, id.away, id.sport), odds: m.best_odds, bookmaker: m.bookmaker, prob: m.model_prob,
+    ev: m.ev_conservative ?? m.ev, min_odds: m.min_odds, evidence: m.evidence?.score ?? null};
 }
-
-function viewAbout() {
-  $app.innerHTML = `<div class="card"><h2>Metodologia e limitações</h2>
-  <h3>Modelo</h3><p>Dixon-Coles: golos de cada equipa seguem Poisson com força de ataque, defesa e vantagem de casa, com correção para resultados baixos (0-0, 1-0, 0-1, 1-1)
-  e decaimento temporal. Daí sai a distribuição completa de resultados, de onde derivam 1X2, totais e ambas marcam de forma consistente.
-  No 1X2 e no O/U 2,5, a probabilidade final combina o modelo com o mercado pré-jogo (pool logarítmico), com pesos validados fora da amostra em 8 épocas.
-  O backtest dá peso praticamente zero ao modelo: as odds pré-jogo já contêm o que ele sabe.</p>
-  <h3>Outras modalidades</h3><p>Basquetebol, hóquei no gelo, basebol e ténis vêm da The Odds API e são analisados pelo
-  consenso das casas sem margem (Shin): ainda não há um modelo estatístico próprio nem backtest para estas modalidades, por isso
-  nunca aparecem como VALOR POTENCIAL. O "valor" mostrado é a melhor odd face a esse consenso.</p>
-  <h3>Fórmulas</h3><ul><li>Probabilidade implícita = 1 / odd</li><li>Odd justa = 1 / probabilidade estimada</li><li>EV por unidade = probabilidade × odd − 1</li>
-  <li>Mercado sem margem: método de Shin aplicado à odd média (corrige o viés favorito-azarão; mais preciso do que a normalização proporcional no backtest)</li></ul>
-  <h3>Classificação</h3><ul><li><b>VALOR POTENCIAL</b>: EV ≥ margem de segurança, confiança média/alta e modelo não muito afastado do mercado</li>
-  <li><b>VALOR INCONCLUSIVO</b>: EV positivo mas pequeno, amostra fraca ou divergência excessiva com o mercado</li>
-  <li><b>SEM VALOR IDENTIFICADO</b>: EV ≤ 0</li><li><b>SEM DADOS SUFICIENTES</b>: sem odd, sem histórico ou fonte indisponível</li></ul>
-  <h3>Limitações</h3><ul><li>Sem dados de lesões, suspensões, onzes e meteorologia.</li><li>Só jogos do campeonato.</li>
-  <li>Equipas recém-promovidas ficam sem análise até acumularem jogos.</li><li>O backtest mostra que este modelo, sozinho, não supera as odds de fecho — use-o como ponto de partida, não como oráculo.</li></ul></div>`;
+function toggleSel(r, m) {
+  const i = S.slip.findIndex(s => s.key === r.key && s.market === m.market && s.selection === m.selection);
+  if (i >= 0) S.slip.splice(i, 1); else S.slip.push(selFrom(r, m));
+  saveSlip(); markStar(r.key);
 }
-
-async function route() {
-  charts.forEach(c => c.destroy()); charts = [];
-  const h = location.hash || '#/';
-  document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('on', a.getAttribute('href') === h || (h.startsWith('#/match') && a.getAttribute('href') === '#/')));
-  $app.innerHTML = '<p class="muted">A carregar…</p>';
+async function toggleFollow(key) {
+  if (followed(key)) { S.slip = S.slip.filter(s => s.key !== key); saveSlip(); markStar(key); if (S.open.has(key)) openDetail(key); return; }
+  const fx = S.data.fixtures.find(x => x.key === key);
   try {
-    if (h.startsWith('#/match/')) await viewMatch(decodeURIComponent(h.slice(8)));
-    else if (h === '#/history') await viewHistory();
-    else if (h === '#/backtest') await viewBacktest();
-    else if (h === '#/risk') viewRisk();
-    else if (h === '#/about') viewAbout();
-    else await viewFixtures();
-  } catch (e) { $app.innerHTML = err(e); }
+    const r = await report(key);
+    const rec = r.recommendation, id = r.identification;
+    const m = rec?.label && r.markets.find(x => selLabel(x.market, x.selection, id.home, id.away, id.sport) === rec.label && x.best_odds === rec.odds);
+    if (m) S.slip.push(selFrom(r, m));
+    else S.slip.push({key, game: `${fx.home} – ${fx.away}`, competition: fx.competition, kickoff: fx.kickoff, market: null, selection: null, label: 'Jogo seguido (sem aposta comparável)'});
+  } catch (e) { S.slip.push({key, game: `${fx.home} – ${fx.away}`, competition: fx.competition, kickoff: fx.kickoff, market: null, selection: null, label: 'Jogo seguido'}); }
+  saveSlip(); markStar(key); if (S.open.has(key)) openDetail(key);
 }
-window.onhashchange = route;
-route();
+function markStar(key) {
+  const b = document.querySelector(`.game[data-key="${CSS.escape(key)}"] .star`);
+  if (b) { b.setAttribute('aria-pressed', followed(key)); b.textContent = followed(key) ? '★' : '☆'; }
+}
+// keep the selection current: prices and probabilities from the latest analyses; finished games drop out
+async function refreshSlip() {
+  const cutoff = Date.now() - 2 * 3600e3;
+  S.slip = S.slip.filter(s => !(s.kickoff && Date.parse(s.kickoff) < cutoff));
+  for (const s of S.slip.filter(s => s.market)) {
+    try {
+      const m = (await report(s.key)).markets.find(x => x.market === s.market && x.selection === s.selection);
+      if (!m) continue;
+      const odds = m.best_odds;
+      if (odds !== s.odds) s.changed = s.odds;  // shown until the visitor removes the selection
+      Object.assign(s, {odds, bookmaker: m.bookmaker, prob: m.model_prob, ev: m.ev_conservative ?? m.ev, min_odds: m.min_odds, evidence: m.evidence?.score ?? null});
+    } catch { s.gone = true; }
+  }
+  saveSlip();
+}
+function renderSlip() {
+  document.getElementById('slip-n').textContent = S.slip.length;
+  const bets = S.slip.filter(s => s.market && s.odds && s.prob);
+  document.getElementById('slip-body').innerHTML = S.slip.length ? S.slip.map((s, i) => `<div class="sel">
+      <button class="x" data-rm="${i}" aria-label="Remover">✕</button>
+      <div class="g">${esc(s.game)} · ${s.kickoff ? `${esc(dayLabel(s))} ${hm(s.kickoff)}` : ''}</div>
+      <div class="l">${esc(s.label)}</div>
+      ${s.market ? `<div class="m"><span>Odd <b>${num(s.odds)}</b> ${esc(s.bookmaker || '')}</span><span>Prob. <b>${pct(s.prob)}</b></span>
+        <span>EV <b>${sign(s.ev)}</b></span><span>Odd mín. <b>${num(s.min_odds)}</b></span>${s.evidence != null ? `<span>Evidência <b>${s.evidence}</b></span>` : ''}</div>
+        ${s.changed ? `<div class="changed">A odd mudou de ${num(s.changed)} para ${num(s.odds)}</div>` : ''}
+        ${s.odds && s.min_odds && s.odds < s.min_odds ? '<div class="changed">Abaixo da odd mínima: não compensa a esta odd</div>' : ''}` : ''}
+      ${s.gone ? '<div class="changed">Este jogo já não está nos dados atuais</div>' : ''}
+      <button class="btn sm" data-see="${esc(s.key)}" style="margin-top:6px">Ver análise</button></div>`).join('')
+    : '<p class="muted">Ainda não escolheu jogos. Use ☆ na lista ou «+» nos mercados de um jogo para os juntar aqui e acompanhar as probabilidades, as odds e o valor esperado.</p>';
+  let sum = '';
+  if (bets.length) {
+    const evAvg = bets.reduce((a, s) => a + s.ev, 0) / bets.length;
+    const games = new Set(bets.map(s => s.key)).size;
+    const combo = games === bets.length && bets.length > 1;
+    const pAll = bets.reduce((a, s) => a * s.prob, 1), oAll = bets.reduce((a, s) => a * s.odds, 1);
+    sum = `<div class="kv"><div><span>Apostas</span><b>${bets.length}</b></div>
+      <div><span>EV médio (apostas simples)</span><b>${sign(evAvg)}</b></div>
+      ${combo ? `<div><span>Combinada: odd total</span><b>${num(oAll)}</b></div><div><span>Combinada: prob. de acertar todas</span><b>${pct(pAll)}</b></div>
+        <div><span>Combinada: EV</span><b>${sign(pAll * oAll - 1)}</b></div>` : ''}</div>
+      <p class="small muted">${combo ? 'A combinada assume jogos independentes. Quanto mais seleções, mais a margem das casas se acumula e menor a probabilidade de acertar todas. ' : ''}
+      ${bets.length > 1 && !combo ? 'Há várias apostas do mesmo jogo: não se podem combinar. ' : ''}Estimativas, não garantias. Aposte só o que pode perder.</p>`;
+  }
+  document.getElementById('slip-sum').innerHTML = sum + (S.slip.length ? '<button class="btn sm" id="slip-clear">Limpar seleção</button>' : '');
+  document.querySelectorAll('[data-rm]').forEach(b => b.onclick = () => { const k = S.slip[+b.dataset.rm].key; S.slip.splice(+b.dataset.rm, 1); saveSlip(); markStar(k); if (S.open.has(k)) openDetail(k); });
+  document.querySelectorAll('[data-see]').forEach(b => b.onclick = () => { slip(false); goTo(b.dataset.see); });
+  const clear = document.getElementById('slip-clear');
+  if (clear) clear.onclick = () => { const keys = S.slip.map(s => s.key); S.slip = []; saveSlip(); keys.forEach(markStar); S.open.forEach(k => openDetail(k)); };
+}
+function slip(open) {
+  document.getElementById('slip').classList.toggle('open', open);
+  document.getElementById('shade').classList.toggle('on', open);
+}
+document.getElementById('slip-open').onclick = () => slip(true);
+document.getElementById('slip-close').onclick = document.getElementById('shade').onclick = () => slip(false);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') slip(false); });
+
+// ---------- how it works ----------
+async function renderHow() {
+  const box = document.getElementById('how-body');
+  const perf = await api('/api/performance').catch(() => null), pm = perf ? Object.entries(perf.markets) : [];
+  box.innerHTML = `<h3>Desempenho ao vivo</h3>${pm.length ? `<p class="muted">${esc(perf.note)} Log loss e Brier: menor é melhor. «Apostas» = seleções com EV positivo, ao preço registado, stake 1u.</p>
+      <div class="tbl"><table><tr><th>Mercado</th><th>Jogos</th><th>Log loss</th><th>Brier</th><th>Apostas</th><th>Lucro</th><th>ROI</th></tr>
+      ${pm.map(([g, m]) => `<tr><td>${esc(g === 'todos' ? 'Todos' : g === 'outros' ? 'Outros mercados' : mkName(g))}</td><td>${m.games}</td><td>${num(m.log_loss, 4)}</td><td>${num(m.brier, 4)}</td>
+      <td>${m.bets}</td><td>${num(m.profit)}u</td><td>${sign(m.roi)}</td></tr>`).join('')}</table></div>` : '<p class="muted">Ainda não há previsões com resultado conhecido.</p>'}
+    <h3>Como é feita a análise</h3><ul>
+      <li><b>Futebol</b>: modelo Dixon-Coles (golos de cada equipa por ataque, defesa e vantagem de casa, com mais peso aos jogos recentes), combinado com o mercado sem margem (método de Shin) com pesos validados fora da amostra em 8 épocas e 21 ligas.</li>
+      <li><b>Outras modalidades</b>: consenso das casas sem margem. Sem modelo próprio nem backtest, por isso nunca aparecem como «valor potencial».</li>
+      <li><b>Melhor aposta</b>: entre as apostas com referência de mercado e sem alertas de erro, a de maior EV conservador (o menor entre o nosso e o do mercado sem margem) ponderado pela qualidade da evidência.</li>
+      <li><b>Evidência (0–100)</b>: casas com preço, histórico das equipas, validação da liga e acordo modelo/mercado. Não é a probabilidade de ganhar.</li>
+      <li><b>Valor potencial</b> só aparece se o backtest dessa liga mostrar o modelo tão preciso como as odds de fecho e com CLV positivo. Até hoje nenhuma liga passou: o mercado é difícil de bater.</li>
+      <li>Fórmulas: probabilidade implícita = 1/odd · odd justa = 1/probabilidade · EV = probabilidade × odd − 1.</li></ul>
+    <h3>Limitações</h3><ul><li>Sem lesões, suspensões, onzes nem meteorologia: confirme antes de apostar.</li><li>Só jogos do campeonato contam para a força das equipas.</li>
+      <li>Os dados são atualizados de hora a hora (o GitHub pode atrasar algumas atualizações). Esta página verifica dados novos a cada 5 minutos.</li></ul>`;
+}
+
+// ---------- start ----------
+load(true).then(() => {
+  const h = location.hash;
+  if (h.startsWith('#/match/')) goTo(decodeURIComponent(h.slice(8)));
+}).catch(e => { $app.innerHTML = err(e); });
+renderSlip();
+setInterval(() => load(false).catch(() => {}), REFRESH_MS);
+setInterval(renderUpd, 60e3);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) load(false).catch(() => {}); });
 </script>
 </body>
 </html>

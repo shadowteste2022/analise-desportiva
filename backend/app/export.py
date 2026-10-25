@@ -79,7 +79,6 @@ def export(out: Path) -> dict:
     page = (FRONTEND / "index.html").read_text(encoding="utf-8")
     page = page.replace("</head>", "<script>window.STATIC = true;</script>\n</head>", 1)
     (out / "index.html").write_text(page, encoding="utf-8")
-    shutil.copytree(FRONTEND / "static", out / "static")
     (out / ".nojekyll").touch()  # serve files as-is, no Jekyll processing
     return {"fixtures": len(summaries), "generated_at": generated}
 

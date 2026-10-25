@@ -48,7 +48,6 @@ def test_static_export(client, tmp_path):
     assert (site / "data" / "match" / f"{export.slug(key)}.json").exists()
     assert export.slug("P1|2026-10-24|Nott'm Forest|Man City") == "P1_2026_10_24_Nott_m_Forest_Man_City"  # = JS slug
     assert "window.STATIC = true" in (site / "index.html").read_text(encoding="utf-8")
-    assert (site / "static" / "risk.js").exists()
     assert (site / "data" / "performance.json").exists()
 
 
