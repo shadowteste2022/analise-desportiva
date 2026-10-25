@@ -273,6 +273,11 @@ frontend/index.html      interface de página única (HTML + JS, sem dependênci
   0,2086 vs 0,2133 da frequência da liga; remates à baliza 0,2198 vs 0,2225 (melhor nas duas épocas testadas).
 - **Golos exatos, baliza a zeros, margem de vitória** saem da grelha de resultados; **intervalo/final, 2.ª parte e
   parte com mais golos** de Poisson independente em cada parte (1.ª = fração da liga, 2.ª = o resto).
+- **Cobertura máxima com dados grátis**: qualquer jogo com pelo menos uma casa com preço tem previsão (as odds dessa
+  casa sem a margem; confiança «muito baixa» com uma só casa). Equipas sem histórico na liga (recém-promovidas) usam o
+  mercado sem margem em vez do modelo. Nas outras modalidades a The Odds API só pede o resultado (1 crédito) e as odds
+  são reutilizadas durante `ODDS_TTL_HOURS` (12 h), para os 500 créditos grátis chegarem a mais modalidades.
+  Jogos sem nenhum preço aparecem na lista como «sem previsão».
 - **Odd mínima** = odd justa × (1 + `EV_MARGIN`): abaixo dela a aposta não compensa a margem de segurança.
 - **Qualidade da evidência** (0–100, separada da probabilidade): 4 partes de 25 — n.º de casas com preço, histórico das
   equipas, validação fora da amostra da liga e acordo entre o modelo e o mercado sem margem. «forte» exige liga validada.

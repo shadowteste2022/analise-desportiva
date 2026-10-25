@@ -153,9 +153,9 @@ def events(sport: str) -> list[dict]:
     return evs
 
 
-def fetch_sport(sport: str) -> list[dict]:
+def fetch_sport(sport: str, markets: str = "h2h,totals") -> list[dict]:
     """Raw events with odds for an Odds API sport key: fresh cache, else a paced API call, else the last saved odds
-    if not too old."""
+    if not too old. Cost = number of markets (one region)."""
     if not enabled():
         return []
     _refresh_quota()
@@ -163,17 +163,17 @@ def fetch_sport(sport: str) -> list[dict]:
         return []
     hit = _cache.get(sport) or _load_disk(sport)
     age_h = (time.time() - hit[0]) / 3600 if hit else None
-    if hit and age_h < settings.fixtures_ttl_hours:
+    if hit and age_h < settings.odds_ttl_hours:
         return hit[1]
     stale = hit[1] if hit and age_h < settings.odds_max_age_hours else []
-    if not can_spend(COST_PER_CALL):
+    if not can_spend(len(markets.split(","))):
         quota["skipped"].append(sport)
         log.info("The Odds API: %s adiado para respeitar o orçamento (%s/%s créditos usados)",
                  sport, quota["used"], quota["budget"])
         return stale
     try:
         r = httpx.get(URL.format(sport=sport), timeout=20, params={
-            "apiKey": settings.odds_api_key, "regions": "eu", "markets": "h2h,totals", "oddsFormat": "decimal"})
+            "apiKey": settings.odds_api_key, "regions": "eu", "markets": markets, "oddsFormat": "decimal"})
         _read_headers(r)
         r.raise_for_status()
         events = r.json()

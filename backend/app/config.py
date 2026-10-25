@@ -35,6 +35,9 @@ class Settings(BaseSettings):
     results_ttl_hours: float = 12
     fixtures_ttl_hours: float = 1
     odds_max_age_hours: float = 48  # older odds -> "SEM DADOS SUFICIENTES"
+    # The Odds API odds are reused this long: forecasts barely move hour to hour, and the free credits then reach
+    # many more sports and leagues
+    odds_ttl_hours: float = 12
     refresh_minutes: int = 0  # background refresh of fixtures/odds; 0 = off
 
     # Model / decision parameters

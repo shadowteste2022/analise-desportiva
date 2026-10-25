@@ -96,7 +96,7 @@ def classify(p: float | None, odds: float | None, conf: str | None,
     if e < settings.ev_margin:
         reasons.append(f"abaixo da margem de segurança de {settings.ev_margin:.0%}")
         return INCONCLUSIVO, reasons
-    if conf == "baixa":
+    if conf in ("baixa", "muito baixa"):
         reasons.append("confiança estatística baixa (amostra pequena)")
         return INCONCLUSIVO, reasons
     return VALOR, reasons

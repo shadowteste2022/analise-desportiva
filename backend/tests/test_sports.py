@@ -94,8 +94,15 @@ def test_reports_list_all_fixtures_and_price_what_fits(monkeypatch):
     monkeypatch.setattr(settings, "odds_api_key", "test")
     monkeypatch.setattr(sports, "sport_keys", lambda: ["basketball_nba"])
     monkeypatch.setattr(odds_api, "events", lambda k: fixtures)
-    monkeypatch.setattr(odds_api, "fetch_sport", lambda k: [evs[1]])  # budget only priced the e3 game
+    monkeypatch.setattr(odds_api, "fetch_sport", lambda k, markets="h2h,totals": [evs[1]])  # budget only priced the e3 game
     out = sports.reports(log=False)
     assert len(out) == 2  # past and +30 days dropped
     with_odds = [r for r in out if r["markets"]]
     assert len(with_odds) == 1 and out[1]["recommendation"]["kind"] == "sem_dados"
+
+
+def test_single_bookmaker_still_gives_a_forecast():
+    odds = {"Vencedor": {"Betano PT": {"1": 2.0, "X": 3.4, "2": 3.8}}}
+    p = sports.consensus(odds)["Vencedor"]
+    assert sum(p.values()) == pytest.approx(1) and p["1"] > p["2"]  # its prices without the margin
+    assert sports.confidence(1) == "muito baixa" and sports.confidence(0) is None

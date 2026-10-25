@@ -485,8 +485,15 @@ def analyze(row, fx_meta: dict, log: bool = True) -> dict:
                          "defence": round(float(np.exp(model.defence[model.teams.index(t)])), 3)}
                      for t in (home, away)} if known else None),
         "home_advantage": round(float(np.exp(model.home_adv)), 3)}
-    if conf is None:  # unknown team or too few matches: no forecast rather than an unreliable one
-        report.update(predictions=None, markets=[], conclusion=_conclusion([], None, notes))
+    if conf is None:  # unknown team or too few matches: no model forecast; the market's, when there is one
+        market = {k: v for k, v in ((mkt, blend.market_fair(odds, mkt)) for mkt in odds) if v}
+        if "1X2" in market:
+            market.update(mk.derived_markets(market["1X2"]))
+        report.update(markets=[], conclusion=_conclusion([], None, notes), predictions={
+            "probabilities": market, "model_probabilities": None, "blend": None, "expected_goals": None,
+            "matrix": None, "top_scores": [],
+            "method": "Sem histórico suficiente de uma das equipas nesta liga: probabilidades do mercado sem margem"}
+            if "1X2" in market else None)
         return report
 
     m = model.score_matrix(home, away)

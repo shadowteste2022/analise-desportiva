@@ -109,10 +109,11 @@ def event_odds(ev: dict) -> tuple[dict, str | None]:
 
 
 def consensus(odds: dict) -> dict:
-    """Adds the average-price book to each market with 2+ bookmakers and returns its no-vig probabilities."""
+    """Adds the average-price book to each market and returns its no-vig probabilities. A single bookmaker is enough
+    for a forecast (its prices without the margin); its confidence is "muito baixa" (see confidence)."""
     probs = {}
     for market, books in odds.items():
-        if len(books) < 2:
+        if not books:
             continue
         sels = list(next(iter(books.values())))
         avg = {s: float(np.mean([b[s] for b in books.values()])) for s in sels}
@@ -123,7 +124,8 @@ def consensus(odds: dict) -> dict:
 
 def confidence(n_books: int) -> str | None:
     """How broad the consensus is; separate from the probability of the outcome."""
-    return "alta" if n_books >= 8 else "média" if n_books >= 4 else "baixa" if n_books >= 2 else None
+    return ("alta" if n_books >= 8 else "média" if n_books >= 4 else "baixa" if n_books >= 2
+            else "muito baixa" if n_books == 1 else None)
 
 
 def analyze(ev: dict, sport_key: str, log: bool = True) -> dict:
@@ -154,8 +156,8 @@ def from_oddspapi(f: dict, log: bool = True) -> dict:
     consensus of the Portuguese books (none with Betano PT alone)."""
     kick = f["kickoff"].tz_convert(LOCAL_TZ)
     sources = [{"source": "OddsPapi", "fetched_at": f.get("updated"), "note": "Betano PT (licenciada SRIJ)"}]
-    notes = NOTES[:2] + ["Odds só da Betano PT (licenciada SRIJ): com uma única casa não há consenso de mercado, por "
-                         "isso este jogo fica sem probabilidades nem melhor aposta."]
+    notes = NOTES[:2] + ["Probabilidades de uma única casa (Betano PT) sem a margem: referência mais fraca do que o "
+                         "consenso de muitas casas."]
     return build(f"oddspapi_{f['tournament']}", "Futebol", f["competition"], f["home"], f["away"], kick,
                  _app_markets(f["odds"]), sources, notes, log)
 
@@ -219,7 +221,7 @@ def reports(log: bool = True) -> list[dict]:
                    key=lambda sk: min(pd.Timestamp(e["commence_time"]) for e in fixtures[sk]))
     out = []
     for sk in order:
-        priced = {e.get("id"): e for e in odds_api.fetch_sport(sk)}
+        priced = {e.get("id"): e for e in odds_api.fetch_sport(sk, "h2h")}  # result only: 1 credit, twice the sports
         for ev in fixtures[sk]:
             try:
                 out.append(analyze(priced.get(ev.get("id")) or {**ev, "bookmakers": []}, sk, log))

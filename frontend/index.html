@@ -176,7 +176,7 @@ function predCell(x) {
 
 // ---------- state ----------
 const S = {data: null, reports: new Map(), open: new Set(), tab: {}, limit: 60,
-  f: Object.assign({when: 'all', sport: '', league: '', q: ''}, JSON.parse(store.get('filters4') || '{}'))};
+  f: Object.assign({when: 'all', sport: '', league: '', q: '', onlyForecast: false}, JSON.parse(store.get('filters4') || '{}'))};
 
 // ---------- page ----------
 async function load(first) {
@@ -193,8 +193,9 @@ function renderUpd() {
   const mins = g ? Math.round((Date.now() - Date.parse(g)) / 60e3) : null;
   document.getElementById('upd').innerHTML = g ? `<span class="dot"></span><span class="t">Dados de ${hm(g)} · </span>${mins < 1 ? 'agora' : `há ${mins} min`}` : '';
 }
-// games with a forecast that have not kicked off over 2 h ago (hidden even if the hourly update is late)
-const live = fx => fx.filter(x => x.probs_1x2 && !(x.kickoff && Date.parse(x.kickoff) < Date.now() - 2 * 3600e3));
+// games that have not kicked off over 2 h ago (hidden even if the hourly update is late)
+const live = fx => fx.filter(x => !(x.kickoff && Date.parse(x.kickoff) < Date.now() - 2 * 3600e3));
+const forecast = fx => live(fx).filter(x => x.probs_1x2);
 function renderShell() {
   const fx = live(S.data.fixtures);
   const sports = [...new Set(fx.map(x => x.sport))].sort((a, b) => (a !== 'Futebol') - (b !== 'Futebol') || a.localeCompare(b));
@@ -208,6 +209,7 @@ function renderShell() {
       <select id="f-sport" aria-label="Modalidade"><option value="">Todas as modalidades</option>${sports.map(s => `<option>${esc(s)}</option>`).join('')}</select>
       <select id="f-league" aria-label="Competição"><option value="">Todas as competições</option>${comps.map(x => `<option value="${esc(x.league)}" data-sport="${esc(x.sport)}">${esc(x.competition)}</option>`).join('')}</select>
       <input type="search" id="f-q" placeholder="Pesquisar equipa ou jogador" aria-label="Pesquisar">
+      <label class="small muted" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="f-fc"> Só com previsão</label>
     </div>
     <div id="list"></div>
     <details class="how" id="how"><summary>Como funcionam as previsões</summary><div id="how-body" class="small"><p class="muted">A carregar…</p></div></details>`;
@@ -219,13 +221,16 @@ function renderShell() {
   fs.onchange = () => { S.f.sport = fs.value; if (fs.value && fl.selectedOptions[0]?.dataset.sport !== fs.value) { fl.value = ''; S.f.league = ''; } upd(); };
   fl.onchange = () => { S.f.league = fl.value; upd(); };
   fq.oninput = () => { S.f.q = fq.value; upd(); };
+  const fc = document.getElementById('f-fc');
+  fc.checked = S.f.onlyForecast;
+  fc.onchange = () => { S.f.onlyForecast = fc.checked; upd(); };
   document.getElementById('how').ontoggle = e => e.target.open && renderHow();
   renderHighlights(); renderList();
 }
 
 // "Destaques do dia": the games of the next 24 h that stand out in the forecasts
 function renderHighlights() {
-  const now = Date.now(), fx = live(S.data.fixtures).filter(x => x.kickoff && Date.parse(x.kickoff) > now && Date.parse(x.kickoff) < now + 24 * 3600e3);
+  const now = Date.now(), fx = forecast(S.data.fixtures).filter(x => x.kickoff && Date.parse(x.kickoff) > now && Date.parse(x.kickoff) < now + 24 * 3600e3);
   const top = p => p[likelyOf(p)];
   const goals = fx.filter(x => x.over25 != null && x.sport === 'Futebol');
   const groups = [
@@ -246,7 +251,7 @@ function renderHighlights() {
 }
 function goTo(key) {
   if (!filtered().some(x => x.key === key)) {
-    Object.assign(S.f, {when: 'all', sport: '', league: '', q: ''});
+    Object.assign(S.f, {when: 'all', sport: '', league: '', q: '', onlyForecast: false});
     store.set('filters4', JSON.stringify(S.f)); renderShell();
   }
   const i = filtered().findIndex(x => x.key === key);
@@ -259,13 +264,13 @@ function filtered() {
   const inWhen = x => { if (f.when === 'all') return true; if (!x.kickoff) return false; const t = Date.parse(x.kickoff);
     return f.when === '7' ? t < day0 + 7 * day : t >= day0 + +f.when * day && t < day0 + (+f.when + 1) * day; };
   return live(S.data.fixtures).filter(x => inWhen(x) && (!f.sport || x.sport === f.sport) && (!f.league || x.league === f.league)
-    && (!q || (x.home + ' ' + x.away + ' ' + x.competition).toLowerCase().includes(q)))
+    && (!q || (x.home + ' ' + x.away + ' ' + x.competition).toLowerCase().includes(q)) && (!f.onlyForecast || x.probs_1x2))
     .sort((a, b) => (a.kickoff || a.date).localeCompare(b.kickoff || b.date));
 }
 function renderList() {
   document.querySelectorAll('#f-league option[data-sport]').forEach(o => o.hidden = !!S.f.sport && o.dataset.sport !== S.f.sport);
   const all = filtered(), rows = all.slice(0, S.limit);
-  let html = `<p class="small muted">${all.length} jogos com previsão · clique num jogo para ver a análise completa</p>`, last = '';
+  let html = `<p class="small muted">${all.length} jogos · ${all.filter(x => x.probs_1x2).length} com previsão · clique num jogo para ver a análise</p>`, last = '';
   for (const x of rows) {
     const dl = dayLabel(x);
     if (dl !== last) { html += `<div class="day">${esc(dl)}</div>`; last = dl; }
@@ -273,8 +278,8 @@ function renderList() {
       <div class="row" role="button" tabindex="0" aria-expanded="${S.open.has(x.key)}">
         <div class="time">${x.kickoff ? hm(x.kickoff) : esc(x.time || '—')}</div>
         <div class="teams"><b>${esc(x.home)}</b><b>${esc(x.away)}</b><span class="comp">${esc(x.competition)}${x.sport === 'Futebol' ? '' : ` · ${esc(x.sport)}`}</span></div>
-        <div class="probs">${probBar(x.probs_1x2)}</div>
-        <div class="pred">${predCell(x)}</div>
+        <div class="probs">${x.probs_1x2 ? probBar(x.probs_1x2) : ''}</div>
+        <div class="pred">${x.probs_1x2 ? predCell(x) : '<span class="gl">Sem previsão: dados insuficientes</span>'}</div>
       </div><div class="detail" ${S.open.has(x.key) ? '' : 'hidden'}></div></article>`;
   }
   if (!rows.length) html += '<p class="muted">Sem jogos para estes filtros.</p>';

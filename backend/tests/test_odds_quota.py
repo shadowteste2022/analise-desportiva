@@ -62,9 +62,9 @@ def test_skipped_league_reuses_saved_odds(quota, monkeypatch):
     odds_api._cache.pop("soccer_epl", None)
     path = odds_api._disk("soccer_epl")  # cache is keyed by the Odds API sport
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps({"fetched_at": time.time() - 5 * 3600, "events": [{"id": "x"}]}), encoding="utf-8")
+    path.write_text(json.dumps({"fetched_at": time.time() - 15 * 3600, "events": [{"id": "x"}]}), encoding="utf-8")
     quota.update(used=500, remaining=0)  # budget exhausted
-    assert odds_api.fetch("E0") == [{"id": "x"}]  # 5 h old: past the 1 h TTL but within ODDS_MAX_AGE_HOURS
+    assert odds_api.fetch("E0") == [{"id": "x"}]  # 15 h old: past the 12 h TTL but within ODDS_MAX_AGE_HOURS
     assert quota["skipped"] == ["soccer_epl"]
     path.write_text(json.dumps({"fetched_at": time.time() - 72 * 3600, "events": [{"id": "x"}]}), encoding="utf-8")
     assert odds_api.fetch("E0") == []  # too old to show
