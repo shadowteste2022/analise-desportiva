@@ -5,77 +5,95 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Análise Desportiva</title>
 <style>
-:root{--bg:#f3f5f8;--card:#fff;--fg:#141a22;--muted:#5d6876;--line:#e2e6eb;--soft:#f6f8fa;--accent:#0b7a5c;--accent2:#0f5ec7;
-  --ok:#137a3a;--okbg:#ddf6e5;--warn:#8a5a00;--warnbg:#fff3c4;--onaccent:#fff;
-  --p1:#0f5ec7;--px:#9aa4b0;--p2:#d9480f;--shadow:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.08)}
-@media (prefers-color-scheme:dark){:root{--bg:#0b0f14;--card:#131a22;--fg:#e7edf3;--muted:#8e99a6;--line:#26303b;--soft:#18212b;--accent:#2fbf8f;--accent2:#5aa2ff;
-  --ok:#3fcf73;--okbg:#10301d;--warn:#e0a82e;--warnbg:#2e2410;--onaccent:#04140e;
-  --p1:#5aa2ff;--px:#6b7682;--p2:#ff8a4c;--shadow:none}}
+:root{--bg:#eef3ef;--card:#fff;--fg:#0f1a14;--muted:#5b6b62;--line:#dbe4de;--soft:#f4f8f5;
+  --pitch:#0f7a3d;--pitch2:#0a5a2c;--night:#0b1d2e;--gold:#f6c21c;--onaccent:#fff;
+  --accent:var(--pitch);--accent2:#1565c0;--ok:#0f7a3d;--okbg:#dcf3e4;--warn:#8a5a00;--warnbg:#fff3c4;
+  --p1:#0f7a3d;--px:#a3b0a8;--p2:#e8590c;--shadow:0 1px 2px rgba(10,40,20,.06),0 2px 6px rgba(10,40,20,.06)}
+@media (prefers-color-scheme:dark){:root{--bg:#07110b;--card:#0e1c14;--fg:#e8f1ec;--muted:#8fa69a;--line:#1d3327;--soft:#13261c;
+  --pitch:#22b35e;--pitch2:#178a46;--accent:#2ecc71;--accent2:#5aa2ff;--ok:#3fd47e;--okbg:#103420;--warn:#e0a82e;--warnbg:#2e2410;
+  --onaccent:#04140a;--p1:#2ecc71;--px:#5f7268;--p2:#ff8a3d;--shadow:none}}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
 button,input,select{font:inherit;color:inherit}
 a{color:var(--accent2)}
-/* header */
-.top{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line)}
-.top .in{max-width:1100px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:12px}
-.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;letter-spacing:-.01em}
-.brand i{width:28px;height:28px;border-radius:8px;background:var(--accent);display:grid;place-items:center;color:var(--onaccent);font-style:normal;font-size:15px}
-.upd{margin-left:auto;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
-.upd .dot{width:8px;height:8px;border-radius:50%;background:var(--ok)}
+/* header: stadium night, mown-pitch stripes */
+.top{position:sticky;top:0;z-index:5;color:#fff;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.035) 0 48px,transparent 48px 96px),linear-gradient(120deg,#0b1d2e 0%,#0c3a25 60%,#0f5a32 100%);
+  box-shadow:0 2px 10px rgba(0,0,0,.18)}
+.top .in{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:17px;letter-spacing:-.01em;color:#fff;text-decoration:none}
+.brand small{display:block;font-weight:500;font-size:11px;color:rgba(255,255,255,.7);letter-spacing:.02em}
+.brand svg{flex:none}
+.nav{display:flex;gap:2px;margin-left:8px}
+.nav button{border:0;background:none;color:rgba(255,255,255,.8);padding:6px 10px;border-radius:7px;cursor:pointer;font-weight:600}
+.nav button:hover{background:rgba(255,255,255,.1);color:#fff}
+.upd{margin-left:auto;font-size:12px;color:rgba(255,255,255,.75);display:flex;align-items:center;gap:6px}
+.upd .dot{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 3px rgba(246,194,28,.25)}
+.bars{max-width:1100px;margin:0 auto;padding:8px 16px 10px;display:flex;flex-direction:column;gap:6px}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.chips::-webkit-scrollbar{display:none}
+.chip{border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#fff;padding:5px 12px;border-radius:999px;cursor:pointer;white-space:nowrap;font-weight:600;font-size:13px}
+.chip:hover{background:rgba(255,255,255,.14)}
+.chip.on{background:var(--gold);border-color:var(--gold);color:#1a1300}
+.chip .n{opacity:.7;font-weight:500;margin-left:4px}
+.sport .chip{font-weight:500}
 .btn{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:7px 12px;cursor:pointer;white-space:nowrap}
 .btn:hover{border-color:var(--accent)}
 main{max-width:1100px;margin:0 auto;padding:16px}
-h2{font-size:17px;margin:22px 0 10px;letter-spacing:-.01em}
+h2{font-size:18px;margin:22px 0 10px;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+h2::before{content:"";width:4px;height:18px;border-radius:2px;background:var(--pitch)}
 h3{font-size:12px;margin:14px 0 6px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
 .muted{color:var(--muted)} .small{font-size:12px}
+section{scroll-margin-top:140px}
 /* highlights */
-.hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
-.hl{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow)}
+.hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.hl{background:var(--card);border:1px solid var(--line);border-top:3px solid var(--pitch);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow)}
+.hl:nth-child(2){border-top-color:var(--px)} .hl:nth-child(3){border-top-color:var(--gold)} .hl:nth-child(4){border-top-color:var(--accent2)}
 .hl h4{margin:0 0 8px;font-size:13px}
 .hl .it{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line);cursor:pointer}
 .hl .it:first-of-type{border-top:0}
 .hl .it:hover b{color:var(--accent)}
 .hl .it span{min-width:0} .hl .it b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hl .it .small{display:block}
-.hl .it em{font-style:normal;font-weight:700;white-space:nowrap}
+.hl .it em{font-style:normal;font-weight:800;white-space:nowrap;color:var(--pitch)}
 /* filters */
-.filters{position:sticky;top:53px;z-index:4;background:var(--bg);padding:8px 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.chips{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:3px;max-width:100%;overflow-x:auto}
-.chip{white-space:nowrap}
-.chip{border:0;background:none;padding:5px 11px;border-radius:7px;cursor:pointer;color:var(--muted)}
-.chip.on{background:var(--accent);color:var(--onaccent);font-weight:600}
-.filters select,.filters input[type=search]{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:7px 10px;max-width:220px}
-.filters input[type=search]{flex:1;min-width:160px}
-/* game list */
-.day{font-size:13px;font-weight:700;color:var(--muted);margin:18px 2px 6px;text-transform:capitalize}
-.game{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:8px;box-shadow:var(--shadow);overflow:hidden;scroll-margin-top:130px}
-.game.open{border-color:var(--accent)}
-.row{display:grid;grid-template-columns:52px minmax(0,1fr) 170px minmax(0,260px);gap:14px;align-items:center;padding:10px 14px;cursor:pointer}
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:6px}
+.filters select,.filters input[type=search]{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:8px 10px;max-width:260px}
+.filters input[type=search]{flex:1;min-width:180px}
+/* game list, grouped by competition */
+.group{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:12px;box-shadow:var(--shadow);overflow:hidden}
+.comp-h{display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--soft);border-bottom:1px solid var(--line);font-size:13px}
+.comp-h b{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.comp-h .n{color:var(--muted);font-size:12px}
+.game{border-top:1px solid var(--line);scroll-margin-top:150px}
+.game:first-of-type{border-top:0}
+.game.open{box-shadow:inset 3px 0 var(--pitch)}
+.row{display:grid;grid-template-columns:52px minmax(0,1fr) 170px minmax(0,250px);gap:14px;align-items:center;padding:10px 14px;cursor:pointer}
 .row:hover{background:var(--soft)}
 .row:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
-.time{font-weight:700;font-variant-numeric:tabular-nums}
-.teams{min-width:0} .teams b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.teams .comp{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.time{font-weight:800;font-variant-numeric:tabular-nums;color:var(--pitch)}
+.teams{min-width:0} .teams b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
 .pbar{display:flex;height:8px;border-radius:4px;overflow:hidden;background:var(--line)}
 .pbar span{display:block}
 .plab{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:3px;font-variant-numeric:tabular-nums}
 .pred{font-size:13px;min-width:0}
 .pred .lk{display:block;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pred .lk span{font-weight:400;color:var(--muted)}
+.pred .lk span{font-weight:800;color:var(--pitch)}
 .pred .gl{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .more{display:block;margin:12px auto}
+.empty{background:var(--card);border:1px dashed var(--line);border-radius:12px;padding:20px;text-align:center}
 /* inline analysis */
 .detail{border-top:1px solid var(--line);padding:14px;background:var(--soft)}
-.verdict{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:12px 14px}
-.verdict .big{font-size:18px;font-weight:700;margin:2px 0}
+.verdict{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:10px;padding:12px 14px}
+.verdict .big{font-size:19px;font-weight:800;margin:2px 0}
 .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:10px 0}
 .fact{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
 .fact span{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
 .fact b{font-size:15px}
 .tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:12px 0 10px;overflow-x:auto}
-.tab{border:0;background:none;padding:8px 12px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap}
-.tab.on{color:var(--fg);border-bottom-color:var(--accent);font-weight:600}
+.tab{border:0;background:none;padding:8px 12px;cursor:pointer;color:var(--muted);border-bottom:3px solid transparent;white-space:nowrap;font-weight:600}
+.tab.on{color:var(--fg);border-bottom-color:var(--pitch)}
 .tbl{width:100%;overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:10px}
 table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
 th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);white-space:nowrap}
@@ -87,26 +105,23 @@ th{color:var(--muted);font-weight:600;font-size:12px;background:var(--soft)}
 .pcard h4{margin:0 0 6px;font-size:13px}
 .pcard table{font-size:13px} .pcard th,.pcard td{padding:4px 6px;white-space:normal}
 .pcard .note{font-size:11px;color:var(--muted);margin-top:6px}
-.pv{font-weight:600;white-space:nowrap}
+.pv{font-weight:700;white-space:nowrap}
 .hi{background:var(--okbg)}
 .heat td{text-align:center;font-size:12px;padding:4px}
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
 ul{margin:4px 0;padding-left:20px}
 .why{margin:8px 0 0;padding-left:18px;font-size:13px} .why li{margin:2px 0}
-.tables{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-top:16px;box-shadow:var(--shadow)}
-.tables summary{cursor:pointer;font-weight:700;font-size:15px}
-.tables select{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:7px 10px;margin:10px 0}
-.bar{display:inline-block;height:6px;border-radius:3px;background:var(--accent);vertical-align:middle;margin-left:6px}
-.zone-rel td:first-child{box-shadow:inset 3px 0 var(--p2)} .zone-top td:first-child{box-shadow:inset 3px 0 var(--accent)}
-details.how{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-top:24px}
-details.how summary{cursor:pointer;font-weight:600}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;box-shadow:var(--shadow)}
+.panel select{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:7px 10px;margin:0 0 10px}
+.bar{display:inline-block;height:6px;border-radius:3px;background:var(--pitch);vertical-align:middle;margin-left:6px}
+.zone-rel td:first-child{box-shadow:inset 3px 0 var(--p2)} .zone-top td:first-child{box-shadow:inset 3px 0 var(--pitch)}
 footer{max-width:1100px;margin:0 auto;padding:8px 16px 32px;color:var(--muted);font-size:12px}
 @media (max-width:760px){
   .row{grid-template-columns:46px minmax(0,1fr);gap:8px}
   .row .probs{display:none}
   .row .pred{grid-column:2;grid-row:2}
-  .upd .t{display:none}
-  .filters{position:static}
+  .nav,.upd .t{display:none}
+  .top .in{padding-top:8px}
   .filters select{max-width:none;flex:1}
   main{padding:10px}
   th,td{padding:6px 6px}
@@ -115,10 +130,15 @@ footer{max-width:1100px;margin:0 auto;padding:8px 16px 32px;color:var(--muted);f
 </style>
 </head>
 <body>
-<div class="top"><div class="in">
-  <div class="brand"><i aria-hidden="true">%</i>Análise Desportiva</div>
+<header class="top"><div class="in">
+  <a class="brand" href="./" aria-label="Análise Desportiva — início">
+    <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="9" fill="#f6c21c"/>
+      <rect x="6" y="19" width="5" height="9" rx="1.5" fill="#0b1d2e"/><rect x="14.5" y="13" width="5" height="15" rx="1.5" fill="#0b1d2e"/>
+      <rect x="23" y="8" width="5" height="20" rx="1.5" fill="#0f7a3d"/><circle cx="25.5" cy="5.5" r="2.5" fill="#0b1d2e"/></svg>
+    <span>Análise Desportiva<small>Previsões e estatísticas de todos os jogos</small></span></a>
+  <nav class="nav" aria-label="Secções"><button data-goto="jogos">Jogos</button><button data-goto="classificacoes">Classificações</button><button data-goto="como">Como funciona</button></nav>
   <div class="upd" id="upd"></div>
-</div></div>
+</div><div class="bars" id="bars"></div></header>
 <main id="app"><p class="muted">A carregar…</p></main>
 <footer>Análise estatística e previsões. As probabilidades são estimativas com erro, não certezas: um resultado com 70% falha 3 vezes em cada 10.</footer>
 
@@ -164,11 +184,6 @@ function selLabel(m, s, home, away) {
 }
 const hm = iso => new Date(iso).toLocaleTimeString('pt-PT', {hour: '2-digit', minute: '2-digit'});
 const dt = iso => iso ? new Date(iso).toLocaleString('pt-PT', {day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'}) : '—';
-function dayLabel(x) {
-  if (!x.kickoff) return x.date;
-  const d = new Date(x.kickoff), diff = Math.round((new Date(d.toDateString()) - new Date(new Date().toDateString())) / 864e5);
-  return diff === 0 ? 'Hoje' : diff === 1 ? 'Amanhã' : d.toLocaleDateString('pt-PT', {weekday: 'long', day: 'numeric', month: 'long'});
-}
 function probBar(p) {
   const parts = [['1', 'var(--p1)'], ['X', 'var(--px)'], ['2', 'var(--p2)']].filter(([k]) => p[k] != null);
   return `<div class="pbar">${parts.map(([k, c]) => `<span style="width:${(p[k] * 100).toFixed(1)}%;background:${c}"></span>`).join('')}</div>
@@ -182,9 +197,19 @@ function predCell(x) {
 }
 
 // ---------- state ----------
-const S = {data: null, reports: new Map(), open: new Set(), tab: {}, limit: 60,
-  f: Object.assign({when: 'all', sport: '', league: '', q: ''}, JSON.parse(store.get('filters4') || '{}'))};
-if (S.f.when !== 'all' && !(+S.f.when >= 0 && +S.f.when < weekDays())) S.f.when = 'all';
+const S = {data: null, reports: new Map(), open: new Set(), tab: {}, limit: 80,
+  f: Object.assign({when: '0', sport: '', league: '', q: ''}, JSON.parse(store.get('filters5') || '{}'))};
+// one day at a time: today up to the next Sunday (on a Sunday, the following Sunday), visitor's time zone
+const weekDays = () => { const d = new Date().getDay(); return ((7 - d) % 7 || 7) + 1; };
+if (!(+S.f.when >= 0 && +S.f.when < weekDays())) S.f.when = '0';
+const ICON = {Futebol: '⚽', Basquetebol: '🏀', 'Hóquei no gelo': '🏒', 'Futebol americano': '🏈', Basebol: '⚾', Andebol: '🤾',
+  Voleibol: '🏐', 'Râguebi': '🏉', 'Ténis': '🎾', MMA: '🥊', Boxe: '🥊', 'Críquete': '🏏'};
+const icon = s => ICON[s] || '🏅';
+const SPORT_ORDER = ['Futebol', 'Basquetebol', 'Hóquei no gelo', 'Futebol americano', 'Andebol', 'Voleibol', 'Basebol', 'Râguebi'];
+const sportRank = s => (SPORT_ORDER.indexOf(s) + 1) || 99;
+// competitions people look for first
+const PRIORITY = ['Portugal', 'Inglaterra', 'Espanha', 'Itália', 'Alemanha', 'França', 'UEFA', 'Países Baixos', 'Brasil', 'EUA', 'USA'];
+const compRank = c => { const k = PRIORITY.findIndex(p => c.startsWith(p)); return k < 0 ? 99 : k; };
 
 // ---------- page ----------
 async function load(first) {
@@ -194,54 +219,57 @@ async function load(first) {
   renderUpd();
   if (!changed && !first) return;
   S.reports.clear();  // new hourly data: open analyses are refreshed from it
-  if (first) renderShell(); else { renderHighlights(); renderList(); }
+  if (first) renderShell(); else { renderBars(); renderHighlights(); renderList(); }
 }
 function renderUpd() {
   const g = S.data?.generated_at;
   const mins = g ? Math.round((Date.now() - Date.parse(g)) / 60e3) : null;
   document.getElementById('upd').innerHTML = g ? `<span class="dot"></span><span class="t">Dados de ${hm(g)} · </span>${mins < 1 ? 'agora' : `há ${mins} min`}` : '';
 }
-// games that have not kicked off over 2 h ago (hidden even if the hourly update is late)
-// the week from today to the next Sunday, inclusive (on a Sunday: to the following Sunday), visitor's time zone
-const weekDays = () => { const d = new Date().getDay(); return ((7 - d) % 7 || 7) + 1; };
-const live = fx => { const end = new Date(new Date().toDateString()).getTime() + weekDays() * 864e5;
-  return fx.filter(x => x.kickoff && Date.parse(x.kickoff) >= Date.now() - 2 * 3600e3 && Date.parse(x.kickoff) < end); };
-const forecast = fx => live(fx).filter(x => x.probs_1x2);
+// games with a forecast that have not kicked off over 2 h ago (hidden even if the hourly update is late)
+const forecast = fx => fx.filter(x => x.probs_1x2 && x.kickoff && Date.parse(x.kickoff) >= Date.now() - 2 * 3600e3);
+// calendar days, not 24 h steps: a day can last 23 or 25 hours when the clocks change
+const dayStart = k => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate() + k).getTime(); };
+const onDay = (x, k) => { const t = Date.parse(x.kickoff); return t >= dayStart(k) && t < dayStart(k + 1); };
+const dayName = k => k === 0 ? 'Hoje' : k === 1 ? 'Amanhã' : new Date(dayStart(k)).toLocaleDateString('pt-PT', {weekday: 'short', day: 'numeric'}).replace('.', '');
+const dayLong = k => k === 0 ? 'hoje' : k === 1 ? 'amanhã' : new Date(dayStart(k)).toLocaleDateString('pt-PT', {weekday: 'long', day: 'numeric', month: 'long'});
+
+// day and sport chips live in the sticky header
+function renderBars() {
+  const fx = forecast(S.data.fixtures), k = +S.f.when, dayGames = fx.filter(x => onDay(x, k));
+  const sports = [...new Set(dayGames.map(x => x.sport))].sort((a, b) => sportRank(a) - sportRank(b));
+  if (S.f.sport && !sports.includes(S.f.sport)) S.f.sport = '';
+  document.getElementById('bars').innerHTML = `<div class="chips" role="group" aria-label="Dia">${Array.from({length: weekDays()}, (_, d) =>
+      `<button class="chip ${d === k ? 'on' : ''}" data-day="${d}">${dayName(d)}<span class="n">${fx.filter(x => onDay(x, d)).length}</span></button>`).join('')}</div>
+    <div class="chips sport" role="group" aria-label="Modalidade"><button class="chip ${!S.f.sport ? 'on' : ''}" data-sport="">Todas<span class="n">${dayGames.length}</span></button>
+      ${sports.map(s => `<button class="chip ${S.f.sport === s ? 'on' : ''}" data-sport="${esc(s)}">${icon(s)} ${esc(s)}<span class="n">${dayGames.filter(x => x.sport === s).length}</span></button>`).join('')}</div>`;
+  const upd = () => { S.limit = 80; S.f.league = ''; store.set('filters5', JSON.stringify(S.f)); renderBars(); renderFilters(); renderHighlights(); renderList(); };
+  document.querySelectorAll('[data-day]').forEach(c => c.onclick = () => { S.f.when = c.dataset.day; upd(); });
+  document.querySelectorAll('[data-sport]').forEach(c => c.onclick = () => { S.f.sport = c.dataset.sport; upd(); });
+}
+function renderFilters() {
+  const comps = [...new Map(filtered(true).map(x => [x.league, x])).values()]
+    .sort((a, b) => sportRank(a.sport) - sportRank(b.sport) || compRank(a.competition) - compRank(b.competition) || a.competition.localeCompare(b.competition));
+  if (S.f.league && !comps.some(c => c.league === S.f.league)) S.f.league = '';
+  document.getElementById('filters').innerHTML = `<select id="f-league" aria-label="Competição"><option value="">Todas as competições (${comps.length})</option>
+      ${comps.map(x => `<option value="${esc(x.league)}" ${x.league === S.f.league ? 'selected' : ''}>${icon(x.sport)} ${esc(x.competition)}</option>`).join('')}</select>
+    <input type="search" id="f-q" placeholder="Pesquisar equipa ou competição" aria-label="Pesquisar" value="${esc(S.f.q)}">`;
+  const upd = () => { S.limit = 80; store.set('filters5', JSON.stringify(S.f)); renderList(); };
+  document.getElementById('f-league').onchange = e => { S.f.league = e.target.value; upd(); };
+  document.getElementById('f-q').oninput = e => { S.f.q = e.target.value; upd(); };
+}
 function renderShell() {
-  const fx = forecast(S.data.fixtures);
-  const sports = [...new Set(fx.map(x => x.sport))].sort((a, b) => (a !== 'Futebol') - (b !== 'Futebol') || a.localeCompare(b));
-  const comps = [...new Map(fx.map(x => [x.league, x])).values()]
-    .sort((a, b) => (a.sport !== 'Futebol') - (b.sport !== 'Futebol') || a.competition.localeCompare(b.competition));
   $app.innerHTML = `<section id="highlights"></section>
-    <details class="tables" id="tables"><summary>Classificações e previsão do fim da época</summary><div id="tables-body"><p class="muted small">A carregar…</p></div></details>
-    <h2>Jogos</h2>
-    <div class="filters">
-      <div class="chips" role="group" aria-label="Quando">${[['all', 'Semana'], ...Array.from({length: weekDays()}, (_, k) => {
-          const d = new Date(Date.now() + k * 864e5);
-          return [String(k), k === 0 ? 'Hoje' : k === 1 ? 'Amanhã' : d.toLocaleDateString('pt-PT', {weekday: 'short', day: 'numeric'}).replace('.', '')]; })].map(([v, l]) =>
-        `<button class="chip ${S.f.when === v ? 'on' : ''}" data-when="${v}">${l}</button>`).join('')}</div>
-      <select id="f-sport" aria-label="Modalidade"><option value="">Todas as modalidades</option>${sports.map(s => `<option>${esc(s)}</option>`).join('')}</select>
-      <select id="f-league" aria-label="Competição"><option value="">Todas as competições</option>${comps.map(x => `<option value="${esc(x.league)}" data-sport="${esc(x.sport)}">${esc(x.competition)}</option>`).join('')}</select>
-      <input type="search" id="f-q" placeholder="Pesquisar equipa ou jogador" aria-label="Pesquisar">
-    </div>
-    <div id="list"></div>
-    <details class="how" id="how"><summary>Como funcionam as previsões</summary><div id="how-body" class="small"><p class="muted">A carregar…</p></div></details>`;
-  const fs = document.getElementById('f-sport'), fl = document.getElementById('f-league'), fq = document.getElementById('f-q');
-  fs.value = S.f.sport; fl.value = S.f.league; fq.value = S.f.q;
-  const upd = () => { S.limit = 60; store.set('filters4', JSON.stringify(S.f)); renderList(); };
-  document.querySelectorAll('.chip').forEach(c => c.onclick = () => {
-    S.f.when = c.dataset.when; document.querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === c)); upd(); });
-  fs.onchange = () => { S.f.sport = fs.value; if (fs.value && fl.selectedOptions[0]?.dataset.sport !== fs.value) { fl.value = ''; S.f.league = ''; } upd(); };
-  fl.onchange = () => { S.f.league = fl.value; upd(); };
-  fq.oninput = () => { S.f.q = fq.value; upd(); };
-  document.getElementById('how').ontoggle = e => e.target.open && renderHow();
-  document.getElementById('tables').ontoggle = e => e.target.open && renderTables();
-  renderHighlights(); renderList();
+    <section id="jogos"><h2>Jogos de <span id="day-title"></span></h2><div class="filters" id="filters"></div><div id="list"></div></section>
+    <section id="classificacoes"><h2>Classificações e previsão do fim da época</h2><div class="panel" id="tables-body"><p class="muted small">A carregar…</p></div></section>
+    <section id="como"><h2>Como funcionam as previsões</h2><div class="panel small" id="how-body"><p class="muted">A carregar…</p></div></section>`;
+  document.querySelectorAll('[data-goto]').forEach(b => b.onclick = () => document.getElementById(b.dataset.goto).scrollIntoView());
+  renderBars(); renderFilters(); renderHighlights(); renderList(); renderTables(); renderHow();
 }
 
-// "Destaques do dia": the games of the next 24 h that stand out in the forecasts
+// "Destaques": the games of the chosen day that stand out in the forecasts
 function renderHighlights() {
-  const now = Date.now(), fx = forecast(S.data.fixtures).filter(x => x.kickoff && Date.parse(x.kickoff) > now && Date.parse(x.kickoff) < now + 24 * 3600e3);
+  const k = +S.f.when, fx = forecast(S.data.fixtures).filter(x => onDay(x, k) && (!S.f.sport || x.sport === S.f.sport));
   const top = p => p[likelyOf(p)];
   const goals = fx.filter(x => x.over25 != null && x.sport === 'Futebol');
   const groups = [
@@ -250,54 +278,65 @@ function renderHighlights() {
     ['Jogos mais equilibrados', fx.filter(x => x.probs_1x2.X != null).sort((a, b) => top(a.probs_1x2) - top(b.probs_1x2)),
       x => [`1 ${pct(x.probs_1x2['1'], 0)} · X ${pct(x.probs_1x2.X, 0)} · 2 ${pct(x.probs_1x2['2'], 0)}`, '']],
     ['Mais golos previstos', [...goals].sort((a, b) => b.over25 - a.over25), x => ['Mais de 2.5 golos', pct(x.over25, 0)]],
-    ['Menos golos previstos', [...goals].sort((a, b) => a.over25 - b.over25), x => ['Menos de 2.5 golos', pct(1 - x.over25, 0)]]];
-  document.getElementById('highlights').innerHTML = fx.length ? `<h2>Destaques do dia</h2><div class="hero">${groups.map(([title, rows, show]) => `<div class="hl"><h4>${title}</h4>
+    ['Menos golos previstos', [...goals].sort((a, b) => a.over25 - b.over25), x => ['Menos de 2.5 golos', pct(1 - x.over25, 0)]]]
+    .filter(([, rows]) => rows.length);
+  document.getElementById('highlights').innerHTML = fx.length ? `<h2>Destaques de ${esc(dayLong(k))}</h2><div class="hero">${groups.map(([title, rows, show]) => `<div class="hl"><h4>${title}</h4>
     ${rows.slice(0, 3).map(x => { const [l, v] = show(x); return `<div class="it" data-go="${esc(x.key)}" tabindex="0" role="button">
-      <span><b>${esc(x.home)} – ${esc(x.away)}</b><span class="small muted">${x.kickoff ? hm(x.kickoff) : ''} · ${esc(l)}</span></span><em>${v}</em></div>`; }).join('') || '<p class="small muted">Sem jogos.</p>'}</div>`).join('')}</div>
-    <p class="small muted">Jogos das próximas 24 horas. «Mais claras» = o resultado mais provável tem a probabilidade mais alta; mesmo assim pode falhar.
-    <span id="hits"></span></p>` : '';
+      <span><b>${icon(x.sport)} ${esc(x.home)} – ${esc(x.away)}</b><span class="small muted">${hm(x.kickoff)} · ${esc(l)}</span></span><em>${v}</em></div>`; }).join('')}</div>`).join('')}</div>
+    <p class="small muted">«Mais claras» = o resultado mais provável tem a probabilidade mais alta; mesmo assim pode falhar. <span id="hits"></span></p>` : '';
   api('/api/performance').then(p => { const h = p.most_likely, el = document.getElementById('hits');
     if (el && h?.games >= 20) el.innerHTML = `<b>Acerto até agora:</b> o resultado mais provável aconteceu em ${h.hit} de ${h.games} jogos (${pct(h.rate, 0)}); as previsões apontavam, em média, para ${pct(h.expected, 0)}.`;
   }).catch(() => {});
-  document.querySelectorAll('[data-go]').forEach(el => el.onclick = el.onkeydown = e => {
+  document.querySelectorAll('#highlights [data-go]').forEach(el => el.onclick = el.onkeydown = e => {
     if (e.type === 'keydown' && e.key !== 'Enter') return;
     goTo(el.dataset.go);
   });
 }
 function goTo(key) {
-  if (!filtered().some(x => x.key === key)) {
-    Object.assign(S.f, {when: 'all', sport: '', league: '', q: ''});
-    store.set('filters4', JSON.stringify(S.f)); renderShell();
+  const g = forecast(S.data.fixtures).find(x => x.key === key);
+  if (g && !filtered().some(x => x.key === key)) {  // open the game's day, without other filters
+    const d = Array.from({length: weekDays()}, (_, k) => k).find(k => onDay(g, k));
+    Object.assign(S.f, {when: String(d ?? 0), sport: '', league: '', q: ''});
+    store.set('filters5', JSON.stringify(S.f)); renderBars(); renderFilters(); renderHighlights();
   }
   const i = filtered().findIndex(x => x.key === key);
-  if (i >= S.limit) { S.limit = i + 10; renderList(); }
+  if (i >= S.limit) S.limit = i + 10;
+  renderList();
   if (!S.open.has(key)) toggle(key);
   document.querySelector(`.game[data-key="${CSS.escape(key)}"]`)?.scrollIntoView({block: 'start'});
 }
-function filtered() {
-  const f = S.f, day0 = new Date(new Date().toDateString()).getTime(), day = 864e5, q = f.q.toLowerCase();
-  const inWhen = x => { if (f.when === 'all') return true; if (!x.kickoff) return false; const t = Date.parse(x.kickoff);
-    return t >= day0 + +f.when * day && t < day0 + (+f.when + 1) * day; };
-  return forecast(S.data.fixtures).filter(x => inWhen(x) && (!f.sport || x.sport === f.sport) && (!f.league || x.league === f.league)
-    && (!q || (x.home + ' ' + x.away + ' ' + x.competition).toLowerCase().includes(q)))
-    .sort((a, b) => (a.kickoff || a.date).localeCompare(b.kickoff || b.date));
+// games of the chosen day and sport (allComps: ignore the competition and search filters, for the competition list)
+function filtered(allComps) {
+  const f = S.f, q = f.q.toLowerCase();
+  return forecast(S.data.fixtures).filter(x => onDay(x, +f.when) && (!f.sport || x.sport === f.sport)
+    && (allComps || ((!f.league || x.league === f.league) && (!q || (x.home + ' ' + x.away + ' ' + x.competition).toLowerCase().includes(q)))))
+    .sort((a, b) => sportRank(a.sport) - sportRank(b.sport) || compRank(a.competition) - compRank(b.competition)
+      || a.competition.localeCompare(b.competition) || a.kickoff.localeCompare(b.kickoff));
 }
 function renderList() {
-  document.querySelectorAll('#f-league option[data-sport]').forEach(o => o.hidden = !!S.f.sport && o.dataset.sport !== S.f.sport);
-  const all = filtered(), rows = all.slice(0, S.limit);
-  let html = `<p class="small muted">${all.length} jogos com previsão · clique num jogo para ver a análise completa</p>`, last = '';
+  const all = filtered(), rows = all.slice(0, S.limit), k = +S.f.when;
+  document.getElementById('day-title').textContent = dayLong(k);
+  let html = '', comp = null;
   for (const x of rows) {
-    const dl = dayLabel(x);
-    if (dl !== last) { html += `<div class="day">${esc(dl)}</div>`; last = dl; }
+    if (x.league !== comp) {
+      const n = all.filter(y => y.league === x.league).length;
+      html += `${comp === null ? '' : '</div>'}<div class="group"><div class="comp-h"><span aria-hidden="true">${icon(x.sport)}</span><b>${esc(x.competition)}</b><span class="n">${n} jogo${n === 1 ? '' : 's'}</span></div>`;
+      comp = x.league;
+    }
     html += `<article class="game ${S.open.has(x.key) ? 'open' : ''}" data-key="${esc(x.key)}">
       <div class="row" role="button" tabindex="0" aria-expanded="${S.open.has(x.key)}">
-        <div class="time">${x.kickoff ? hm(x.kickoff) : esc(x.time || '—')}</div>
-        <div class="teams"><b>${esc(x.home)}</b><b>${esc(x.away)}</b><span class="comp">${esc(x.competition)}${x.sport === 'Futebol' ? '' : ` · ${esc(x.sport)}`}</span></div>
+        <div class="time">${hm(x.kickoff)}</div>
+        <div class="teams"><b>${esc(x.home)}</b><b>${esc(x.away)}</b></div>
         <div class="probs">${probBar(x.probs_1x2)}</div>
         <div class="pred">${predCell(x)}</div>
       </div><div class="detail" ${S.open.has(x.key) ? '' : 'hidden'}></div></article>`;
   }
-  if (!rows.length) html += '<p class="muted">Sem jogos para estes filtros.</p>';
+  if (comp !== null) html += '</div>';
+  if (!rows.length) {
+    const next = Array.from({length: weekDays()}, (_, d) => d).find(d => d > k && forecast(S.data.fixtures).some(x => onDay(x, d)));
+    html = `<div class="empty"><p>Sem jogos com previsão ${esc(dayLong(k))}${S.f.sport ? ` em ${esc(S.f.sport)}` : ''}${S.f.league || S.f.q ? ' para estes filtros' : ''}.</p>
+      ${next != null ? `<button class="btn" id="next-day">Ver ${esc(dayLong(next))}</button>` : ''}</div>`;
+  }
   if (all.length > rows.length) html += `<button class="btn more" id="more">Mostrar mais (${all.length - rows.length})</button>`;
   const list = document.getElementById('list');
   list.innerHTML = html;
@@ -308,7 +347,10 @@ function renderList() {
     if (S.open.has(key)) openDetail(key);
   });
   const more = document.getElementById('more');
-  if (more) more.onclick = () => { S.limit += 60; renderList(); };
+  if (more) more.onclick = () => { S.limit += 80; renderList(); };
+  const nd = document.getElementById('next-day');
+  if (nd) nd.onclick = () => { const d = Array.from({length: weekDays()}, (_, i) => i).find(i => i > k && forecast(S.data.fixtures).some(x => onDay(x, i)));
+    Object.assign(S.f, {when: String(d), league: '', q: ''}); store.set('filters5', JSON.stringify(S.f)); renderBars(); renderFilters(); renderHighlights(); renderList(); };
 }
 function toggle(key) {
   const g = document.querySelector(`.game[data-key="${CSS.escape(key)}"]`);
