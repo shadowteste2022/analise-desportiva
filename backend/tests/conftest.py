@@ -7,7 +7,8 @@ import tempfile
 os.environ.update({"DATA_DIR": tempfile.mkdtemp(), "ADMIN_TOKEN": "test-token", "ODDS_API_KEY": "", "LEAGUES": "T0",
                    "ODDS_API_IO_KEY": "", "ODDS_API_RESET_DAY": "1", "ODDS_API_MONTHLY_BUDGET": "500",
                    "ODDS_API_MIN_REMAINING": "20", "OTHER_SPORTS": "*", "DEVIG_METHOD": "shin", "XG_WEIGHT": "0",
-                   "ODDSPAPI_KEY": "", "PT_ONLY": "false"})
+                   "ODDSPAPI_KEY": "", "PT_ONLY": "false",
+                   "API_FOOTBALL_KEY": ""})
 
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402

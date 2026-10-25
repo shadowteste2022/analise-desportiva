@@ -9,9 +9,9 @@ import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 
-from app import analysis, backtest, db, sports
+from app import analysis, backtest, db, sports, world
 from app.config import ROOT, settings
-from app.data import football_data as fd, odds_api, odds_api_io, oddspapi
+from app.data import api_football, football_data as fd, odds_api, odds_api_io, oddspapi
 
 FRONTEND = ROOT / "frontend"
 log = logging.getLogger(__name__)
@@ -55,7 +55,12 @@ def export(out: Path) -> dict:
             portuguese.append(sports.from_oddspapi(f))
         except Exception:
             log.exception("Falha ao analisar %s – %s (OddsPapi)", f.get("home"), f.get("away"))
-    for report in others + football + portuguese:
+    try:  # the rest of the world's football, without the games the sources above already cover
+        rest = world.reports([r["identification"] for r in others + football + portuguese])
+    except Exception:
+        log.exception("Falha ao analisar os jogos da API-Football")
+        rest = []
+    for report in others + football + portuguese + rest:
         report["alerts"] = analysis.public_alerts(db.odds_moves(report["key"]))
         report["odds_history"] = analysis.odds_timeline(report["key"])
         _write(data / "match" / f"{slug(report['key'])}.json", report)
@@ -68,7 +73,8 @@ def export(out: Path) -> dict:
     legal = {"pt_only": settings.pt_only,
              "sources": [n for n, on in (("odds-api.io", odds_api_io.enabled()),
                                          ("OddsPapi (Betano PT)", oddspapi.enabled())) if on],
-             "oddspapi": {k: oddspapi.state[k] for k in ("used", "limit", "error", "skipped")}}
+             "oddspapi": {k: oddspapi.state[k] for k in ("used", "limit", "error", "skipped")},
+             "api_football": {k: api_football.state[k] for k in ("used", "limit", "error", "skipped")}}
     _write(data / "fixtures.json", {"fixtures": summaries, "source": meta, "generated_at": generated, "odds_api": live,
                                     "legal": legal})
     history = analysis.settled_history(5000)

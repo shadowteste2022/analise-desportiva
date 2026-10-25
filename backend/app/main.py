@@ -9,7 +9,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Query
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse
 
-from app import analysis, backtest, db, sports
+from app import analysis, backtest, db, sports, world
 from app.config import ROOT, settings
 from app.data import odds_api, odds_api_io
 
@@ -87,6 +87,8 @@ def match(key: str = Query(..., max_length=200)):
         except (RuntimeError, ValueError) as e:
             raise _unavailable(e)
         report = analysis.analyze(row, meta) if row is not None else None
+    elif key.startswith("apif_"):
+        report = next((r for r in world.reports([]) if r["key"] == key), None)
     else:
         report = sports.find(key)
     if report is None:
