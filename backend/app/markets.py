@@ -170,3 +170,48 @@ def count_markets(prefix: str, mean: float, dispersion: float, lines: tuple) -> 
         cdf = poisson.cdf(k, mean) if dispersion <= 1.05 else nbinom.cdf(k, mean / (dispersion - 1), 1 / dispersion)
         out[f"{prefix}{line}"] = {"Mais": float(1 - cdf), "Menos": float(cdf)}
     return out
+
+
+SHOT_LINES = (18.5, 20.5, 22.5, 24.5, 26.5, 28.5)
+SHOT_TARGET_LINES = (5.5, 6.5, 7.5, 8.5, 9.5, 10.5)
+
+
+def score_markets(m: np.ndarray) -> dict[str, dict[str, float]]:
+    """From the scoreline matrix: exact total goals, clean sheets and winning margin."""
+    i, j = np.indices(m.shape)
+    tot, diff = i + j, i - j
+    out = {"EG": {**{str(k): m[tot == k].sum() for k in range(4)}, "4+": m[tot >= 4].sum()},
+           "CS": {"1": m[j == 0].sum(), "2": m[i == 0].sum()},  # home / away keeps a clean sheet
+           "WM": {"1 por 1": m[diff == 1].sum(), "1 por 2": m[diff == 2].sum(), "1 por 3+": m[diff >= 3].sum(),
+                  "X": m[diff == 0].sum(),
+                  "2 por 1": m[diff == -1].sum(), "2 por 2": m[diff == -2].sum(), "2 por 3+": m[diff <= -3].sum()}}
+    return {k: {s: float(p) for s, p in v.items()} for k, v in out.items()}
+
+
+def halves_markets(lam: float, mu: float, share: float) -> dict[str, dict[str, float]]:
+    """Half-time/full-time, second-half result and the half with more goals, with each half's goals independent
+    Poisson (first half = share of the expected goals, second half = the rest)."""
+    g = np.arange(8)
+    h1 = np.outer(poisson.pmf(g, lam * share), poisson.pmf(g, mu * share)); h1 /= h1.sum()
+    h2 = np.outer(poisson.pmf(g, lam * (1 - share)), poisson.pmf(g, mu * (1 - share))); h2 /= h2.sum()
+    i, j = np.indices(h1.shape)
+    res = lambda a, b: np.where(a > b, 0, np.where(a == b, 1, 2))  # noqa: E731  0 = home, 1 = draw, 2 = away
+    r1, r2, d1, d2 = res(i, j), res(i, j), i - j, i - j
+    names = ["1", "X", "2"]
+    htft = np.zeros((3, 3))
+    for a in range(3):
+        for b in range(3):
+            # P(HT result a, FT result b) = sum over first-half margin d1 in a, second-half margin d2 with sign(d1+d2) = b
+            for x in np.unique(d1[r1 == a]):
+                p1 = h1[d1 == x].sum()
+                for y in np.unique(d2):
+                    t = x + y
+                    if (t > 0 and b == 0) or (t == 0 and b == 1) or (t < 0 and b == 2):
+                        htft[a, b] += p1 * h2[d2 == y].sum()
+    g1, g2 = (i + j), (i + j)
+    p1_more = sum(h1[g1 == a].sum() * h2[g2 < a].sum() for a in range(1, 15))
+    p2_more = sum(h2[g2 == a].sum() * h1[g1 < a].sum() for a in range(1, 15))
+    out = {"HTFT": {f"{names[a]}/{names[b]}": htft[a, b] for a in range(3) for b in range(3)},
+           "2H1X2": {"1": h2[r2 == 0].sum(), "X": h2[r2 == 1].sum(), "2": h2[r2 == 2].sum()},
+           "MP": {"1ª parte": p1_more, "2ª parte": p2_more, "Igual": 1 - p1_more - p2_more}}
+    return {k: {s: float(p) for s, p in v.items()} for k, v in out.items()}

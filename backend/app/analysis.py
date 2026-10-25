@@ -27,9 +27,11 @@ def _excluded(book: str) -> bool:
 MEMO_SECONDS = 300
 NO_OPPORTUNITY = ("Não foi identificada uma oportunidade com valor estatístico suficientemente convincente nas "
                   "condições atuais.")
-STAT_COLS = ["Date", "HomeTeam", "AwayTeam", "FTHG", "FTAG", "HxG", "AxG", "HTHG", "HTAG", "HC", "AC", "HY", "AY"]
+STAT_COLS = ["Date", "HomeTeam", "AwayTeam", "FTHG", "FTAG", "HxG", "AxG", "HTHG", "HTAG", "HC", "AC", "HY", "AY",
+             "HS", "AS", "HST", "AST"]
 COUNT_WINDOW_DAYS = 365  # corner and card rates from the last year: squads and refereeing standards change
 COUNT_MIN_MATCHES = 5
+COUNT_LINES = {"HC": mk.CORNER_LINES, "HY": mk.CARD_LINES, "HS": mk.SHOT_LINES, "HST": mk.SHOT_TARGET_LINES}
 COUNT_SHRINK = 10  # team rates pulled to the league mean as if it were 10 extra matches (chosen on 2024/25)
 _models: dict[str, tuple] = {}
 _validation_cache: dict[tuple, dict] = {}
@@ -130,8 +132,7 @@ def _count_rates(df: pd.DataFrame, home: str, away: str, when, hcol: str, acol: 
     return {"home": round(float(eh), 2), "away": round(float(ea), 2), "total": round(float(eh + ea), 2),
             "dispersion": round(max(1.0, float(tot.var() / tot.mean())), 3),
             "matches": {home: len(h_home), away: len(a_away)}, "league_total": round(float(tot.mean()), 2),
-            "league_over": {line: float((tot > line).mean()) for line in
-                            (mk.CORNER_LINES if hcol == "HC" else mk.CARD_LINES)}}
+            "league_over": {line: float((tot > line).mean()) for line in COUNT_LINES[hcol]}}
 
 
 def _rest_days(df: pd.DataFrame, team: str, when) -> int | None:
@@ -162,19 +163,35 @@ def public_alerts(moves: list[dict]) -> list[dict]:
     return [a for a in moves if not settings.pt_only or srij.licensed(a["bookmaker"])]
 
 
+def _res(h: int, a: int) -> str:
+    return "1" if h > a else "X" if h == a else "2"
+
+
+STAT_PAIRS = {"CO": ("HC", "AC"), "CA": ("HY", "AY"), "RE": ("HS", "AS"), "RB": ("HST", "AST")}
+
+
 def outcome(market: str, sel: str, hg: int, ag: int, stats: dict | None = None) -> bool | None:
     """Whether the selection won; None when the stake is returned (draw no bet on a draw) or the result needs a
-    statistic the feed does not have (half-time score, corners, cards in `stats`)."""
+    statistic the feed does not have (half-time score, corners, cards, shots in `stats`)."""
     stats = stats or {}
-    if market.startswith("HT") or market[:2] in ("CO", "CA"):
-        cols = ("HTHG", "HTAG") if market.startswith("HT") else ("HC", "AC") if market[:2] == "CO" else ("HY", "AY")
-        if any(stats.get(c) is None for c in cols):
+    if market[:2] in STAT_PAIRS:
+        h, a = (stats.get(c) for c in STAT_PAIRS[market[:2]])
+        return None if h is None or a is None else (h + a > float(market[2:])) == (sel == "Mais")
+    if market in ("HT1X2", "HTFT", "2H1X2", "MP") or market.startswith("HTOU"):
+        h, a = stats.get("HTHG"), stats.get("HTAG")
+        if h is None or a is None:
             return None
-        h, a = stats[cols[0]], stats[cols[1]]
         if market == "HT1X2":
-            return sel == ("1" if h > a else "X" if h == a else "2")
-        return (h + a > float(market[4:] if market.startswith("HTOU") else market[2:])) == (sel == "Mais")
-    res = "1" if hg > ag else "X" if hg == ag else "2"
+            return sel == _res(h, a)
+        if market == "HTFT":
+            return sel == f"{_res(h, a)}/{_res(hg, ag)}"
+        if market == "2H1X2":
+            return sel == _res(hg - h, ag - a)
+        if market == "MP":
+            first, second = h + a, hg + ag - h - a
+            return sel == ("1ª parte" if first > second else "2ª parte" if second > first else "Igual")
+        return (h + a > float(market[4:])) == (sel == "Mais")
+    res = _res(hg, ag)
     if market == "1X2":
         return sel == res
     if market == "DC":
@@ -183,6 +200,13 @@ def outcome(market: str, sel: str, hg: int, ag: int, stats: dict | None = None) 
         return None if res == "X" else sel == res
     if market == "BTTS":
         return (hg > 0 and ag > 0) == (sel == "Sim")
+    if market == "EG":
+        return sel == (str(hg + ag) if hg + ag < 4 else "4+")
+    if market == "CS":
+        return (ag if sel == "1" else hg) == 0
+    if market == "WM":
+        d = hg - ag
+        return sel == ("X" if d == 0 else f"{'1' if d > 0 else '2'} por {abs(d) if abs(d) < 3 else '3+'}")
     if market.startswith("AH"):
         return (hg - ag + float(market[2:]) > 0) == (sel == "1")
     if market[:2] in ("GC", "GF"):
@@ -324,8 +348,23 @@ def pick_label(market: str, sel: str, home: str, away: str, sport: str = "Futebo
         return {"1": f"{home} ao intervalo", "X": "Empate ao intervalo", "2": f"{away} ao intervalo"}.get(sel, sel)
     if market.startswith("HTOU"):
         return f"{sel} de {market[4:]} golos ao intervalo"
-    if market[:2] in ("CO", "CA"):
-        return f"{sel} de {market[2:]} {'cantos' if market[:2] == 'CO' else 'cartões amarelos'}"
+    if market[:2] in ("CO", "CA", "RE", "RB"):
+        unit = {"CO": "cantos", "CA": "cartões amarelos", "RE": "remates", "RB": "remates à baliza"}[market[:2]]
+        return f"{sel} de {market[2:]} {unit}"
+    if market == "EG":
+        return f"{sel} golos no jogo"
+    if market == "CS":
+        return f"{home if sel == '1' else away} sem sofrer golos"
+    if market == "WM":
+        return "Empate" if sel == "X" else f"{home if sel[0] == '1' else away} ganha {sel[2:]}"
+    if market == "HTFT":
+        names = {"1": home, "X": "Empate", "2": away}
+        a, b = sel.split("/")
+        return f"{names[a]} ao intervalo / {names[b]} no fim"
+    if market == "2H1X2":
+        return {"1": f"{home} ganha a 2.ª parte", "X": "2.ª parte empatada", "2": f"{away} ganha a 2.ª parte"}.get(sel, sel)
+    if market == "MP":
+        return {"Igual": "Mesmo número de golos nas duas partes"}.get(sel, f"Mais golos na {sel}")
     if market.startswith("OU"):
         unit = {"Futebol": "golos", "Hóquei no gelo": "golos", "Andebol": "golos", "Basquetebol": "pontos",
                 "Futebol americano": "pontos", "Futebol australiano": "pontos", "Râguebi": "pontos",
@@ -466,14 +505,20 @@ def analyze(row, fx_meta: dict, log: bool = True) -> dict:
     model_probs = {**model_probs, **mk.derived_markets(model_probs["1X2"], model_m)}
     # half-time, corners and cards: model only (no odds from any source), skipped when the league lacks the data
     extra, share = {}, _ht_share(df)
+    extra.update(mk.score_markets(m))
     if share:
         extra.update(mk.halftime_markets(lam, mu, share))
+        extra.update(mk.halves_markets(lam, mu, share))
     corners, cards = _count_rates(df, home, away, when, "HC", "AC"), _count_rates(df, home, away, when, "HY", "AY")
     if corners:  # team corner rates did not beat the league frequency out of sample (2025/26): the league's is used
         extra.update({f"CO{line}": {"Mais": p, "Menos": 1 - p} for line, p in corners.pop("league_over").items()})
-    if cards:
-        cards.pop("league_over")
-        extra.update(mk.count_markets("CA", cards["total"], cards["dispersion"], mk.CARD_LINES))
+    # cards and shots: team rates beat the league frequency out of sample (2024/25 and 2025/26)
+    shots, on_target = _count_rates(df, home, away, when, "HS", "AS"), _count_rates(df, home, away, when, "HST", "AST")
+    for stat, prefix, lines in ((cards, "CA", mk.CARD_LINES), (shots, "RE", mk.SHOT_LINES),
+                                (on_target, "RB", mk.SHOT_TARGET_LINES)):
+        if stat:
+            stat.pop("league_over")
+            extra.update(mk.count_markets(prefix, stat["total"], stat["dispersion"], lines))
     probs, model_probs = {**probs, **extra}, {**model_probs, **extra}
     top = sorted(((float(m[i, j]), f"{i}-{j}") for i in range(7) for j in range(7)), reverse=True)[:10]
     report["predictions"] = {
@@ -485,7 +530,7 @@ def analyze(row, fx_meta: dict, log: bool = True) -> dict:
         "top_scores": [{"score": s, "prob": round(p, 4)} for p, s in top],
         "halftime": {"goal_share": round(share, 3), "expected_goals": {home: round(lam * share, 2), away: round(mu * share, 2)}}
         if share else None,
-        "corners": corners, "cards": cards,
+        "corners": corners, "cards": cards, "shots": shots, "shots_on_target": on_target,
         "matrix": np.round(m[:6, :6], 4).tolist(),
         "method": "Dixon-Coles com decaimento temporal (ξ=%.4f/dia), peso do xG %.0f%%, treinado em %d jogos até %s"
                   % (settings.time_decay_xi, settings.xg_weight * 100, meta["matches"], meta["last_result"])}
@@ -565,7 +610,7 @@ def settled_history(limit: int = 500) -> list[dict]:
             df, _ = fd.load_results(lg)
         except RuntimeError:
             continue
-        stat_cols = [c for c in ("HTHG", "HTAG", "HC", "AC", "HY", "AY") if c in df.columns]
+        stat_cols = [c for c in ("HTHG", "HTAG", "HC", "AC", "HY", "AY", "HS", "AS", "HST", "AST") if c in df.columns]
         for x in df.to_dict("records"):
             stats = {c: int(x[c]) for c in stat_cols if pd.notna(x[c])}
             results[fd.match_key(lg, x["Date"], x["HomeTeam"], x["AwayTeam"])] = (int(x["FTHG"]), int(x["FTAG"]), stats)

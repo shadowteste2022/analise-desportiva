@@ -191,3 +191,22 @@ def test_calibrated_goals_reproduce_final_probabilities(league):
     lam, mu = model.expected_goals("Team09", "Team00")
     target = mk.market_probs(model.matrix(1.9, 1.05))  # what a market-informed final estimate could say
     assert _calibrate(model, lam, mu, target) == pytest.approx((1.9, 1.05), abs=0.01)
+
+
+def test_score_and_halves_markets_and_settlement():
+    from app.analysis import outcome
+    m = np.outer(poisson.pmf(np.arange(11), 1.5), poisson.pmf(np.arange(11), 1.0)); m /= m.sum()
+    s = mk.score_markets(m)
+    assert sum(s["EG"].values()) == pytest.approx(1) and sum(s["WM"].values()) == pytest.approx(1)
+    assert s["CS"]["1"] == pytest.approx(np.exp(-1.0), abs=1e-3)  # away scores none
+    h = mk.halves_markets(1.5, 1.0, 0.45)
+    assert sum(h["HTFT"].values()) == pytest.approx(1, abs=1e-6) and sum(h["MP"].values()) == pytest.approx(1)
+    ft = {r: sum(v for k, v in h["HTFT"].items() if k.endswith("/" + r)) for r in "1X2"}
+    p = mk.market_probs(m)["1X2"]
+    assert ft["1"] == pytest.approx(p["1"], abs=0.01)  # halves add up to the full-time result
+    assert h["MP"]["2ª parte"] > h["MP"]["1ª parte"]  # more goals expected after the break
+    st = {"HTHG": 0, "HTAG": 1, "HS": 14, "AS": 9}
+    assert outcome("HTFT", "2/1", 2, 1, st) and outcome("2H1X2", "1", 2, 1, st) and outcome("MP", "2ª parte", 2, 1, st)
+    assert outcome("WM", "1 por 1", 2, 1) and outcome("EG", "3", 2, 1) and outcome("CS", "2", 0, 0)
+    assert outcome("RE22.5", "Mais", 2, 1, st) and not outcome("RE24.5", "Mais", 2, 1, st)  # 23 shots
+    assert outcome("RB6.5", "Mais", 2, 1, st) is None  # no shots-on-target data

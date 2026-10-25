@@ -2,8 +2,10 @@
 
 Plataforma de análise estatística pré-jogo para futebol: recolhe dados reais, estima probabilidades com um modelo
 Dixon-Coles, compara com as odds de vários operadores, calcula o valor esperado (EV) e classifica cada mercado.
-Inclui backtesting walk-forward e um registo de todas as previsões. A interface é uma página única: a lista de
-jogos com a previsão mais provável, e a análise de cada jogo aberta lá dentro.
+Inclui backtesting walk-forward e um registo de todas as previsões. A interface é uma página única só de análise e previsão (sem odds nem casas de apostas): destaques do dia, a lista de
+jogos com o resultado mais provável e, dentro de cada jogo, todas as probabilidades — resultado, golos, intervalo,
+intervalo/final, margem, remates, cantos, cartões e resultado exato. As odds continuam a ser usadas por dentro, como
+referência de mercado que torna as probabilidades mais precisas.
 
 > **Não garante resultados nem lucros.** É uma ferramenta de análise e simulação; não faz apostas.
 > O próprio backtest (8 épocas, abaixo) mostra que nem o modelo nem a combinação modelo + mercado **superam as odds
@@ -267,6 +269,10 @@ frontend/index.html      interface de página única (HTML + JS, sem dependênci
   resultado ao intervalo log loss 1,033 vs 1,080; golos ao intervalo +0,5 Brier 0,2032 vs 0,2039 e +1,5 0,2227 vs
   0,2253; cartões +3,5 0,2372 vs 0,2400 e +4,5 0,2227 vs 0,2255. Cantos por equipa: 0,2308 vs 0,2300 (pior) —
   por isso os cantos usam a frequência da liga. Nenhum destes mercados tem odds nas fontes gratuitas: sem EV.
+- **Remates e remates à baliza**: o mesmo modelo dos cartões. Validação em 2025/26 (8 ligas): remates Brier
+  0,2086 vs 0,2133 da frequência da liga; remates à baliza 0,2198 vs 0,2225 (melhor nas duas épocas testadas).
+- **Golos exatos, baliza a zeros, margem de vitória** saem da grelha de resultados; **intervalo/final, 2.ª parte e
+  parte com mais golos** de Poisson independente em cada parte (1.ª = fração da liga, 2.ª = o resto).
 - **Odd mínima** = odd justa × (1 + `EV_MARGIN`): abaixo dela a aposta não compensa a margem de segurança.
 - **Qualidade da evidência** (0–100, separada da probabilidade): 4 partes de 25 — n.º de casas com preço, histórico das
   equipas, validação fora da amostra da liga e acordo entre o modelo e o mercado sem margem. «forte» exige liga validada.

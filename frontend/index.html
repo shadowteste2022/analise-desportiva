@@ -6,10 +6,10 @@
 <title>Análise Desportiva</title>
 <style>
 :root{--bg:#f3f5f8;--card:#fff;--fg:#141a22;--muted:#5d6876;--line:#e2e6eb;--soft:#f6f8fa;--accent:#0b7a5c;--accent2:#0f5ec7;
-  --ok:#137a3a;--okbg:#ddf6e5;--warn:#8a5a00;--warnbg:#fff3c4;--no:#56606b;--nobg:#eceff3;--bad:#c4232e;--badbg:#ffe8e8;--onaccent:#fff;
+  --ok:#137a3a;--okbg:#ddf6e5;--warn:#8a5a00;--warnbg:#fff3c4;--onaccent:#fff;
   --p1:#0f5ec7;--px:#9aa4b0;--p2:#d9480f;--shadow:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.08)}
 @media (prefers-color-scheme:dark){:root{--bg:#0b0f14;--card:#131a22;--fg:#e7edf3;--muted:#8e99a6;--line:#26303b;--soft:#18212b;--accent:#2fbf8f;--accent2:#5aa2ff;
-  --ok:#3fcf73;--okbg:#10301d;--warn:#e0a82e;--warnbg:#2e2410;--no:#9aa4b0;--nobg:#1e2731;--bad:#ff6b6b;--badbg:#3a1616;--onaccent:#04140e;
+  --ok:#3fcf73;--okbg:#10301d;--warn:#e0a82e;--warnbg:#2e2410;--onaccent:#04140e;
   --p1:#5aa2ff;--px:#6b7682;--p2:#ff8a4c;--shadow:none}}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -25,20 +25,20 @@ a{color:var(--accent2)}
 .upd .dot{width:8px;height:8px;border-radius:50%;background:var(--ok)}
 .btn{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:7px 12px;cursor:pointer;white-space:nowrap}
 .btn:hover{border-color:var(--accent)}
-.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--onaccent);font-weight:600}
-.btn.sm{padding:4px 9px;font-size:12px}
 main{max-width:1100px;margin:0 auto;padding:16px}
-.notice{border-left:4px solid var(--accent);padding:10px 14px;background:var(--card);border-radius:8px;margin:0 0 14px;font-size:13px;box-shadow:var(--shadow)}
 h2{font-size:17px;margin:22px 0 10px;letter-spacing:-.01em}
 h3{font-size:12px;margin:14px 0 6px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
 .muted{color:var(--muted)} .small{font-size:12px}
-/* top picks */
-.hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
-.pick{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:6px;box-shadow:var(--shadow)}
-.pick:hover{border-color:var(--accent)}
-.pick .rank{font-size:12px;color:var(--muted);font-weight:600}
-.pick .bet{font-size:17px;font-weight:700}
-.pick .meta{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:13px;color:var(--muted)} .pick .meta b{color:var(--fg)}
+/* highlights */
+.hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.hl{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow)}
+.hl h4{margin:0 0 8px;font-size:13px}
+.hl .it{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line);cursor:pointer}
+.hl .it:first-of-type{border-top:0}
+.hl .it:hover b{color:var(--accent)}
+.hl .it span{min-width:0} .hl .it b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hl .it .small{display:block}
+.hl .it em{font-style:normal;font-weight:700;white-space:nowrap}
 /* filters */
 .filters{position:sticky;top:53px;z-index:4;background:var(--bg);padding:8px 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .chips{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:3px}
@@ -46,7 +46,6 @@ h3{font-size:12px;margin:14px 0 6px;color:var(--muted);text-transform:uppercase;
 .chip.on{background:var(--accent);color:var(--onaccent);font-weight:600}
 .filters select,.filters input[type=search]{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:7px 10px;max-width:220px}
 .filters input[type=search]{flex:1;min-width:160px}
-.tog{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);cursor:pointer}
 /* game list */
 .day{font-size:13px;font-weight:700;color:var(--muted);margin:18px 2px 6px;text-transform:capitalize}
 .game{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:8px;box-shadow:var(--shadow);overflow:hidden;scroll-margin-top:130px}
@@ -57,23 +56,18 @@ h3{font-size:12px;margin:14px 0 6px;color:var(--muted);text-transform:uppercase;
 .time{font-weight:700;font-variant-numeric:tabular-nums}
 .teams{min-width:0} .teams b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .teams .comp{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
-.pbar{display:flex;height:8px;border-radius:4px;overflow:hidden;background:var(--nobg)}
+.pbar{display:flex;height:8px;border-radius:4px;overflow:hidden;background:var(--line)}
 .pbar span{display:block}
 .plab{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:3px;font-variant-numeric:tabular-nums}
 .pred{font-size:13px;min-width:0}
 .pred .lk{display:block;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pred .lk span{font-weight:400;color:var(--muted)}
-.pred .gl{display:block;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pred .vb{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}
-.badge{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap}
-.b-VALOR{background:var(--okbg);color:var(--ok)} .b-INC{background:var(--warnbg);color:var(--warn)}
-.b-SEM{background:var(--nobg);color:var(--no)} .b-DADOS{background:var(--badbg);color:var(--bad)}
+.pred .gl{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .more{display:block;margin:12px auto}
 /* inline analysis */
 .detail{border-top:1px solid var(--line);padding:14px;background:var(--soft)}
-.verdict{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--no);border-radius:10px;padding:12px 14px}
-.verdict.valor{border-left-color:var(--ok)} .verdict.melhor_opcao{border-left-color:var(--warn)}
-.verdict .big{font-size:17px;font-weight:700;margin:4px 0}
+.verdict{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:12px 14px}
+.verdict .big{font-size:18px;font-weight:700;margin:2px 0}
 .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:10px 0}
 .fact{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
 .fact span{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
@@ -86,14 +80,13 @@ table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
 th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);white-space:nowrap}
 tr:last-child td{border-bottom:0}
 th{color:var(--muted);font-weight:600;font-size:12px;background:var(--soft)}
-td.best{font-weight:700;color:var(--ok)}
 .warn{background:var(--warnbg);color:var(--warn);padding:9px 12px;border-radius:8px;margin:8px 0;font-size:13px}
 .pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
 .pcard{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .pcard h4{margin:0 0 6px;font-size:13px}
-.pcard table{font-size:13px} .pcard th,.pcard td{padding:4px 6px}
+.pcard table{font-size:13px} .pcard th,.pcard td{padding:4px 6px;white-space:normal}
 .pcard .note{font-size:11px;color:var(--muted);margin-top:6px}
-.pv{font-weight:600} .pv small{font-weight:400;color:var(--muted);margin-left:4px}
+.pv{font-weight:600;white-space:nowrap}
 .hi{background:var(--okbg)}
 .heat td{text-align:center;font-size:12px;padding:4px}
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
@@ -101,9 +94,6 @@ ul{margin:4px 0;padding-left:20px}
 details.how{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-top:24px}
 details.how summary{cursor:pointer;font-weight:600}
 footer{max-width:1100px;margin:0 auto;padding:8px 16px 32px;color:var(--muted);font-size:12px}
-footer a{color:var(--muted)}
-#gate{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:16px;z-index:9}
-#gate .box{max-width:480px;background:var(--card);border-radius:12px;padding:20px}
 @media (max-width:760px){
   .row{grid-template-columns:46px minmax(0,1fr);gap:8px}
   .row .probs{display:none}
@@ -118,27 +108,18 @@ footer a{color:var(--muted)}
 </style>
 </head>
 <body>
-<div id="gate"><div class="box"><h2 style="margin-top:0">Aviso — maiores de 18 anos</h2>
-<p>Esta ferramenta faz análise estatística. Não efetua apostas e não garante resultados nem lucros.
-As probabilidades são estimativas com erro. Apostar envolve risco de perda. Se o jogo deixou de ser diversão, procure ajuda
-(em Portugal: <b>SICAD — 1414</b>).</p>
-<button class="btn pri" id="gate-ok">Tenho 18 anos ou mais e compreendo</button></div></div>
-
 <div class="top"><div class="in">
   <div class="brand"><i aria-hidden="true">%</i>Análise Desportiva</div>
   <div class="upd" id="upd"></div>
 </div></div>
 <main id="app"><p class="muted">A carregar…</p></main>
-<footer>Análise estatística, não aconselhamento financeiro. Proibido a menores de 18 anos. Aposte só o que pode perder e nunca para recuperar perdas.
-Ajuda: <b>SICAD 1414</b>. Casas legais em Portugal: <a href="https://www.srij.turismodeportugal.pt/pt/jogo-online/entidades-licenciadas/" target="_blank" rel="noopener">lista oficial do SRIJ</a>.</footer>
+<footer>Análise estatística e previsões. As probabilidades são estimativas com erro, não certezas: um resultado com 70% falha 3 vezes em cada 10.</footer>
 
 <script>
 const $app = document.getElementById('app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pct = (x, d = 1) => x == null ? '—' : (x * 100).toFixed(d) + '%';
 const num = (x, d = 2) => x == null ? '—' : Number(x).toFixed(d);
-const sign = x => x == null ? '—' : (x >= 0 ? '+' : '') + (x * 100).toFixed(1) + '%';
-const badge = c => `<span class="badge b-${{'VALOR POTENCIAL':'VALOR','VALOR INCONCLUSIVO':'INC','SEM VALOR IDENTIFICADO':'SEM','SEM DADOS SUFICIENTES':'DADOS'}[c]||'SEM'}">${esc(c)}</span>`;
 const store = {get(k){try{return localStorage.getItem(k)}catch{return null}}, set(k,v){try{localStorage.setItem(k,v)}catch{}}};
 const REFRESH_MS = 5 * 60e3;  // the data changes hourly; checking every 5 min keeps an open page current
 
@@ -159,33 +140,21 @@ async function api(path, opts) {
 }
 const err = e => `<div class="warn">Erro: ${esc(e.message)}</div>`;
 
-if (!store.get('age-ok')) document.getElementById('gate').style.display = 'flex';
-document.getElementById('gate-ok').onclick = () => { store.set('age-ok', '1'); document.getElementById('gate').style.display = 'none'; };
-
 // ---------- wording ----------
-const MK_NAME = {'1X2': 'Resultado', Vencedor: 'Vencedor', DC: 'Dupla hipótese', DNB: 'Empate anula', BTTS: 'Ambas marcam', HT1X2: 'Resultado ao intervalo'};
-const mkName = m => MK_NAME[m] || (m.startsWith('OU') ? `Total ${m.slice(2)}` : m.startsWith('GC') ? `Golos casa ${m.slice(2)}`
-  : m.startsWith('GF') ? `Golos fora ${m.slice(2)}` : m.startsWith('AH') ? `Handicap casa ${m.slice(2)}` : m.startsWith('HTOU') ? `Golos ao intervalo ${m.slice(4)}`
-  : m.startsWith('CO') ? `Cantos ${m.slice(2)}` : m.startsWith('CA') ? `Cartões amarelos ${m.slice(2)}` : m);
 const UNIT = {Futebol: 'golos', 'Hóquei no gelo': 'golos', Andebol: 'golos', Basquetebol: 'pontos', 'Futebol americano': 'pontos',
   'Futebol australiano': 'pontos', 'Râguebi': 'pontos', 'Ténis': 'jogos', Basebol: 'corridas', 'Críquete': 'corridas', MMA: 'rondas', Boxe: 'rondas', Voleibol: 'pontos'};
 // same wording as analysis.pick_label
-function selLabel(m, s, home, away, sport = 'Futebol') {
+function selLabel(m, s, home, away) {
   if (m === '1X2' || m === 'Vencedor') return {'1': `Vitória ${home}`, X: 'Empate', '2': `Vitória ${away}`}[s] || s;
-  if (m === 'BTTS') return s === 'Sim' ? 'Ambas marcam' : 'Não marcam ambas';
   if (m === 'DC') return {'1X': `${home} ou empate`, '12': `${home} ou ${away}`, X2: `Empate ou ${away}`}[s] || s;
-  if (m === 'DNB') return `${s === '1' ? home : away} (empate anula)`;
   if (m.startsWith('AH')) { const h = +m.slice(2); return s === '1' ? `${home} ${h > 0 ? '+' : ''}${h}` : `${away} ${-h > 0 ? '+' : ''}${-h}`; }
-  if (m.startsWith('GC') || m.startsWith('GF')) return `${s} de ${m.slice(2)} golos — ${m.startsWith('GC') ? home : away}`;
   if (m === 'HT1X2') return {'1': `${home} ao intervalo`, X: 'Empate ao intervalo', '2': `${away} ao intervalo`}[s] || s;
-  if (m.startsWith('HTOU')) return `${s} de ${m.slice(4)} golos ao intervalo`;
-  if (m.startsWith('CO') || m.startsWith('CA')) return `${s} de ${m.slice(2)} ${m.startsWith('CO') ? 'cantos' : 'cartões amarelos'}`;
-  if (m.startsWith('OU')) return `${s} de ${m.slice(2)} ${UNIT[sport] || ''}`.trim();
+  if (m === '2H1X2') return {'1': `${home} ganha a 2.ª parte`, X: '2.ª parte empatada', '2': `${away} ganha a 2.ª parte`}[s] || s;
+  if (m === 'CS') return `${s === '1' ? home : away} sem sofrer golos`;
+  if (m === 'WM') return s === 'X' ? 'Empate' : `${s[0] === '1' ? home : away} ganha ${s.slice(2)}`;
+  if (m === 'MP') return s === 'Igual' ? 'Igual nas duas partes' : `Mais golos na ${s}`;
   return `${m} ${s}`;
 }
-const PICK_TAG = {valor: ['b-VALOR', 'valor potencial'], melhor_opcao: ['b-INC', 'não validada']};
-const evBadge = e => e == null ? '' : `<span class="badge ${{forte: 'b-VALOR', moderada: 'b-INC'}[e.label] || 'b-DADOS'}" title="Qualidade da evidência (não é a probabilidade)">evidência ${e.score}/100</span>`;
-const licence = ok => ok ? '<span class="badge b-VALOR">SRIJ</span>' : '<span class="badge b-DADOS">sem licença PT</span>';
 const hm = iso => new Date(iso).toLocaleTimeString('pt-PT', {hour: '2-digit', minute: '2-digit'});
 const dt = iso => iso ? new Date(iso).toLocaleString('pt-PT', {day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'}) : '—';
 function dayLabel(x) {
@@ -193,36 +162,21 @@ function dayLabel(x) {
   const d = new Date(x.kickoff), diff = Math.round((new Date(d.toDateString()) - new Date(new Date().toDateString())) / 864e5);
   return diff === 0 ? 'Hoje' : diff === 1 ? 'Amanhã' : d.toLocaleDateString('pt-PT', {weekday: 'long', day: 'numeric', month: 'long'});
 }
-function spark(pts) {  // best price over time as a small inline SVG line
-  if (pts.length < 2) return '';
-  const t = pts.map(p => Date.parse(p[0])), v = pts.map(p => p[1]);
-  const [t0, t1, lo, hi] = [Math.min(...t), Math.max(...t), Math.min(...v), Math.max(...v)];
-  const xy = pts.map((_, i) => `${(120 * (t[i] - t0) / ((t1 - t0) || 1)).toFixed(1)},${(28 - 24 * (v[i] - lo) / ((hi - lo) || 1)).toFixed(1)}`);
-  return `<svg width="124" height="32" viewBox="-2 0 124 32" role="img" aria-label="evolução da melhor odd"><polyline points="${xy.join(' ')}" fill="none" stroke="var(--accent2)" stroke-width="2"/></svg>`;
-}
 function probBar(p) {
-  if (!p) return '<span class="small muted">sem probabilidades</span>';
   const parts = [['1', 'var(--p1)'], ['X', 'var(--px)'], ['2', 'var(--p2)']].filter(([k]) => p[k] != null);
   return `<div class="pbar">${parts.map(([k, c]) => `<span style="width:${(p[k] * 100).toFixed(1)}%;background:${c}"></span>`).join('')}</div>
     <div class="plab">${parts.map(([k]) => `<span>${k} ${pct(p[k], 0)}</span>`).join('')}</div>`;
 }
-// The realistic read of a game: its most likely result. A bet is added only when the price pays more than the
-// probability; the "least bad" long shot of a game without value is never shown as its bet.
+const likelyOf = p => Object.keys(p).reduce((a, b) => p[a] >= p[b] ? a : b);
 function predCell(x) {
-  const p = x.probs_1x2;
-  const k = p && Object.keys(p).reduce((a, b) => p[a] >= p[b] ? a : b);
-  const likely = k ? `<span class="lk">${esc(selLabel('1X2', k, x.home, x.away))} <span>${pct(p[k], 0)}</span></span>` : '<span class="lk"><span>Sem dados suficientes</span></span>';
-  const v = x.pick && PICK_TAG[x.pick.kind]
-    ? `<span class="vb">Valor: <b>${esc(x.pick.label)} @ ${num(x.pick.odds)}</b> <span class="muted">EV ${sign(x.pick.ev)}</span> <span class="badge ${PICK_TAG[x.pick.kind][0]}">${PICK_TAG[x.pick.kind][1]}</span></span>`
-    : `<span class="vb muted">${p ? 'Sem aposta com valor' : ''}</span>`;
-  const gl = x.over25 != null || x.btts != null
-    ? `<span class="gl">${x.over25 != null ? `Mais de 2.5 golos ${pct(x.over25, 0)}` : ''}${x.over25 != null && x.btts != null ? ' · ' : ''}${x.btts != null ? `Ambas marcam ${pct(x.btts, 0)}` : ''}</span>` : '';
-  return likely + gl + v;
+  const p = x.probs_1x2, k = likelyOf(p);
+  const gl = [x.over25 != null ? `Mais de 2.5 golos ${pct(x.over25, 0)}` : '', x.btts != null ? `Ambas marcam ${pct(x.btts, 0)}` : ''].filter(Boolean).join(' · ');
+  return `<span class="lk">${esc(selLabel('1X2', k, x.home, x.away))} <span>${pct(p[k], 0)}</span></span>${gl ? `<span class="gl">${gl}</span>` : ''}`;
 }
 
 // ---------- state ----------
-const S = {data: null, reports: new Map(), open: new Set(), tab: {}, allMarkets: {}, limit: 60,
-  f: Object.assign({when: 'all', sport: '', league: '', q: '', onlyPick: false}, JSON.parse(store.get('filters3') || '{}'))};
+const S = {data: null, reports: new Map(), open: new Set(), tab: {}, limit: 60,
+  f: Object.assign({when: 'all', sport: '', league: '', q: ''}, JSON.parse(store.get('filters4') || '{}'))};
 
 // ---------- page ----------
 async function load(first) {
@@ -232,26 +186,21 @@ async function load(first) {
   renderUpd();
   if (!changed && !first) return;
   S.reports.clear();  // new hourly data: open analyses are refreshed from it
-  if (first) renderShell(); else { renderPicks(); renderList(); }
+  if (first) renderShell(); else { renderHighlights(); renderList(); }
 }
 function renderUpd() {
   const g = S.data?.generated_at;
   const mins = g ? Math.round((Date.now() - Date.parse(g)) / 60e3) : null;
   document.getElementById('upd').innerHTML = g ? `<span class="dot"></span><span class="t">Dados de ${hm(g)} · </span>${mins < 1 ? 'agora' : `há ${mins} min`}` : '';
 }
-function legalNotice(legal) {
-  if (!legal?.pt_only) return '';
-  return legal.sources?.length
-    ? `<div class="notice">Todas as odds e apostas deste site são de <b>casas licenciadas pelo SRIJ</b> (legais em Portugal).</div>`
-    : `<div class="notice">O site só mostra odds de <b>casas licenciadas pelo SRIJ</b>, mas a fonte dessas odds ainda não está ativa: por agora não há apostas a mostrar.</div>`;
-}
+// games with a forecast that have not kicked off over 2 h ago (hidden even if the hourly update is late)
+const live = fx => fx.filter(x => x.probs_1x2 && !(x.kickoff && Date.parse(x.kickoff) < Date.now() - 2 * 3600e3));
 function renderShell() {
-  const d = S.data, fx = live(d.fixtures);
+  const fx = live(S.data.fixtures);
   const sports = [...new Set(fx.map(x => x.sport))].sort((a, b) => (a !== 'Futebol') - (b !== 'Futebol') || a.localeCompare(b));
   const comps = [...new Map(fx.map(x => [x.league, x])).values()]
     .sort((a, b) => (a.sport !== 'Futebol') - (b.sport !== 'Futebol') || a.competition.localeCompare(b.competition));
-  $app.innerHTML = `${legalNotice(d.legal)}
-    <section id="picks"></section>
+  $app.innerHTML = `<section id="highlights"></section>
     <h2>Jogos</h2>
     <div class="filters">
       <div class="chips" role="group" aria-label="Quando">${[['all', 'Todos'], ['0', 'Hoje'], ['1', 'Amanhã'], ['7', '7 dias']].map(([v, l]) =>
@@ -259,42 +208,37 @@ function renderShell() {
       <select id="f-sport" aria-label="Modalidade"><option value="">Todas as modalidades</option>${sports.map(s => `<option>${esc(s)}</option>`).join('')}</select>
       <select id="f-league" aria-label="Competição"><option value="">Todas as competições</option>${comps.map(x => `<option value="${esc(x.league)}" data-sport="${esc(x.sport)}">${esc(x.competition)}</option>`).join('')}</select>
       <input type="search" id="f-q" placeholder="Pesquisar equipa ou jogador" aria-label="Pesquisar">
-      <label class="tog"><input type="checkbox" id="f-pick"> Só com aposta com valor</label>
     </div>
     <div id="list"></div>
-    <details class="how" id="how"><summary>Como funciona e desempenho</summary><div id="how-body" class="small"><p class="muted">A carregar…</p></div></details>`;
+    <details class="how" id="how"><summary>Como funcionam as previsões</summary><div id="how-body" class="small"><p class="muted">A carregar…</p></div></details>`;
   const fs = document.getElementById('f-sport'), fl = document.getElementById('f-league'), fq = document.getElementById('f-q');
   fs.value = S.f.sport; fl.value = S.f.league; fq.value = S.f.q;
-  document.getElementById('f-pick').checked = S.f.onlyPick;
-  const upd = () => { S.limit = 60; store.set('filters3', JSON.stringify(S.f)); renderList(); };
+  const upd = () => { S.limit = 60; store.set('filters4', JSON.stringify(S.f)); renderList(); };
   document.querySelectorAll('.chip').forEach(c => c.onclick = () => {
     S.f.when = c.dataset.when; document.querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === c)); upd(); });
   fs.onchange = () => { S.f.sport = fs.value; if (fs.value && fl.selectedOptions[0]?.dataset.sport !== fs.value) { fl.value = ''; S.f.league = ''; } upd(); };
   fl.onchange = () => { S.f.league = fl.value; upd(); };
   fq.oninput = () => { S.f.q = fq.value; upd(); };
-  document.getElementById('f-pick').onchange = e => { S.f.onlyPick = e.target.checked; upd(); };
   document.getElementById('how').ontoggle = e => e.target.open && renderHow();
-  renderPicks(); renderList();
+  renderHighlights(); renderList();
 }
-// games that kicked off over 2 h ago are hidden even if the hourly update is late
-const live = fx => fx.filter(x => !(x.kickoff && Date.parse(x.kickoff) < Date.now() - 2 * 3600e3));
 
-// "Aposta do dia": the engine's ranking (conservative EV x evidence) over games of the next 24 h
-function renderPicks() {
-  const now = Date.now(), horizon = now + 24 * 3600e3, d = S.data;
-  const rows = d.fixtures.filter(x => x.kickoff && Date.parse(x.kickoff) > now && Date.parse(x.kickoff) < horizon)
-    .flatMap(x => (x.opps || []).map(o => ({...o, x}))).filter(o => !d.legal?.pt_only || o.licensed_pt)
-    .sort((a, b) => (b.score ?? b.ev) - (a.score ?? a.ev)).slice(0, 3);
-  document.getElementById('picks').innerHTML = `<h2>Aposta do dia</h2>
-    ${rows.length ? `<div class="hero">${rows.map((o, i) => `<div class="pick" data-go="${esc(o.x.key)}" tabindex="0">
-      <span class="rank">#${i + 1} · ${dayLabel(o.x)} ${o.x.kickoff ? hm(o.x.kickoff) : ''} · ${esc(o.x.sport)}</span>
-      <span><b>${esc(o.x.home)}</b> – <b>${esc(o.x.away)}</b><br><span class="small muted">${esc(o.x.competition)}</span></span>
-      <span class="bet">${esc(o.label)}</span>
-      <span class="meta"><span>Odd <b>${num(o.odds)}</b> ${esc(o.bookmaker)}</span><span>Prob. <b>${pct(o.prob)}</b></span>
-        <span>EV <b>${sign(o.ev)}</b></span><span>Odd mín. <b>${num(o.min_odds)}</b></span>${o.evidence != null ? `<span>Evidência <b>${o.evidence}</b>/100</span>` : ''}</span></div>`).join('')}</div>
-      <p class="small muted">Só apostas cuja odd paga mais do que a probabilidade estimada, ordenadas pelo EV conservador (o menor entre o nosso e o do mercado sem margem)
-      ponderado pela qualidade da evidência. Nenhuma liga tem vantagem validada no backtest: são as odds mais favoráveis, não apostas garantidas.</p>`
-    : '<p class="muted">Não foi identificada uma oportunidade com valor estatístico suficientemente convincente nas condições atuais (próximas 24 horas).</p>'}`;
+// "Destaques do dia": the games of the next 24 h that stand out in the forecasts
+function renderHighlights() {
+  const now = Date.now(), fx = live(S.data.fixtures).filter(x => x.kickoff && Date.parse(x.kickoff) > now && Date.parse(x.kickoff) < now + 24 * 3600e3);
+  const top = p => p[likelyOf(p)];
+  const goals = fx.filter(x => x.over25 != null && x.sport === 'Futebol');
+  const groups = [
+    ['Previsões mais claras', [...fx].sort((a, b) => top(b.probs_1x2) - top(a.probs_1x2)),
+      x => [selLabel('1X2', likelyOf(x.probs_1x2), x.home, x.away), pct(top(x.probs_1x2), 0)]],
+    ['Jogos mais equilibrados', fx.filter(x => x.probs_1x2.X != null).sort((a, b) => top(a.probs_1x2) - top(b.probs_1x2)),
+      x => [`1 ${pct(x.probs_1x2['1'], 0)} · X ${pct(x.probs_1x2.X, 0)} · 2 ${pct(x.probs_1x2['2'], 0)}`, '']],
+    ['Mais golos previstos', [...goals].sort((a, b) => b.over25 - a.over25), x => ['Mais de 2.5 golos', pct(x.over25, 0)]],
+    ['Menos golos previstos', [...goals].sort((a, b) => a.over25 - b.over25), x => ['Menos de 2.5 golos', pct(1 - x.over25, 0)]]];
+  document.getElementById('highlights').innerHTML = fx.length ? `<h2>Destaques do dia</h2><div class="hero">${groups.map(([title, rows, show]) => `<div class="hl"><h4>${title}</h4>
+    ${rows.slice(0, 3).map(x => { const [l, v] = show(x); return `<div class="it" data-go="${esc(x.key)}" tabindex="0" role="button">
+      <span><b>${esc(x.home)} – ${esc(x.away)}</b><span class="small muted">${x.kickoff ? hm(x.kickoff) : ''} · ${esc(l)}</span></span><em>${v}</em></div>`; }).join('') || '<p class="small muted">Sem jogos.</p>'}</div>`).join('')}</div>
+    <p class="small muted">Jogos das próximas 24 horas. «Mais claras» = o resultado mais provável tem a probabilidade mais alta; mesmo assim pode falhar.</p>` : '';
   document.querySelectorAll('[data-go]').forEach(el => el.onclick = el.onkeydown = e => {
     if (e.type === 'keydown' && e.key !== 'Enter') return;
     goTo(el.dataset.go);
@@ -302,8 +246,8 @@ function renderPicks() {
 }
 function goTo(key) {
   if (!filtered().some(x => x.key === key)) {
-    Object.assign(S.f, {when: 'all', sport: '', league: '', q: '', onlyPick: false});
-    store.set('filters3', JSON.stringify(S.f)); renderShell();
+    Object.assign(S.f, {when: 'all', sport: '', league: '', q: ''});
+    store.set('filters4', JSON.stringify(S.f)); renderShell();
   }
   const i = filtered().findIndex(x => x.key === key);
   if (i >= S.limit) { S.limit = i + 10; renderList(); }
@@ -315,14 +259,13 @@ function filtered() {
   const inWhen = x => { if (f.when === 'all') return true; if (!x.kickoff) return false; const t = Date.parse(x.kickoff);
     return f.when === '7' ? t < day0 + 7 * day : t >= day0 + +f.when * day && t < day0 + (+f.when + 1) * day; };
   return live(S.data.fixtures).filter(x => inWhen(x) && (!f.sport || x.sport === f.sport) && (!f.league || x.league === f.league)
-    && (!q || (x.home + ' ' + x.away + ' ' + x.competition).toLowerCase().includes(q)) && (!f.onlyPick || (x.pick && PICK_TAG[x.pick.kind])))
+    && (!q || (x.home + ' ' + x.away + ' ' + x.competition).toLowerCase().includes(q)))
     .sort((a, b) => (a.kickoff || a.date).localeCompare(b.kickoff || b.date));
 }
 function renderList() {
   document.querySelectorAll('#f-league option[data-sport]').forEach(o => o.hidden = !!S.f.sport && o.dataset.sport !== S.f.sport);
   const all = filtered(), rows = all.slice(0, S.limit);
-  let html = `<p class="small muted">${all.length} jogos · clique num jogo para ver a análise completa · a previsão é o resultado mais provável;
-    «Valor» só aparece quando a odd paga mais do que a probabilidade</p>`, last = '';
+  let html = `<p class="small muted">${all.length} jogos com previsão · clique num jogo para ver a análise completa</p>`, last = '';
   for (const x of rows) {
     const dl = dayLabel(x);
     if (dl !== last) { html += `<div class="day">${esc(dl)}</div>`; last = dl; }
@@ -369,44 +312,26 @@ async function openDetail(key) {
 
 // ---------- inline analysis ----------
 function detailHtml(r) {
-  const ds = r.data_status || {}, pr = r.predictions, rec = r.recommendation;
-  const tab = S.tab[r.key] || (pr ? 'probs' : 'mercados');
-  const tabs = [...(pr ? [['probs', 'Probabilidades']] : []), ['mercados', 'Odds e valor'], ...(r.statistics ? [['stats', 'Estatísticas']] : []),
-    ['odds', 'Odds por casa'], ['detalhes', 'Dados e incertezas']];
-  const tag = rec && PICK_TAG[rec.kind];
-  return `${rec ? `<div class="verdict ${esc(rec.kind)}">
-      ${rec.most_likely ? `<div class="small muted">Resultado mais provável</div><div class="big">${esc(rec.most_likely.label)} · ${pct(rec.most_likely.prob)}</div>` : ''}
-      ${rec.label && tag ? `<div style="margin-top:8px"><b>Aposta com valor: ${esc(rec.label)} @ ${num(rec.odds)}</b> <span class="small muted">${esc(rec.bookmaker)}</span>
-          ${licence(rec.licensed_pt)} <span class="badge ${tag[0]}">${tag[1]}</span> ${evBadge(rec.evidence)}</div>`
-        : `<div style="margin-top:6px"><b>Sem aposta com valor neste jogo.</b></div>`}
-      ${rec.verdict ? `<div class="small" style="margin-top:6px">${esc(rec.verdict)}</div>` : ''}
-      <p class="small" style="margin:6px 0 0">${esc(rec.text)}</p></div>` : ''}
+  const ds = r.data_status || {}, pr = r.predictions, id = r.identification;
+  if (!pr) return `<p class="muted">Sem dados suficientes para prever este jogo.</p>${detailsPane(r)}`;
+  const P = pr.probabilities, res = P['1X2'] || P.Vencedor, k = likelyOf(res);
+  const tab = S.tab[r.key] || 'probs';
+  const tabs = [['probs', 'Probabilidades'], ...(r.statistics ? [['stats', 'Estatísticas']] : []), ['detalhes', 'Dados e incertezas']];
+  return `<div class="verdict"><div class="small muted">Resultado mais provável</div>
+      <div class="big">${esc(selLabel('1X2', k, id.home, id.away))} · ${pct(res[k])}</div>
+      <div class="small muted">${['1', 'X', '2'].filter(s => res[s] != null).map(s => `${esc(selLabel('1X2', s, id.home, id.away))} ${pct(res[s])}`).join(' · ')}</div></div>
     <div class="facts">
-      ${rec?.label && tag ? `<div class="fact"><span>EV conservador</span><b>${sign(rec.ev)}</b></div><div class="fact"><span>Odd mínima</span><b>${num(rec.min_odds)}</b></div>` : ''}
-      ${pr?.expected_goals ? `<div class="fact"><span>Golos esperados</span><b>${Object.values(pr.expected_goals).map(g => num(g)).join(' – ')}</b></div>` : ''}
-      ${pr?.top_scores?.length ? `<div class="fact"><span>Resultado exato mais provável</span><b>${esc(pr.top_scores[0].score)}</b> <span class="small muted">${pct(pr.top_scores[0].prob)}</span></div>` : ''}
-      <div class="fact"><span>Confiança</span><b>${esc(ds.confidence || 'insuficiente')}</b></div>
+      ${pr.expected_goals ? `<div class="fact"><span>Golos esperados</span><b>${Object.values(pr.expected_goals).map(g => num(g)).join(' – ')}</b></div>` : ''}
+      ${pr.top_scores?.length ? `<div class="fact"><span>Resultado exato mais provável</span><b>${esc(pr.top_scores[0].score)}</b> <span class="small muted">${pct(pr.top_scores[0].prob)}</span></div>` : ''}
+      ${P['OU2.5'] && id.sport === 'Futebol' ? `<div class="fact"><span>Mais de 2.5 golos</span><b>${pct(P['OU2.5'].Mais)}</b></div>` : ''}
+      ${P.BTTS ? `<div class="fact"><span>Ambas marcam</span><b>${pct(P.BTTS.Sim)}</b></div>` : ''}
+      <div class="fact"><span>Confiança dos dados</span><b>${esc(ds.confidence || 'insuficiente')}</b></div>
       <div class="fact"><span>Analisado</span><b>${dt(ds.analysed_at)}</b></div>
     </div>
     <div class="tabs" role="tablist">${tabs.map(([t, l]) => `<button class="tab ${t === tab ? 'on' : ''}" role="tab" aria-selected="${t === tab}" data-tab="${t}">${l}</button>`).join('')}</div>
-    <div class="pane">${{probs: probsPane, mercados: marketsPane, stats: statsPane, odds: oddsPane, detalhes: detailsPane}[tab](r)}</div>`;
+    <div class="pane">${{probs: probsPane, stats: statsPane, detalhes: detailsPane}[tab](r)}</div>`;
 }
-function marketsPane(r) {
-  if (!r.markets?.length) return `<p class="muted">${esc(r.conclusion?.summary || 'Sem mercados analisados.')}</p>`;
-  const all = S.allMarkets[r.key], rows = all ? r.markets : r.markets.filter(m => m.best_odds);
-  const hidden = r.markets.length - r.markets.filter(m => m.best_odds).length, id = r.identification;
-  return `<div class="tbl"><table><tr><th>Mercado</th><th>Aposta</th><th>Prob.</th><th>Odd justa</th><th>Odd mín.</th><th>Melhor odd</th>
-      <th class="hide-sm">Casa</th><th>EV</th><th class="hide-sm">Evidência</th><th class="hide-sm">Categoria</th></tr>
-    ${rows.map(m => `<tr title="${esc(m.reasons.join('; '))}"><td>${esc(mkName(m.market))}</td><td>${esc(selLabel(m.market, m.selection, id.home, id.away, id.sport))}</td>
-      <td>${pct(m.model_prob)}</td><td>${num(m.fair_odds)}</td><td>${num(m.min_odds)}</td><td>${num(m.best_odds)}</td>
-      <td class="hide-sm">${esc(m.bookmaker || '—')}</td><td>${sign(m.ev_conservative ?? m.ev)}</td><td class="hide-sm">${m.evidence && m.best_odds ? m.evidence.score : '—'}</td>
-      <td class="hide-sm">${badge(m.category)}</td></tr>`).join('')}</table></div>
-    ${hidden ? `<p><button class="btn sm" data-all="1">${all ? 'Mostrar só mercados com odd' : `Mostrar todos os mercados (+${hidden} sem odd: dupla hipótese, empate anula, golos por equipa, handicap)`}</button></p>` : ''}
-    <p class="small muted">EV = conservador (o menor entre o nosso e o do mercado sem margem). Odd mínima = odd justa + 3%: abaixo dela não compensa.
-    Mercados sem odd mostram a probabilidade e a odd mínima para comparar na casa. Passe o rato numa linha para ver os motivos.</p>`;
-}
-// Every probability of the game, grouped like a bookmaker's markets, with the fair odds (1/p) next to each one
-const pv = p => p == null ? '—' : `<span class="pv">${pct(p)}<small>${num(1 / p)}</small></span>`;
+const pv = p => `<span class="pv">${pct(p)}</span>`;
 function lines(P, prefix) {
   return Object.keys(P).filter(k => k.startsWith(prefix) && !isNaN(+k.slice(prefix.length))).sort((a, b) => +a.slice(prefix.length) - +b.slice(prefix.length));
 }
@@ -418,25 +343,42 @@ function ouCard(P, prefix, title, note) {
     ${note ? `<div class="note">${note}</div>` : ''}</div>`;
 }
 function rowsCard(title, rows, note) {
-  return `<div class="pcard"><h4>${title}</h4><table>${rows.map(([l, p]) => `<tr><td>${esc(l)}</td><td>${pv(p)}</td></tr>`).join('')}</table>${note ? `<div class="note">${note}</div>` : ''}</div>`;
+  const best = Math.max(...rows.map(r => r[1] ?? 0));
+  return `<div class="pcard"><h4>${title}</h4><table>${rows.map(([l, p]) => `<tr><td>${esc(l)}</td><td class="${p === best ? 'hi' : ''}">${pv(p)}</td></tr>`).join('')}</table>${note ? `<div class="note">${note}</div>` : ''}</div>`;
 }
+const present = (o, keys) => keys.filter(k => o[k] != null);
+// Every probability of the game, grouped by topic
 function probsPane(r) {
   const pr = r.predictions, P = pr.probabilities, id = r.identification, [home, away] = [id.home, id.away];
   const res = P['1X2'] || P.Vencedor, cards = [];
-  if (res) cards.push(rowsCard('Resultado final', Object.keys(res).sort((a, b) => '1X2'.indexOf(a) - '1X2'.indexOf(b)).map(k => [selLabel('1X2', k, home, away), res[k]])));
-  if (P.DC) cards.push(rowsCard('Dupla hipótese e empate anula', [...['1X', '12', 'X2'].map(k => [selLabel('DC', k, home, away), P.DC[k]]),
-    ...['1', '2'].map(k => [selLabel('DNB', k, home, away), P.DNB?.[k]])], 'Empate anula: probabilidade sem contar o empate (no empate o dinheiro é devolvido).'));
+  const sl = (m, s) => selLabel(m, s, home, away);
+  cards.push(rowsCard('Resultado final', present(res, ['1', 'X', '2']).map(k => [sl('1X2', k), res[k]])));
+  if (P.DC) cards.push(rowsCard('Dupla hipótese', ['1X', '12', 'X2'].map(k => [sl('DC', k), P.DC[k]])));
+  if (P.WM) cards.push(rowsCard('Margem de vitória', present(P.WM, ['1 por 3+', '1 por 2', '1 por 1', 'X', '2 por 1', '2 por 2', '2 por 3+']).map(k => [sl('WM', k), P.WM[k]])));
   cards.push(ouCard(P, 'OU', `Total de ${UNIT[id.sport] || 'pontos'}`));
+  if (P.EG) cards.push(rowsCard('Número exato de golos', ['0', '1', '2', '3', '4+'].map(k => [`${k} golo${k === '1' ? '' : 's'}`, P.EG[k]])));
   if (P.BTTS) cards.push(rowsCard('Ambas marcam', [['Sim', P.BTTS.Sim], ['Não', P.BTTS['Não']]]));
+  if (P.CS) cards.push(rowsCard('Baliza a zeros', [[sl('CS', '1'), P.CS['1']], [sl('CS', '2'), P.CS['2']]]));
   cards.push(ouCard(P, 'GC', `Golos de ${esc(home)}`), ouCard(P, 'GF', `Golos de ${esc(away)}`));
-  if (P.HT1X2) cards.push(rowsCard('Resultado ao intervalo', ['1', 'X', '2'].map(k => [selLabel('HT1X2', k, home, away), P.HT1X2[k]]),
-    pr.halftime ? `Golos esperados na 1.ª parte: ${Object.values(pr.halftime.expected_goals).map(g => num(g)).join(' – ')} (${pct(pr.halftime.goal_share, 0)} dos golos da liga são marcados antes do intervalo).` : ''));
+  if (P.HT1X2) cards.push(rowsCard('Resultado ao intervalo', ['1', 'X', '2'].map(k => [sl('HT1X2', k), P.HT1X2[k]]),
+    pr.halftime ? `Golos esperados na 1.ª parte: ${Object.values(pr.halftime.expected_goals).map(g => num(g)).join(' – ')} (${pct(pr.halftime.goal_share, 0)} dos golos desta liga são marcados antes do intervalo).` : ''));
   cards.push(ouCard(P, 'HTOU', 'Golos ao intervalo'));
+  if (P.HTFT) {
+    const n = {'1': home, X: 'Empate', '2': away};
+    cards.push(`<div class="pcard"><h4>Intervalo / final</h4><table><tr><th>Intervalo ↓ · Final →</th>${['1', 'X', '2'].map(b => `<th>${esc(n[b])}</th>`).join('')}</tr>
+      ${['1', 'X', '2'].map(a => `<tr><td>${esc(n[a])}</td>${['1', 'X', '2'].map(b => `<td>${pv(P.HTFT[`${a}/${b}`])}</td>`).join('')}</tr>`).join('')}</table>
+      <div class="note">Linha = quem está a ganhar ao intervalo; coluna = resultado final.</div></div>`);
+  }
+  if (P['2H1X2']) cards.push(rowsCard('Segunda parte', ['1', 'X', '2'].map(k => [sl('2H1X2', k), P['2H1X2'][k]])));
+  if (P.MP) cards.push(rowsCard('Parte com mais golos', ['1ª parte', '2ª parte', 'Igual'].map(k => [sl('MP', k), P.MP[k]])));
+  const exp = (s, what) => s ? `Esperados: ${esc(home)} ${num(s.home, 1)} · ${esc(away)} ${num(s.away, 1)} (média da liga ${num(s.league_total, 1)} ${what} por jogo).` : '';
+  cards.push(ouCard(P, 'RE', 'Remates (total do jogo)', exp(pr.shots, 'remates')));
+  cards.push(ouCard(P, 'RB', 'Remates à baliza (total do jogo)', exp(pr.shots_on_target, 'remates à baliza')));
   cards.push(ouCard(P, 'CO', 'Cantos (total do jogo)', pr.corners ? `Média da liga: ${num(pr.corners.league_total, 1)} cantos por jogo. Médias recentes: ${esc(home)} ${num(pr.corners.home, 1)} · ${esc(away)} ${num(pr.corners.away, 1)}.
     As probabilidades usam a frequência real da liga no último ano: as médias de cada equipa não melhoraram a previsão no teste.` : ''));
-  cards.push(ouCard(P, 'CA', 'Cartões amarelos (total do jogo)', pr.cards ? `Esperados: ${esc(home)} ${num(pr.cards.home, 1)} · ${esc(away)} ${num(pr.cards.away, 1)} (média da liga ${num(pr.cards.league_total, 1)}). O árbitro não entra no cálculo.` : ''));
+  cards.push(ouCard(P, 'CA', 'Cartões amarelos (total do jogo)', pr.cards ? `${exp(pr.cards, 'cartões')} O árbitro não entra no cálculo.` : ''));
   const ah = Object.keys(P).filter(k => k.startsWith('AH'));
-  if (ah.length) cards.push(rowsCard('Handicap', ah.flatMap(k => ['1', '2'].map(s => [selLabel(k, s, home, away), P[k][s]]))));
+  if (ah.length) cards.push(rowsCard('Handicap', ah.flatMap(k => ['1', '2'].map(s => [sl(k, s), P[k][s]]))));
   let heat = '';
   if (pr.matrix) {
     const m = pr.matrix, mx = Math.max(...m.flat());
@@ -445,9 +387,9 @@ function probsPane(r) {
       <div class="note">Probabilidade de cada resultado, em %. Mais prováveis: ${pr.top_scores.slice(0, 5).map(s => `${esc(s.score)} (${pct(s.prob)})`).join(', ')}.</div></div>`;
   }
   return `<div class="pgrid">${cards.join('')}${heat}</div>
-    <p class="small muted">Cada célula mostra a probabilidade e, ao lado, a odd justa (1 ÷ probabilidade): uma odd abaixo dessa paga menos do que vale.
-    Resultado final, total de golos e ambas marcam combinam o modelo com o mercado; o resto vem só do modelo.
-    Intervalo e cartões foram testados em jogos reais de 2025/26 e preveem melhor do que as médias da liga; nenhum destes mercados tem odds nas fontes gratuitas, por isso não há EV.</p>`;
+    <p class="small muted">Resultado final, total de golos e ambas marcam combinam o nosso modelo com o consenso do mercado; os golos esperados são ajustados a
+    essas probabilidades, e daí saem o resultado exato, o intervalo e os golos por equipa. Remates, cartões e intervalo foram testados em jogos reais de 2025/26
+    e preveem melhor do que as médias da liga; os cantos usam a frequência da liga.</p>`;
 }
 function formTable(obj, title) {
   return `<h3>${title}</h3><div class="tbl"><table><tr><th>Equipa</th><th>J</th><th>Forma</th><th>Pts/J</th><th>GM</th><th>GS</th><th class="hide-sm">xG</th><th class="hide-sm">xGA</th></tr>
@@ -461,55 +403,38 @@ function statsPane(r) {
     <div class="grid2"><div><h3>Força (1 = média da liga)</h3><div class="tbl"><table>${st.ratings ? Object.entries(st.ratings).map(([t, x]) =>
       `<tr><td>${esc(t)}</td><td>ataque ${num(x.attack)}</td><td>defesa ${num(x.defence)}</td></tr>`).join('') : ''}
       <tr><td>Vantagem casa</td><td colspan="2">${num(st.home_advantage)}</td></tr>
-      <tr><td>Dias de descanso</td><td colspan="2">${esc(home)} ${st.rest_days[home] ?? '—'} · ${esc(away)} ${st.rest_days[away] ?? '—'}</td></tr></table></div></div>
+      <tr><td>Dias de descanso</td><td colspan="2">${esc(home)} ${st.rest_days[home] ?? '—'} · ${esc(away)} ${st.rest_days[away] ?? '—'}</td></tr></table></div>
+      <p class="small muted">Ataque acima de 1 = marca mais do que a média; defesa acima de 1 = sofre mais.</p></div>
     <div><h3>Confrontos diretos</h3>${st.h2h.length ? `<div class="tbl"><table>${st.h2h.map(g => `<tr><td>${esc(g.date)}</td><td>${esc(g.home)} ${esc(g.score)} ${esc(g.away)}</td></tr>`).join('')}</table></div>` : '<p class="muted">Sem confrontos no período.</p>'}
-    ${pr?.top_scores?.length ? `<h3>Resultados mais prováveis</h3><p>${pr.top_scores.slice(0, 5).map(s => `${esc(s.score)} <span class="muted">(${pct(s.prob)})</span>`).join(' · ')}</p>` : ''}</div></div>`;
-}
-function oddsPane(r) {
-  const books = Object.entries(r.odds || {}).filter(([, b]) => Object.keys(b).length);
-  const oh = r.odds_history, [home, away] = [r.identification.home, r.identification.away];
-  return `${oh ? `<h3>Movimento da melhor odd — ${esc(mkName(oh.market))}</h3><div class="tbl"><table><tr><th>Aposta</th><th>Primeira</th><th>Atual</th><th>Variação</th><th class="hide-sm">Evolução</th></tr>
-      ${Object.entries(oh.series).map(([s, pts]) => { const a = pts[0][1], b = pts[pts.length - 1][1];
-        return `<tr><td>${esc({'1': home, X: 'Empate', '2': away}[s] || s)}</td><td>${num(a)} <span class="small muted">${dt(pts[0][0])}</span></td><td>${num(b)}</td><td>${sign(b / a - 1)}</td><td class="hide-sm">${spark(pts)}</td></tr>`; }).join('')}</table></div>` : ''}
-    ${r.alerts?.length ? `<div class="warn">Variações de odds: ${r.alerts.map(a => `${esc(mkName(a.market))} ${esc(a.selection)} ${esc(a.bookmaker)} ${num(a.first_odds)}→${num(a.last_odds)}`).join('; ')}</div>` : ''}
-    ${books.map(([mk, bk]) => {
-      // selection order and "best" come from the markets table: JS objects reorder numeric keys ("1","2" before "X")
-      const rows = r.markets.filter(x => x.market === mk), sels = rows.map(x => x.selection), best = Object.fromEntries(rows.map(x => [x.selection, x.best_odds]));
-      return `<h3>Odds por casa — ${esc(mkName(mk))}</h3><div class="tbl"><table><tr><th>Casa</th>${sels.map(s => `<th>${esc(s)}</th>`).join('')}</tr>
-      ${Object.entries(bk).map(([b, s]) => `<tr><td>${esc(b)}</td>${sels.map(x => `<td class="${s[x] === best[x] ? 'best' : ''}">${num(s[x])}</td>`).join('')}</tr>`).join('')}</table></div>`; }).join('') || '<p class="muted">Sem odds para este jogo.</p>'}`;
+    ${pr?.model_expected_goals ? `<h3>Golos esperados</h3><p class="small">Final: ${Object.values(pr.expected_goals).map(g => num(g)).join(' – ')} · só o nosso modelo: ${Object.values(pr.model_expected_goals).map(g => num(g)).join(' – ')}</p>` : ''}</div></div>`;
 }
 function detailsPane(r) {
   const ds = r.data_status || {}, c = r.conclusion, pr = r.predictions;
-  return `${ds.model_validation ? `<div class="${ds.model_validation.validated ? 'small muted' : 'warn'}">Validação do modelo: ${esc(ds.model_validation.reason)}</div>` : ''}
-    ${ds.error ? `<div class="warn">${esc(ds.error)}</div>` : ''}
-    <h3>Conclusão</h3><p><b>${esc(c.summary)}</b></p>
-    ${c.against.length ? `<ul>${c.against.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
-    <h3>Incertezas</h3><ul>${c.uncertainties.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
-    <h3>Método e fontes</h3><p class="small">${pr ? esc(pr.method) + '. ' : ''}${ds.results ? `Resultados: ${esc(ds.results.source)}, ${ds.results.matches} jogos (último ${esc(ds.results.last_result)}). ` : ''}
-    ${(ds.odds || []).map(o => `Odds: ${esc(o.source)} — ${esc(o.note)}${o.fetched_at ? ` (${dt(o.fetched_at)})` : ''}.`).join(' ')}</p>`;
+  return `<h3>Incertezas</h3><ul>${(c?.uncertainties || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+    <h3>Método e fontes</h3><p class="small">${pr ? esc(pr.method) + '. ' : ''}${ds.results ? `Resultados e estatísticas: ${esc(ds.results.source)}, ${ds.results.matches} jogos (último ${esc(ds.results.last_result)}). ` : ''}
+    ${(ds.odds || []).length ? 'O consenso do mercado entra como referência para afinar as probabilidades.' : ''}</p>
+    ${ds.error ? `<div class="warn">${esc(ds.error)}</div>` : ''}`;
 }
 function bindDetail(box, key) {
   box.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { S.tab[key] = b.dataset.tab; openDetail(key); });
-  box.querySelectorAll('[data-all]').forEach(b => b.onclick = () => { S.allMarkets[key] = !S.allMarkets[key]; openDetail(key); });
 }
 
 // ---------- how it works ----------
 async function renderHow() {
   const box = document.getElementById('how-body');
-  const perf = await api('/api/performance').catch(() => null), pm = perf ? Object.entries(perf.markets) : [];
-  box.innerHTML = `<h3>Desempenho ao vivo</h3>${pm.length ? `<p class="muted">${esc(perf.note)} Log loss e Brier: menor é melhor. «Apostas» = seleções com EV positivo, ao preço registado, stake 1u.</p>
-      <div class="tbl"><table><tr><th>Mercado</th><th>Jogos</th><th>Log loss</th><th>Brier</th><th>Apostas</th><th>Lucro</th><th>ROI</th></tr>
-      ${pm.map(([g, m]) => `<tr><td>${esc(g === 'todos' ? 'Todos' : g === 'outros' ? 'Outros mercados' : mkName(g))}</td><td>${m.games}</td><td>${num(m.log_loss, 4)}</td><td>${num(m.brier, 4)}</td>
-      <td>${m.bets}</td><td>${num(m.profit)}u</td><td>${sign(m.roi)}</td></tr>`).join('')}</table></div>` : '<p class="muted">Ainda não há previsões com resultado conhecido.</p>'}
-    <h3>Como é feita a análise</h3><ul>
-      <li><b>Previsão</b>: o resultado mais provável segundo as probabilidades do jogo. Ser provável não quer dizer que valha a pena apostar.</li>
-      <li><b>Aposta com valor</b>: só aparece quando a melhor odd paga mais do que a probabilidade estimada, depois de retirada a margem das casas. Sem isso, o site diz «sem aposta com valor».</li>
-      <li><b>Futebol</b>: modelo Dixon-Coles (golos de cada equipa por ataque, defesa e vantagem de casa, com mais peso aos jogos recentes), combinado com o mercado sem margem (método de Shin) com pesos validados fora da amostra em 8 épocas e 21 ligas.</li>
-      <li><b>Outras modalidades</b>: consenso das casas sem margem. Sem modelo próprio nem backtest, por isso nunca aparecem como «valor potencial».</li>
-      <li><b>Evidência (0–100)</b>: casas com preço, histórico das equipas, validação da liga e acordo modelo/mercado. Não é a probabilidade de ganhar.</li>
-      <li><b>Valor potencial</b> só aparece se o backtest dessa liga mostrar o modelo tão preciso como as odds de fecho e com CLV positivo. Até hoje nenhuma liga passou: o mercado é difícil de bater.</li>
-      <li>Fórmulas: probabilidade implícita = 1/odd · odd justa = 1/probabilidade · EV = probabilidade × odd − 1.</li></ul>
-    <h3>Limitações</h3><ul><li>Sem lesões, suspensões, onzes nem meteorologia: confirme antes de apostar.</li><li>Só jogos do campeonato contam para a força das equipas.</li>
+  const perf = await api('/api/performance').catch(() => null), pm = perf ? Object.entries(perf.markets).filter(([g]) => g !== 'outros') : [];
+  const name = {todos: 'Todas as previsões', '1X2': 'Resultado final', Vencedor: 'Vencedor (outras modalidades)', 'OU2.5': 'Mais/menos de 2.5 golos', BTTS: 'Ambas marcam'};
+  box.innerHTML = `<h3>Acerto das previsões</h3>${pm.length ? `<p class="muted">Previsões publicadas por este site, comparadas com o resultado real. Log loss e Brier medem o erro: menor é melhor.</p>
+      <div class="tbl"><table><tr><th>Previsão</th><th>Jogos</th><th>Log loss</th><th>Brier</th></tr>
+      ${pm.map(([g, m]) => `<tr><td>${esc(name[g] || g)}</td><td>${m.games}</td><td>${num(m.log_loss, 4)}</td><td>${num(m.brier, 4)}</td></tr>`).join('')}</table></div>` : '<p class="muted">Ainda não há previsões com resultado conhecido.</p>'}
+    <h3>Como é feita a previsão</h3><ul>
+      <li><b>Futebol</b>: modelo Dixon-Coles — os golos de cada equipa dependem do seu ataque, da defesa do adversário e da vantagem de jogar em casa, com mais peso aos jogos recentes.
+        A probabilidade final combina este modelo com o consenso do mercado, com pesos testados em 8 épocas e 21 ligas.</li>
+      <li>Os golos esperados são ajustados a essas probabilidades finais; daí sai a grelha de resultados exatos, de onde vêm golos por equipa, intervalo, margem de vitória e handicap — tudo coerente entre si.</li>
+      <li><b>Remates e cartões</b>: médias recentes de cada equipa, puxadas para a média da liga. <b>Cantos</b>: frequência da liga no último ano.</li>
+      <li><b>Outras modalidades</b>: consenso do mercado; ainda sem modelo próprio.</li>
+      <li><b>Confiança dos dados</b>: quantos jogos de histórico têm as equipas. Não é a probabilidade do resultado.</li></ul>
+    <h3>Limitações</h3><ul><li>Sem lesões, suspensões, onzes nem meteorologia.</li><li>Só jogos do campeonato contam para a força das equipas.</li>
       <li>Os dados são atualizados de hora a hora (o GitHub pode atrasar algumas atualizações). Esta página verifica dados novos a cada 5 minutos.</li></ul>`;
 }
 
