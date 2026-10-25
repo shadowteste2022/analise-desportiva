@@ -9,7 +9,7 @@ import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 
-from app import analysis, backtest, db, sports, world
+from app import analysis, backtest, db, sports, tables, world
 from app.config import ROOT, settings
 from app.data import api_football, football_data as fd, odds_api, odds_api_io, oddspapi
 
@@ -82,6 +82,11 @@ def export(out: Path) -> dict:
     _write(data / "performance.json", analysis.performance(analysis.settled_history(200000)))
     _write(data / "alerts.json", analysis.public_alerts(db.odds_moves()))
     _write(data / "backtests.json", backtest.load_all())
+    try:
+        _write(data / "tables.json", tables.all_tables())
+    except Exception:  # the tables are an extra: never block the site
+        log.exception("Falha nas classificações simuladas")
+        _write(data / "tables.json", [])
     page = (FRONTEND / "index.html").read_text(encoding="utf-8")
     page = page.replace("</head>", "<script>window.STATIC = true;</script>\n</head>", 1)
     (out / "index.html").write_text(page, encoding="utf-8")

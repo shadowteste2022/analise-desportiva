@@ -170,6 +170,7 @@ def test_performance_uses_latest_estimate_per_selection():
     t = out["markets"]["todos"]
     assert t["selections"] == 2 and t["bets"] == 1 and t["profit"] == pytest.approx(0.9)  # void DNB left out
     assert t["brier"] == pytest.approx(((0.6 - 1) ** 2 + 0.2 ** 2) / 2)
+    assert out["most_likely"] == {"games": 1, "hit": 1, "rate": 1.0, "expected": 0.6}  # home win (60%) happened
 
 
 def test_halftime_and_count_markets():

@@ -9,7 +9,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Query
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse
 
-from app import analysis, backtest, db, sports, world
+from app import analysis, backtest, db, sports, tables, world
 from app.config import ROOT, settings
 from app.data import odds_api, odds_api_io
 
@@ -106,6 +106,11 @@ def history(limit: int = Query(500, ge=1, le=5000)):
 @app.get("/api/performance")
 def performance():
     return analysis.performance(analysis.settled_history(5000))
+
+
+@app.get("/api/tables")
+def league_tables():
+    return tables.all_tables()
 
 
 @app.get("/api/alerts")

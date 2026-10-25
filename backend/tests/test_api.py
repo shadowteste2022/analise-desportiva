@@ -127,3 +127,10 @@ def test_predictions_without_odds_are_logged_once():
            "category": "SEM DADOS SUFICIENTES", "confidence": "alta", "model_version": "t"}
     db.log_predictions([row]); db.log_predictions([row])  # hourly re-run, still no price
     assert sum(r["match_key"] == row["match_key"] for r in db.history(5000)) == 1
+
+
+def test_explanation_in_plain_words(client):
+    fx = client.get("/api/fixtures").json()["fixtures"][0]
+    r = client.get("/api/match", params={"key": fx["key"]}).json()
+    text = " ".join(r["explanation"])
+    assert "Ataque:" in text and "Golos esperados" in text and "resultado mais provável" in text

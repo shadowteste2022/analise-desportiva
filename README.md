@@ -284,6 +284,12 @@ frontend/index.html      interface de página única (HTML + JS, sem dependênci
   ficam registados em `DATA_DIR/api_football`, que o job diário guarda. O modelo Dixon-Coles é treinado com esse
   histórico; sem odds, a confiança fica no máximo «baixa» enquanto o histórico for sobretudo de 2024. Jogos que outra
   fonte já cobre não se repetem.
+- **«Porquê?»**: cada previsão traz frases simples tiradas dos próprios números (ataque e defesa face à média, casa,
+  forma, golos esperados, e se o mercado concorda com o modelo).
+- **Classificações simuladas** (`/api/tables`, `tables.json`): tabela atual e o resto da época simulado 10 000 vezes
+  com o modelo de golos — pontos previstos, probabilidade de ser campeão, top 4 e descida. Só ligas de calendário
+  simples a duas voltas (fora: Escócia, Bélgica, Grécia e as ligas extra).
+- **Acerto público**: quantas vezes aconteceu o resultado mais provável, ao lado da probabilidade média prevista.
 - **Odd mínima** = odd justa × (1 + `EV_MARGIN`): abaixo dela a aposta não compensa a margem de segurança.
 - **Qualidade da evidência** (0–100, separada da probabilidade): 4 partes de 25 — n.º de casas com preço, histórico das
   equipas, validação fora da amostra da liga e acordo entre o modelo e o mercado sem margem. «forte» exige liga validada.

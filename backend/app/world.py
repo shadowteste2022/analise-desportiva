@@ -84,6 +84,7 @@ def report(game: dict, model, df: pd.DataFrame) -> dict:
         "method": "Dixon-Coles com decaimento temporal (ξ=%.4f/dia), treinado em %d jogos desta liga até %s"
                   % (settings.time_decay_xi, len(df), status["results"]["last_result"])}
     out["conclusion"] = analysis._conclusion([], conf, notes)
+    out["explanation"] = analysis.explain(out)
     return out
 
 

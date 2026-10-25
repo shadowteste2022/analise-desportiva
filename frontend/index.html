@@ -91,6 +91,12 @@ th{color:var(--muted);font-weight:600;font-size:12px;background:var(--soft)}
 .heat td{text-align:center;font-size:12px;padding:4px}
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
 ul{margin:4px 0;padding-left:20px}
+.why{margin:8px 0 0;padding-left:18px;font-size:13px} .why li{margin:2px 0}
+.tables{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-top:16px;box-shadow:var(--shadow)}
+.tables summary{cursor:pointer;font-weight:700;font-size:15px}
+.tables select{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:7px 10px;margin:10px 0}
+.bar{display:inline-block;height:6px;border-radius:3px;background:var(--accent);vertical-align:middle;margin-left:6px}
+.zone-rel td:first-child{box-shadow:inset 3px 0 var(--p2)} .zone-top td:first-child{box-shadow:inset 3px 0 var(--accent)}
 details.how{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-top:24px}
 details.how summary{cursor:pointer;font-weight:600}
 footer{max-width:1100px;margin:0 auto;padding:8px 16px 32px;color:var(--muted);font-size:12px}
@@ -202,6 +208,7 @@ function renderShell() {
   const comps = [...new Map(fx.map(x => [x.league, x])).values()]
     .sort((a, b) => (a.sport !== 'Futebol') - (b.sport !== 'Futebol') || a.competition.localeCompare(b.competition));
   $app.innerHTML = `<section id="highlights"></section>
+    <details class="tables" id="tables"><summary>Classificações e previsão do fim da época</summary><div id="tables-body"><p class="muted small">A carregar…</p></div></details>
     <h2>Jogos</h2>
     <div class="filters">
       <div class="chips" role="group" aria-label="Quando">${[['all', 'Todos'], ['0', 'Hoje'], ['1', 'Amanhã'], ['7', '7 dias']].map(([v, l]) =>
@@ -225,6 +232,7 @@ function renderShell() {
   fc.checked = S.f.onlyForecast;
   fc.onchange = () => { S.f.onlyForecast = fc.checked; upd(); };
   document.getElementById('how').ontoggle = e => e.target.open && renderHow();
+  document.getElementById('tables').ontoggle = e => e.target.open && renderTables();
   renderHighlights(); renderList();
 }
 
@@ -243,7 +251,11 @@ function renderHighlights() {
   document.getElementById('highlights').innerHTML = fx.length ? `<h2>Destaques do dia</h2><div class="hero">${groups.map(([title, rows, show]) => `<div class="hl"><h4>${title}</h4>
     ${rows.slice(0, 3).map(x => { const [l, v] = show(x); return `<div class="it" data-go="${esc(x.key)}" tabindex="0" role="button">
       <span><b>${esc(x.home)} – ${esc(x.away)}</b><span class="small muted">${x.kickoff ? hm(x.kickoff) : ''} · ${esc(l)}</span></span><em>${v}</em></div>`; }).join('') || '<p class="small muted">Sem jogos.</p>'}</div>`).join('')}</div>
-    <p class="small muted">Jogos das próximas 24 horas. «Mais claras» = o resultado mais provável tem a probabilidade mais alta; mesmo assim pode falhar.</p>` : '';
+    <p class="small muted">Jogos das próximas 24 horas. «Mais claras» = o resultado mais provável tem a probabilidade mais alta; mesmo assim pode falhar.
+    <span id="hits"></span></p>` : '';
+  api('/api/performance').then(p => { const h = p.most_likely, el = document.getElementById('hits');
+    if (el && h?.games >= 20) el.innerHTML = `<b>Acerto até agora:</b> o resultado mais provável aconteceu em ${h.hit} de ${h.games} jogos (${pct(h.rate, 0)}); as previsões apontavam, em média, para ${pct(h.expected, 0)}.`;
+  }).catch(() => {});
   document.querySelectorAll('[data-go]').forEach(el => el.onclick = el.onkeydown = e => {
     if (e.type === 'keydown' && e.key !== 'Enter') return;
     goTo(el.dataset.go);
@@ -324,7 +336,8 @@ function detailHtml(r) {
   const tabs = [['probs', 'Probabilidades'], ...(r.statistics ? [['stats', 'Estatísticas']] : []), ['detalhes', 'Dados e incertezas']];
   return `<div class="verdict"><div class="small muted">Resultado mais provável</div>
       <div class="big">${esc(selLabel('1X2', k, id.home, id.away))} · ${pct(res[k])}</div>
-      <div class="small muted">${['1', 'X', '2'].filter(s => res[s] != null).map(s => `${esc(selLabel('1X2', s, id.home, id.away))} ${pct(res[s])}`).join(' · ')}</div></div>
+      <div class="small muted">${['1', 'X', '2'].filter(s => res[s] != null).map(s => `${esc(selLabel('1X2', s, id.home, id.away))} ${pct(res[s])}`).join(' · ')}</div>
+      ${r.explanation?.length ? `<div class="small" style="margin-top:8px"><b>Porquê?</b></div><ul class="why">${r.explanation.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}</div>
     <div class="facts">
       ${pr.expected_goals ? `<div class="fact"><span>Golos esperados</span><b>${Object.values(pr.expected_goals).map(g => num(g)).join(' – ')}</b></div>` : ''}
       ${pr.top_scores?.length ? `<div class="fact"><span>Resultado exato mais provável</span><b>${esc(pr.top_scores[0].score)}</b> <span class="small muted">${pct(pr.top_scores[0].prob)}</span></div>` : ''}
@@ -424,12 +437,35 @@ function bindDetail(box, key) {
   box.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { S.tab[key] = b.dataset.tab; openDetail(key); });
 }
 
+// ---------- league tables ----------
+let tablesData = null;
+async function renderTables() {
+  const box = document.getElementById('tables-body');
+  try { tablesData = tablesData || await api('/api/tables'); } catch (e) { box.innerHTML = err(e); return; }
+  if (!tablesData.length) { box.innerHTML = '<p class="muted small">Sem classificações disponíveis.</p>'; return; }
+  const sel = store.get('table-league') || tablesData[0].league;
+  box.innerHTML = `<select id="t-league" aria-label="Campeonato">${tablesData.map(t => `<option value="${esc(t.league)}" ${t.league === sel ? 'selected' : ''}>${esc(t.competition)}</option>`).join('')}</select><div id="t-body"></div>`;
+  const show = lg => {
+    const t = tablesData.find(x => x.league === lg) || tablesData[0], n = t.teams.length;
+    const bar = p => `${pct(p, 0)}<span class="bar" style="width:${Math.round(p * 50)}px"></span>`;
+    document.getElementById('t-body').innerHTML = `<div class="tbl"><table><tr><th>#</th><th>Equipa</th><th>J</th><th>Pts</th><th class="hide-sm">DG</th>
+      <th>Pts previstos</th><th>Campeão</th><th class="hide-sm">Top 4</th><th>Descida</th></tr>
+      ${t.teams.map((r, i) => `<tr class="${i < 4 ? 'zone-top' : i >= n - t.relegation_places ? 'zone-rel' : ''}"><td>${i + 1}</td><td><b>${esc(r.team)}</b></td><td>${r.played}</td><td>${r.points}</td>
+      <td class="hide-sm">${r.gd > 0 ? '+' : ''}${r.gd}</td><td>${num(r.expected_points, 0)}</td><td>${bar(r.p_title)}</td><td class="hide-sm">${pct(r.p_top4, 0)}</td><td>${bar(r.p_relegation)}</td></tr>`).join('')}</table></div>
+      <p class="small muted">Classificação atual (dados até ${esc(t.last_result)}) e o resto da época — ${t.remaining_games} jogos — simulado ${t.sims.toLocaleString('pt-PT')} vezes com o modelo de golos.
+      «Descida» = acabar nos últimos ${t.relegation_places} lugares; as regras de cada liga (play-offs, liguilhas) podem ser diferentes.</p>`;
+  };
+  document.getElementById('t-league').onchange = e => { store.set('table-league', e.target.value); show(e.target.value); };
+  show(sel);
+}
+
 // ---------- how it works ----------
 async function renderHow() {
   const box = document.getElementById('how-body');
   const perf = await api('/api/performance').catch(() => null), pm = perf ? Object.entries(perf.markets).filter(([g]) => g !== 'outros') : [];
   const name = {todos: 'Todas as previsões', '1X2': 'Resultado final', Vencedor: 'Vencedor (outras modalidades)', 'OU2.5': 'Mais/menos de 2.5 golos', BTTS: 'Ambas marcam'};
-  box.innerHTML = `<h3>Acerto das previsões</h3>${pm.length ? `<p class="muted">Previsões publicadas por este site, comparadas com o resultado real. Log loss e Brier medem o erro: menor é melhor.</p>
+  const h = perf?.most_likely;
+  box.innerHTML = `<h3>Acerto das previsões</h3>${h?.games ? `<p>O resultado mais provável aconteceu em <b>${h.hit} de ${h.games}</b> jogos (${pct(h.rate, 0)}); as previsões apontavam, em média, para ${pct(h.expected, 0)} — se os dois números forem próximos, as probabilidades estão bem calibradas.</p>` : ''}${pm.length ? `<p class="muted">Previsões publicadas por este site, comparadas com o resultado real. Log loss e Brier medem o erro: menor é melhor.</p>
       <div class="tbl"><table><tr><th>Previsão</th><th>Jogos</th><th>Log loss</th><th>Brier</th></tr>
       ${pm.map(([g, m]) => `<tr><td>${esc(name[g] || g)}</td><td>${m.games}</td><td>${num(m.log_loss, 4)}</td><td>${num(m.brier, 4)}</td></tr>`).join('')}</table></div>` : '<p class="muted">Ainda não há previsões com resultado conhecido.</p>'}
     <h3>Como é feita a previsão</h3><ul>

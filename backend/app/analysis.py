@@ -549,6 +549,7 @@ def analyze(row, fx_meta: dict, log: bool = True) -> dict:
     report["markets"] = rows
     report["odds"] = public_odds(odds)
     report["conclusion"] = _conclusion(rows, conf, notes)
+    report["explanation"] = explain(report)
     report["recommendation"] = recommend(rows, home, away)
     if log:
         db.log_predictions([{"match_key": key, "league": league, "match_date": when.date().isoformat(),
@@ -659,7 +660,15 @@ def performance(rows: list[dict]) -> dict:
             calib.append({"from": k / 10, "to": (k + 1) / 10, "n": len(b),
                           "predicted": round(float(np.mean([pp for pp, _ in b])), 4),
                           "observed": round(float(np.mean([w for _, w in b])), 4)})
-    return {"markets": out, "calibration": calib,
+    # how often the most likely result happened: the number most visitors look for
+    best: dict[str, dict] = {}
+    for r in latest.values():
+        if r["market"] in ("1X2", "Vencedor") and r["model_prob"] > best.get(r["match_key"], {}).get("model_prob", -1):
+            best[r["match_key"]] = r
+    hits = {"games": len(best), "hit": sum(bool(r["won"]) for r in best.values()),
+            "rate": round(sum(bool(r["won"]) for r in best.values()) / len(best), 4) if best else None,
+            "expected": round(float(np.mean([r["model_prob"] for r in best.values()])), 4) if best else None}
+    return {"markets": out, "calibration": calib, "most_likely": hits,
             "note": "Previsões ao vivo registadas por este site; amostras pequenas não permitem conclusões."}
 
 
@@ -680,3 +689,51 @@ def odds_timeline(match_key: str) -> dict | None:
             if not pts or pts[-1][1] != best:
                 pts.append([t, best])
     return {"market": rows[0]["market"], "series": series}
+
+
+def explain(r: dict) -> list[str]:
+    """Plain-language reasons behind a forecast, from the numbers already in the report."""
+    pr, st, ident = r.get("predictions"), r.get("statistics"), r["identification"]
+    if not pr:
+        return []
+    home, away, sport = ident["home"], ident["away"], ident["sport"]
+    probs = pr["probabilities"]
+    res = probs.get("1X2") or probs.get("Vencedor")
+    if not res:
+        return []
+    def label(s):
+        return pick_label("1X2", s, home, away, sport)
+    def attack(x):
+        return "na média da liga" if abs(x - 1) < 0.03 else f"{abs(x - 1):.0%} {'acima' if x > 1 else 'abaixo'} da média da liga"
+    def conceded(x):  # defence rating above 1 = concedes more
+        return "golos na média da liga" if abs(x - 1) < 0.03 else f"{abs(x - 1):.0%} {'mais' if x > 1 else 'menos'} golos do que a média"
+    out = []
+    if st and st.get("ratings"):
+        ra, rb = st["ratings"][home], st["ratings"][away]
+        out.append(f"Ataque: o do {home} está {attack(ra['attack'])}; o do {away}, {attack(rb['attack'])}.")
+        out.append(f"Defesa: o {home} sofre {conceded(ra['defence'])}; o {away}, {conceded(rb['defence'])}.")
+        out.append(f"Jogar em casa vale cerca de +{st['home_advantage'] - 1:.0%} de golos nesta liga.")
+    if st and st.get("form"):
+        f1, f2 = st["form"].get(home, {}), st["form"].get(away, {})
+        if f1.get("matches") and f2.get("matches"):
+            out.append(f"Forma recente: {home} {f1['form']} ({f1['points_per_game']:.1f} pontos por jogo), "
+                       f"{away} {f2['form']} ({f2['points_per_game']:.1f}).")
+    k = max(res, key=res.get)
+    if pr.get("expected_goals"):
+        lam, mu = pr["expected_goals"].values()
+        out.append(f"Golos esperados {lam:.2f} – {mu:.2f}: o resultado mais provável é {label(k)} ({res[k]:.0%}).")
+    model = (pr.get("model_probabilities") or {}).get("1X2")
+    if model and pr.get("blend"):
+        s = max(res, key=lambda x: abs(res[x] - model[x]))
+        if abs(res[s] - model[s]) >= 0.05:
+            out.append(f"O mercado dá {res[s]:.0%} a «{label(s)}», o nosso modelo {model[s]:.0%}. O mercado costuma refletir "
+                       "informação recente (lesões, onzes, treinador) que o modelo não vê, por isso a previsão final segue-o.")
+        else:
+            out.append("O nosso modelo e o consenso do mercado concordam (diferença inferior a 5 pontos).")
+    elif not pr.get("model_probabilities"):
+        out.append(f"Probabilidades do consenso do mercado sem a margem ({r['data_status'].get('bookmakers') or 1} casa(s)): "
+                   "ainda sem modelo próprio para esta competição.")
+    conf = (r.get("data_status") or {}).get("confidence")
+    if conf in ("baixa", "muito baixa"):
+        out.append("Confiança baixa: há pouca informação sobre estas equipas, a previsão pode estar longe da realidade.")
+    return out

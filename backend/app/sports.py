@@ -190,6 +190,7 @@ def build(sport_key: str, sport: str, competition: str, home: str, away: str, ki
         if probs else None,
         "markets": rows, "odds": analysis.public_odds(odds), "conclusion": analysis._conclusion(rows, conf, list(notes)),
         "recommendation": analysis.recommend(rows, home, away, sport)}
+    report["explanation"] = analysis.explain(report)
     if log and rows:
         db.log_predictions([{"match_key": key, "league": sport_key, "match_date": kick.date().isoformat(),
                              "home": home, "away": away, "market": r["market"], "selection": r["selection"],
