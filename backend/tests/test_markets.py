@@ -170,3 +170,24 @@ def test_performance_uses_latest_estimate_per_selection():
     t = out["markets"]["todos"]
     assert t["selections"] == 2 and t["bets"] == 1 and t["profit"] == pytest.approx(0.9)  # void DNB left out
     assert t["brier"] == pytest.approx(((0.6 - 1) ** 2 + 0.2 ** 2) / 2)
+
+
+def test_halftime_and_count_markets():
+    ht = mk.halftime_markets(1.6, 1.1, 0.45)
+    assert sum(ht["HT1X2"].values()) == pytest.approx(1) and ht["HT1X2"]["X"] > 0.35  # few goals before half-time
+    assert ht["HTOU0.5"]["Mais"] == pytest.approx(1 - np.exp(-(1.6 + 1.1) * 0.45), abs=1e-3)
+    nb, po = mk.count_markets("CO", 10.0, 2.0, (9.5,)), mk.count_markets("CO", 10.0, 1.0, (9.5,))
+    assert 0.3 < nb["CO9.5"]["Mais"] < 0.6 and nb["CO9.5"]["Mais"] + nb["CO9.5"]["Menos"] == pytest.approx(1)
+    assert po["CO9.5"]["Mais"] == pytest.approx(1 - poisson.cdf(9, 10))
+    from app.analysis import outcome
+    assert outcome("HT1X2", "X", 2, 1, {"HTHG": 0, "HTAG": 0}) and outcome("CO9.5", "Mais", 0, 0, {"HC": 6, "AC": 4})
+    assert outcome("CA3.5", "Menos", 1, 1, {}) is None  # no card data: unsettled, not lost
+
+
+def test_calibrated_goals_reproduce_final_probabilities(league):
+    from app.analysis import _calibrate
+    from app.models import dixon_coles
+    model = dixon_coles.fit(league, 0.0019)
+    lam, mu = model.expected_goals("Team09", "Team00")
+    target = mk.market_probs(model.matrix(1.9, 1.05))  # what a market-informed final estimate could say
+    assert _calibrate(model, lam, mu, target) == pytest.approx((1.9, 1.05), abs=0.01)

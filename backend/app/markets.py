@@ -1,6 +1,7 @@
 """Market probabilities from a scoreline matrix, margin removal, EV and opportunity classification."""
 import numpy as np
 from scipy.optimize import brentq
+from scipy.stats import nbinom, poisson
 
 from app.config import settings
 
@@ -139,3 +140,33 @@ def evidence(n_books: int, history: str | None, validation: dict, model_p: float
     # "forte" needs out-of-sample validation: without it, agreement and breadth alone cannot show an edge
     strong = score >= 70 and validation.get("validated")
     return {"score": score, "label": "forte" if strong else "moderada" if score >= 40 else "fraca", "parts": parts}
+
+
+HT_LINES = (0.5, 1.5, 2.5)
+CORNER_LINES = (7.5, 8.5, 9.5, 10.5, 11.5, 12.5)
+CARD_LINES = (2.5, 3.5, 4.5, 5.5, 6.5)
+
+
+def halftime_markets(lam: float, mu: float, share: float) -> dict[str, dict[str, float]]:
+    """First-half result and goals: independent Poisson with the full-time expected goals scaled by the share of goals
+    the league scores before half-time (the low-score correction of Dixon-Coles is left out)."""
+    g = np.arange(8)
+    m = np.outer(poisson.pmf(g, lam * share), poisson.pmf(g, mu * share))
+    m /= m.sum()
+    i, j = np.indices(m.shape)
+    out = {"HT1X2": {"1": m[i > j].sum(), "X": m[i == j].sum(), "2": m[i < j].sum()}}
+    for line in HT_LINES:
+        over = m[i + j > line].sum()
+        out[f"HTOU{line}"] = {"Mais": over, "Menos": 1 - over}
+    return {k: {s: float(p) for s, p in v.items()} for k, v in out.items()}
+
+
+def count_markets(prefix: str, mean: float, dispersion: float, lines: tuple) -> dict[str, dict[str, float]]:
+    """Over/under for a match count (corners, cards). Negative binomial with variance = mean x dispersion, because
+    these counts vary more than a Poisson; Poisson when the league shows no extra variance."""
+    out = {}
+    for line in lines:
+        k = int(np.floor(line))
+        cdf = poisson.cdf(k, mean) if dispersion <= 1.05 else nbinom.cdf(k, mean / (dispersion - 1), 1 / dispersion)
+        out[f"{prefix}{line}"] = {"Mais": float(1 - cdf), "Menos": float(cdf)}
+    return out

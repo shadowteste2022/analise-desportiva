@@ -11,6 +11,8 @@ import pandas as pd
 from app import db, markets as mk
 from app.config import settings
 from app.data import football_data as fd, odds_api, odds_api_io, oddspapi, srij
+from scipy.optimize import minimize
+
 from app.models import blend, dixon_coles
 
 MODEL_VERSION = "dixon-coles-v1"
@@ -25,7 +27,10 @@ def _excluded(book: str) -> bool:
 MEMO_SECONDS = 300
 NO_OPPORTUNITY = ("Não foi identificada uma oportunidade com valor estatístico suficientemente convincente nas "
                   "condições atuais.")
-STAT_COLS = ["Date", "HomeTeam", "AwayTeam", "FTHG", "FTAG", "HxG", "AxG"]
+STAT_COLS = ["Date", "HomeTeam", "AwayTeam", "FTHG", "FTAG", "HxG", "AxG", "HTHG", "HTAG", "HC", "AC", "HY", "AY"]
+COUNT_WINDOW_DAYS = 365  # corner and card rates from the last year: squads and refereeing standards change
+COUNT_MIN_MATCHES = 5
+COUNT_SHRINK = 10  # team rates pulled to the league mean as if it were 10 extra matches (chosen on 2024/25)
 _models: dict[str, tuple] = {}
 _validation_cache: dict[tuple, dict] = {}
 _lock = threading.Lock()
@@ -83,6 +88,52 @@ def _h2h(df: pd.DataFrame, home: str, away: str, before, n: int = 6) -> list[dic
              "score": f"{int(r.FTHG)}-{int(r.FTAG)}"} for r in d.itertuples()]
 
 
+def _calibrate(model, lam: float, mu: float, probs: dict) -> tuple[float, float]:
+    """Expected goals whose scoreline distribution reproduces the final (model + market) result and over 2.5
+    probabilities. Scorelines, team goals, handicaps and half-time then agree with the headline numbers instead of
+    showing the model alone (which the backtest gives ~zero weight)."""
+    t1, tx, to = probs["1X2"]["1"], probs["1X2"]["X"], probs["OU2.5"]["Mais"]
+
+    def loss(x):
+        m = model.matrix(*np.exp(x))
+        i, j = np.indices(m.shape)
+        return (m[i > j].sum() - t1) ** 2 + (m[i == j].sum() - tx) ** 2 + (m[i + j > 2.5].sum() - to) ** 2
+    res = minimize(loss, np.log([lam, mu]), method="Nelder-Mead", options={"xatol": 1e-4, "fatol": 1e-9})
+    return tuple(float(v) for v in np.exp(res.x)) if res.success else (lam, mu)
+
+
+def _ht_share(df: pd.DataFrame) -> float | None:
+    """Share of the league's goals scored before half-time."""
+    if not {"HTHG", "HTAG"} <= set(df.columns):
+        return None
+    d = df.dropna(subset=["HTHG", "HTAG"])
+    total = (d.FTHG + d.FTAG).sum()
+    return float((d.HTHG + d.HTAG).sum() / total) if len(d) >= 100 and total else None
+
+
+def _count_rates(df: pd.DataFrame, home: str, away: str, when, hcol: str, acol: str) -> dict | None:
+    """Expected count for each side (e.g. cards) from the last year: the home side's own count at home averaged with
+    what the away side concedes away, and vice versa, each pulled towards the league mean (COUNT_SHRINK).
+    Dispersion = variance / mean of the league's match totals. `league_over` = the league's real frequency per line."""
+    if not {hcol, acol} <= set(df.columns):
+        return None
+    d = df[(df.Date < when) & (df.Date >= when - pd.Timedelta(days=COUNT_WINDOW_DAYS))].dropna(subset=[hcol, acol])
+    h_home, a_away = d[d.HomeTeam == home], d[d.AwayTeam == away]
+    if len(h_home) < COUNT_MIN_MATCHES or len(a_away) < COUNT_MIN_MATCHES or len(d) < 100:
+        return None
+    def shrunk(s, prior):
+        return (s.sum() + prior * COUNT_SHRINK) / (len(s) + COUNT_SHRINK)
+    lh, la = d[hcol].mean(), d[acol].mean()
+    eh = (shrunk(h_home[hcol], lh) + shrunk(a_away[hcol], lh)) / 2
+    ea = (shrunk(a_away[acol], la) + shrunk(h_home[acol], la)) / 2
+    tot = d[hcol] + d[acol]
+    return {"home": round(float(eh), 2), "away": round(float(ea), 2), "total": round(float(eh + ea), 2),
+            "dispersion": round(max(1.0, float(tot.var() / tot.mean())), 3),
+            "matches": {home: len(h_home), away: len(a_away)}, "league_total": round(float(tot.mean()), 2),
+            "league_over": {line: float((tot > line).mean()) for line in
+                            (mk.CORNER_LINES if hcol == "HC" else mk.CARD_LINES)}}
+
+
 def _rest_days(df: pd.DataFrame, team: str, when) -> int | None:
     d = df[(df.Date < when) & ((df.HomeTeam == team) | (df.AwayTeam == team))]
     return None if d.empty else int((when - d.Date.max()).days)
@@ -111,8 +162,18 @@ def public_alerts(moves: list[dict]) -> list[dict]:
     return [a for a in moves if not settings.pt_only or srij.licensed(a["bookmaker"])]
 
 
-def outcome(market: str, sel: str, hg: int, ag: int) -> bool | None:
-    """Whether the selection won; None when the stake is returned (draw no bet on a draw)."""
+def outcome(market: str, sel: str, hg: int, ag: int, stats: dict | None = None) -> bool | None:
+    """Whether the selection won; None when the stake is returned (draw no bet on a draw) or the result needs a
+    statistic the feed does not have (half-time score, corners, cards in `stats`)."""
+    stats = stats or {}
+    if market.startswith("HT") or market[:2] in ("CO", "CA"):
+        cols = ("HTHG", "HTAG") if market.startswith("HT") else ("HC", "AC") if market[:2] == "CO" else ("HY", "AY")
+        if any(stats.get(c) is None for c in cols):
+            return None
+        h, a = stats[cols[0]], stats[cols[1]]
+        if market == "HT1X2":
+            return sel == ("1" if h > a else "X" if h == a else "2")
+        return (h + a > float(market[4:] if market.startswith("HTOU") else market[2:])) == (sel == "Mais")
     res = "1" if hg > ag else "X" if hg == ag else "2"
     if market == "1X2":
         return sel == res
@@ -259,6 +320,12 @@ def pick_label(market: str, sel: str, home: str, away: str, sport: str = "Futebo
         return f"{home} {h:+g}" if sel == "1" else f"{away} {-h:+g}"
     if market[:2] in ("GC", "GF"):
         return f"{sel} de {market[2:]} golos — {home if market[:2] == 'GC' else away}"
+    if market == "HT1X2":
+        return {"1": f"{home} ao intervalo", "X": "Empate ao intervalo", "2": f"{away} ao intervalo"}.get(sel, sel)
+    if market.startswith("HTOU"):
+        return f"{sel} de {market[4:]} golos ao intervalo"
+    if market[:2] in ("CO", "CA"):
+        return f"{sel} de {market[2:]} {'cantos' if market[:2] == 'CO' else 'cartões amarelos'}"
     if market.startswith("OU"):
         unit = {"Futebol": "golos", "Hóquei no gelo": "golos", "Andebol": "golos", "Basquetebol": "pontos",
                 "Futebol americano": "pontos", "Futebol australiano": "pontos", "Râguebi": "pontos",
@@ -388,16 +455,37 @@ def analyze(row, fx_meta: dict, log: bool = True) -> dict:
     model_probs = mk.market_probs(m)
     bw = blend.load()
     probs, blended = blend.apply(model_probs, odds, bw and bw["weights"])
-    # double chance / draw no bet from the (blended) result; team goals and handicaps only from the model matrix
+    model_lam, model_mu, model_m = lam, mu, m
+    if {"1X2", "OU2.5"} <= set(blended):  # scorelines consistent with the final probabilities
+        lam, mu = _calibrate(model, lam, mu, probs)
+        m = model.matrix(lam, mu)
+        # goal lines and BTTS without a market reference follow the calibrated distribution, not the model alone
+        probs = {**probs, **{k: v for k, v in mk.market_probs(m).items() if k not in blended}}
+    # double chance / draw no bet from the final result; team goals and handicaps from the (calibrated) matrix
     probs = {**probs, **mk.derived_markets(probs["1X2"], m)}
-    model_probs = {**model_probs, **mk.derived_markets(model_probs["1X2"], m)}
+    model_probs = {**model_probs, **mk.derived_markets(model_probs["1X2"], model_m)}
+    # half-time, corners and cards: model only (no odds from any source), skipped when the league lacks the data
+    extra, share = {}, _ht_share(df)
+    if share:
+        extra.update(mk.halftime_markets(lam, mu, share))
+    corners, cards = _count_rates(df, home, away, when, "HC", "AC"), _count_rates(df, home, away, when, "HY", "AY")
+    if corners:  # team corner rates did not beat the league frequency out of sample (2025/26): the league's is used
+        extra.update({f"CO{line}": {"Mais": p, "Menos": 1 - p} for line, p in corners.pop("league_over").items()})
+    if cards:
+        cards.pop("league_over")
+        extra.update(mk.count_markets("CA", cards["total"], cards["dispersion"], mk.CARD_LINES))
+    probs, model_probs = {**probs, **extra}, {**model_probs, **extra}
     top = sorted(((float(m[i, j]), f"{i}-{j}") for i in range(7) for j in range(7)), reverse=True)[:10]
     report["predictions"] = {
         "expected_goals": {home: round(lam, 2), away: round(mu, 2)}, "probabilities": probs,
+        "model_expected_goals": {home: round(model_lam, 2), away: round(model_mu, 2)},
         "model_probabilities": model_probs,
         "blend": {"markets": blended, "weights": {k: blend.weights_for(bw["weights"], k) for k in blended}}
         if blended else None,
         "top_scores": [{"score": s, "prob": round(p, 4)} for p, s in top],
+        "halftime": {"goal_share": round(share, 3), "expected_goals": {home: round(lam * share, 2), away: round(mu * share, 2)}}
+        if share else None,
+        "corners": corners, "cards": cards,
         "matrix": np.round(m[:6, :6], 4).tolist(),
         "method": "Dixon-Coles com decaimento temporal (ξ=%.4f/dia), peso do xG %.0f%%, treinado em %d jogos até %s"
                   % (settings.time_decay_xi, settings.xg_weight * 100, meta["matches"], meta["last_result"])}
@@ -441,6 +529,8 @@ def summarize(r: dict) -> dict:
             "confidence": (r.get("data_status") or {}).get("confidence"),
             "probs_1x2": ((r["predictions"] or {}).get("probabilities", {}).get("1X2")
                           or (r["predictions"] or {}).get("probabilities", {}).get("Vencedor")),
+            "over25": (r["predictions"] or {}).get("probabilities", {}).get("OU2.5", {}).get("Mais"),
+            "btts": (r["predictions"] or {}).get("probabilities", {}).get("BTTS", {}).get("Sim"),
             "best": best and {k: best[k] for k in ("market", "selection", "best_odds", "ev", "category")},
             "value_count": cats.count(mk.VALOR), "opps": opportunities(r)}
 
@@ -475,12 +565,14 @@ def settled_history(limit: int = 500) -> list[dict]:
             df, _ = fd.load_results(lg)
         except RuntimeError:
             continue
-        for x in df.itertuples():
-            results[fd.match_key(lg, x.Date, x.HomeTeam, x.AwayTeam)] = (int(x.FTHG), int(x.FTAG))
+        stat_cols = [c for c in ("HTHG", "HTAG", "HC", "AC", "HY", "AY") if c in df.columns]
+        for x in df.to_dict("records"):
+            stats = {c: int(x[c]) for c in stat_cols if pd.notna(x[c])}
+            results[fd.match_key(lg, x["Date"], x["HomeTeam"], x["AwayTeam"])] = (int(x["FTHG"]), int(x["FTAG"]), stats)
     for r in rows:
-        score = results.get(r["match_key"])
-        r["result"] = f"{score[0]}-{score[1]}" if score else None
-        r["won"] = outcome(r["market"], r["selection"], *score) if score else None
+        res = results.get(r["match_key"])
+        r["result"] = f"{res[0]}-{res[1]}" if res else None
+        r["won"] = outcome(r["market"], r["selection"], *res) if res else None
     return rows
 
 

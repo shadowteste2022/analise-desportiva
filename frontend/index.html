@@ -63,6 +63,7 @@ h3{font-size:12px;margin:14px 0 6px;color:var(--muted);text-transform:uppercase;
 .pred{font-size:13px;min-width:0}
 .pred .lk{display:block;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pred .lk span{font-weight:400;color:var(--muted)}
+.pred .gl{display:block;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pred .vb{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}
 .badge{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap}
 .b-VALOR{background:var(--okbg);color:var(--ok)} .b-INC{background:var(--warnbg);color:var(--warn)}
@@ -87,6 +88,14 @@ tr:last-child td{border-bottom:0}
 th{color:var(--muted);font-weight:600;font-size:12px;background:var(--soft)}
 td.best{font-weight:700;color:var(--ok)}
 .warn{background:var(--warnbg);color:var(--warn);padding:9px 12px;border-radius:8px;margin:8px 0;font-size:13px}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.pcard{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.pcard h4{margin:0 0 6px;font-size:13px}
+.pcard table{font-size:13px} .pcard th,.pcard td{padding:4px 6px}
+.pcard .note{font-size:11px;color:var(--muted);margin-top:6px}
+.pv{font-weight:600} .pv small{font-weight:400;color:var(--muted);margin-left:4px}
+.hi{background:var(--okbg)}
+.heat td{text-align:center;font-size:12px;padding:4px}
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
 ul{margin:4px 0;padding-left:20px}
 details.how{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-top:24px}
@@ -154,9 +163,10 @@ if (!store.get('age-ok')) document.getElementById('gate').style.display = 'flex'
 document.getElementById('gate-ok').onclick = () => { store.set('age-ok', '1'); document.getElementById('gate').style.display = 'none'; };
 
 // ---------- wording ----------
-const MK_NAME = {'1X2': 'Resultado', Vencedor: 'Vencedor', DC: 'Dupla hipótese', DNB: 'Empate anula', BTTS: 'Ambas marcam'};
+const MK_NAME = {'1X2': 'Resultado', Vencedor: 'Vencedor', DC: 'Dupla hipótese', DNB: 'Empate anula', BTTS: 'Ambas marcam', HT1X2: 'Resultado ao intervalo'};
 const mkName = m => MK_NAME[m] || (m.startsWith('OU') ? `Total ${m.slice(2)}` : m.startsWith('GC') ? `Golos casa ${m.slice(2)}`
-  : m.startsWith('GF') ? `Golos fora ${m.slice(2)}` : m.startsWith('AH') ? `Handicap casa ${m.slice(2)}` : m);
+  : m.startsWith('GF') ? `Golos fora ${m.slice(2)}` : m.startsWith('AH') ? `Handicap casa ${m.slice(2)}` : m.startsWith('HTOU') ? `Golos ao intervalo ${m.slice(4)}`
+  : m.startsWith('CO') ? `Cantos ${m.slice(2)}` : m.startsWith('CA') ? `Cartões amarelos ${m.slice(2)}` : m);
 const UNIT = {Futebol: 'golos', 'Hóquei no gelo': 'golos', Andebol: 'golos', Basquetebol: 'pontos', 'Futebol americano': 'pontos',
   'Futebol australiano': 'pontos', 'Râguebi': 'pontos', 'Ténis': 'jogos', Basebol: 'corridas', 'Críquete': 'corridas', MMA: 'rondas', Boxe: 'rondas', Voleibol: 'pontos'};
 // same wording as analysis.pick_label
@@ -167,6 +177,9 @@ function selLabel(m, s, home, away, sport = 'Futebol') {
   if (m === 'DNB') return `${s === '1' ? home : away} (empate anula)`;
   if (m.startsWith('AH')) { const h = +m.slice(2); return s === '1' ? `${home} ${h > 0 ? '+' : ''}${h}` : `${away} ${-h > 0 ? '+' : ''}${-h}`; }
   if (m.startsWith('GC') || m.startsWith('GF')) return `${s} de ${m.slice(2)} golos — ${m.startsWith('GC') ? home : away}`;
+  if (m === 'HT1X2') return {'1': `${home} ao intervalo`, X: 'Empate ao intervalo', '2': `${away} ao intervalo`}[s] || s;
+  if (m.startsWith('HTOU')) return `${s} de ${m.slice(4)} golos ao intervalo`;
+  if (m.startsWith('CO') || m.startsWith('CA')) return `${s} de ${m.slice(2)} ${m.startsWith('CO') ? 'cantos' : 'cartões amarelos'}`;
   if (m.startsWith('OU')) return `${s} de ${m.slice(2)} ${UNIT[sport] || ''}`.trim();
   return `${m} ${s}`;
 }
@@ -202,7 +215,9 @@ function predCell(x) {
   const v = x.pick && PICK_TAG[x.pick.kind]
     ? `<span class="vb">Valor: <b>${esc(x.pick.label)} @ ${num(x.pick.odds)}</b> <span class="muted">EV ${sign(x.pick.ev)}</span> <span class="badge ${PICK_TAG[x.pick.kind][0]}">${PICK_TAG[x.pick.kind][1]}</span></span>`
     : `<span class="vb muted">${p ? 'Sem aposta com valor' : ''}</span>`;
-  return likely + v;
+  const gl = x.over25 != null || x.btts != null
+    ? `<span class="gl">${x.over25 != null ? `Mais de 2.5 golos ${pct(x.over25, 0)}` : ''}${x.over25 != null && x.btts != null ? ' · ' : ''}${x.btts != null ? `Ambas marcam ${pct(x.btts, 0)}` : ''}</span>` : '';
+  return likely + gl + v;
 }
 
 // ---------- state ----------
@@ -355,8 +370,9 @@ async function openDetail(key) {
 // ---------- inline analysis ----------
 function detailHtml(r) {
   const ds = r.data_status || {}, pr = r.predictions, rec = r.recommendation;
-  const tab = S.tab[r.key] || 'mercados';
-  const tabs = [['mercados', 'Mercados'], ...(r.statistics ? [['stats', 'Estatísticas']] : []), ['odds', 'Odds'], ['detalhes', 'Dados e incertezas']];
+  const tab = S.tab[r.key] || (pr ? 'probs' : 'mercados');
+  const tabs = [...(pr ? [['probs', 'Probabilidades']] : []), ['mercados', 'Odds e valor'], ...(r.statistics ? [['stats', 'Estatísticas']] : []),
+    ['odds', 'Odds por casa'], ['detalhes', 'Dados e incertezas']];
   const tag = rec && PICK_TAG[rec.kind];
   return `${rec ? `<div class="verdict ${esc(rec.kind)}">
       ${rec.most_likely ? `<div class="small muted">Resultado mais provável</div><div class="big">${esc(rec.most_likely.label)} · ${pct(rec.most_likely.prob)}</div>` : ''}
@@ -373,7 +389,7 @@ function detailHtml(r) {
       <div class="fact"><span>Analisado</span><b>${dt(ds.analysed_at)}</b></div>
     </div>
     <div class="tabs" role="tablist">${tabs.map(([t, l]) => `<button class="tab ${t === tab ? 'on' : ''}" role="tab" aria-selected="${t === tab}" data-tab="${t}">${l}</button>`).join('')}</div>
-    <div class="pane">${{mercados: marketsPane, stats: statsPane, odds: oddsPane, detalhes: detailsPane}[tab](r)}</div>`;
+    <div class="pane">${{probs: probsPane, mercados: marketsPane, stats: statsPane, odds: oddsPane, detalhes: detailsPane}[tab](r)}</div>`;
 }
 function marketsPane(r) {
   if (!r.markets?.length) return `<p class="muted">${esc(r.conclusion?.summary || 'Sem mercados analisados.')}</p>`;
@@ -388,6 +404,50 @@ function marketsPane(r) {
     ${hidden ? `<p><button class="btn sm" data-all="1">${all ? 'Mostrar só mercados com odd' : `Mostrar todos os mercados (+${hidden} sem odd: dupla hipótese, empate anula, golos por equipa, handicap)`}</button></p>` : ''}
     <p class="small muted">EV = conservador (o menor entre o nosso e o do mercado sem margem). Odd mínima = odd justa + 3%: abaixo dela não compensa.
     Mercados sem odd mostram a probabilidade e a odd mínima para comparar na casa. Passe o rato numa linha para ver os motivos.</p>`;
+}
+// Every probability of the game, grouped like a bookmaker's markets, with the fair odds (1/p) next to each one
+const pv = p => p == null ? '—' : `<span class="pv">${pct(p)}<small>${num(1 / p)}</small></span>`;
+function lines(P, prefix) {
+  return Object.keys(P).filter(k => k.startsWith(prefix) && !isNaN(+k.slice(prefix.length))).sort((a, b) => +a.slice(prefix.length) - +b.slice(prefix.length));
+}
+function ouCard(P, prefix, title, note) {
+  const ks = lines(P, prefix);
+  if (!ks.length) return '';
+  return `<div class="pcard"><h4>${title}</h4><table><tr><th>Linha</th><th>Mais</th><th>Menos</th></tr>
+    ${ks.map(k => `<tr><td>${esc(k.slice(prefix.length))}</td><td class="${P[k].Mais >= .5 ? 'hi' : ''}">${pv(P[k].Mais)}</td><td class="${P[k].Menos > .5 ? 'hi' : ''}">${pv(P[k].Menos)}</td></tr>`).join('')}</table>
+    ${note ? `<div class="note">${note}</div>` : ''}</div>`;
+}
+function rowsCard(title, rows, note) {
+  return `<div class="pcard"><h4>${title}</h4><table>${rows.map(([l, p]) => `<tr><td>${esc(l)}</td><td>${pv(p)}</td></tr>`).join('')}</table>${note ? `<div class="note">${note}</div>` : ''}</div>`;
+}
+function probsPane(r) {
+  const pr = r.predictions, P = pr.probabilities, id = r.identification, [home, away] = [id.home, id.away];
+  const res = P['1X2'] || P.Vencedor, cards = [];
+  if (res) cards.push(rowsCard('Resultado final', Object.keys(res).sort((a, b) => '1X2'.indexOf(a) - '1X2'.indexOf(b)).map(k => [selLabel('1X2', k, home, away), res[k]])));
+  if (P.DC) cards.push(rowsCard('Dupla hipótese e empate anula', [...['1X', '12', 'X2'].map(k => [selLabel('DC', k, home, away), P.DC[k]]),
+    ...['1', '2'].map(k => [selLabel('DNB', k, home, away), P.DNB?.[k]])], 'Empate anula: probabilidade sem contar o empate (no empate o dinheiro é devolvido).'));
+  cards.push(ouCard(P, 'OU', `Total de ${UNIT[id.sport] || 'pontos'}`));
+  if (P.BTTS) cards.push(rowsCard('Ambas marcam', [['Sim', P.BTTS.Sim], ['Não', P.BTTS['Não']]]));
+  cards.push(ouCard(P, 'GC', `Golos de ${esc(home)}`), ouCard(P, 'GF', `Golos de ${esc(away)}`));
+  if (P.HT1X2) cards.push(rowsCard('Resultado ao intervalo', ['1', 'X', '2'].map(k => [selLabel('HT1X2', k, home, away), P.HT1X2[k]]),
+    pr.halftime ? `Golos esperados na 1.ª parte: ${Object.values(pr.halftime.expected_goals).map(g => num(g)).join(' – ')} (${pct(pr.halftime.goal_share, 0)} dos golos da liga são marcados antes do intervalo).` : ''));
+  cards.push(ouCard(P, 'HTOU', 'Golos ao intervalo'));
+  cards.push(ouCard(P, 'CO', 'Cantos (total do jogo)', pr.corners ? `Média da liga: ${num(pr.corners.league_total, 1)} cantos por jogo. Médias recentes: ${esc(home)} ${num(pr.corners.home, 1)} · ${esc(away)} ${num(pr.corners.away, 1)}.
+    As probabilidades usam a frequência real da liga no último ano: as médias de cada equipa não melhoraram a previsão no teste.` : ''));
+  cards.push(ouCard(P, 'CA', 'Cartões amarelos (total do jogo)', pr.cards ? `Esperados: ${esc(home)} ${num(pr.cards.home, 1)} · ${esc(away)} ${num(pr.cards.away, 1)} (média da liga ${num(pr.cards.league_total, 1)}). O árbitro não entra no cálculo.` : ''));
+  const ah = Object.keys(P).filter(k => k.startsWith('AH'));
+  if (ah.length) cards.push(rowsCard('Handicap', ah.flatMap(k => ['1', '2'].map(s => [selLabel(k, s, home, away), P[k][s]]))));
+  let heat = '';
+  if (pr.matrix) {
+    const m = pr.matrix, mx = Math.max(...m.flat());
+    heat = `<div class="pcard"><h4>Resultado exato (linhas: ${esc(home)}, colunas: ${esc(away)})</h4><div class="tbl" style="border:0"><table class="heat"><tr><th></th>${m.map((_, j) => `<th>${j}</th>`).join('')}</tr>
+      ${m.map((row, i) => `<tr><th>${i}</th>${row.map(p => `<td style="background:color-mix(in srgb,var(--accent2) ${Math.round(p / mx * 60)}%,transparent)">${(p * 100).toFixed(1)}</td>`).join('')}</tr>`).join('')}</table></div>
+      <div class="note">Probabilidade de cada resultado, em %. Mais prováveis: ${pr.top_scores.slice(0, 5).map(s => `${esc(s.score)} (${pct(s.prob)})`).join(', ')}.</div></div>`;
+  }
+  return `<div class="pgrid">${cards.join('')}${heat}</div>
+    <p class="small muted">Cada célula mostra a probabilidade e, ao lado, a odd justa (1 ÷ probabilidade): uma odd abaixo dessa paga menos do que vale.
+    Resultado final, total de golos e ambas marcam combinam o modelo com o mercado; o resto vem só do modelo.
+    Intervalo e cartões foram testados em jogos reais de 2025/26 e preveem melhor do que as médias da liga; nenhum destes mercados tem odds nas fontes gratuitas, por isso não há EV.</p>`;
 }
 function formTable(obj, title) {
   return `<h3>${title}</h3><div class="tbl"><table><tr><th>Equipa</th><th>J</th><th>Forma</th><th>Pts/J</th><th>GM</th><th>GS</th><th class="hide-sm">xG</th><th class="hide-sm">xGA</th></tr>

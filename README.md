@@ -255,6 +255,18 @@ frontend/index.html      interface de página única (HTML + JS, sem dependênci
   handicap ±1,5 saem só da matriz do Dixon-Coles. Nenhuma fonte dá odds destes mercados, por isso aparecem com a
   probabilidade, a odd justa e a odd mínima, para comparar na casa. No empate anula, a odd justa usa a probabilidade
   condicionada a não haver empate e o EV desconta a devolução do stake.
+- **Golos esperados calibrados**: quando há mercado para o resultado e para o O/U 2,5, procuram-se os golos esperados
+  cuja grelha de resultados (com a correção do Dixon-Coles) reproduz essas probabilidades finais. Resultado exato,
+  outras linhas de golos sem mercado, golos por equipa, handicap e intervalo saem dessa grelha, por isso batem certo
+  com os números principais. Os golos esperados do modelo sozinho continuam no relatório (`model_expected_goals`).
+- **Intervalo**: Poisson com os golos esperados × fração dos golos da liga marcados antes do intervalo.
+- **Cartões amarelos**: média recente (último ano) de cada equipa em casa/fora, puxada para a média da liga como se
+  fossem mais 10 jogos, e binomial negativa com a sobredispersão da liga. **Cantos**: frequência real da liga no
+  último ano (as médias por equipa não melhoraram a previsão fora da amostra). O árbitro não entra.
+- **Validação destes mercados** (época 2025/26, 8 ligas, sem dados futuros; referência = frequências da liga):
+  resultado ao intervalo log loss 1,033 vs 1,080; golos ao intervalo +0,5 Brier 0,2032 vs 0,2039 e +1,5 0,2227 vs
+  0,2253; cartões +3,5 0,2372 vs 0,2400 e +4,5 0,2227 vs 0,2255. Cantos por equipa: 0,2308 vs 0,2300 (pior) —
+  por isso os cantos usam a frequência da liga. Nenhum destes mercados tem odds nas fontes gratuitas: sem EV.
 - **Odd mínima** = odd justa × (1 + `EV_MARGIN`): abaixo dela a aposta não compensa a margem de segurança.
 - **Qualidade da evidência** (0–100, separada da probabilidade): 4 partes de 25 — n.º de casas com preço, histórico das
   equipas, validação fora da amostra da liga e acordo entre o modelo e o mercado sem margem. «forte» exige liga validada.

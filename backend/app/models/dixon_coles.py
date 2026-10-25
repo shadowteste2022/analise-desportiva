@@ -35,7 +35,10 @@ class DixonColes:
 
     def score_matrix(self, home: str, away: str) -> np.ndarray:
         """P(home goals = i, away goals = j), i,j in 0..MAX_GOALS. Exact, so no Monte Carlo needed."""
-        lam, mu = self.expected_goals(home, away)
+        return self.matrix(*self.expected_goals(home, away))
+
+    def matrix(self, lam: float, mu: float) -> np.ndarray:
+        """Scoreline distribution for given expected goals, with this model's low-score correction."""
         g = np.arange(MAX_GOALS + 1)
         ph = np.exp(g * np.log(lam) - lam - gammaln(g + 1))
         pa = np.exp(g * np.log(mu) - mu - gammaln(g + 1))
