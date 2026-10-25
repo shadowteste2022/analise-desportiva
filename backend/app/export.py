@@ -9,7 +9,7 @@ import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 
-from app import analysis, backtest, db, mma, multisport, sports, tables, world
+from app import analysis, backtest, db, mma, multisport, rankings, sports, tables, world
 from app.config import ROOT, settings
 from app.data import api_football, football_data as fd, odds_api, odds_api_io, oddspapi
 
@@ -36,6 +36,7 @@ def export(out: Path) -> dict:
     fx = fx[fx.Div.isin(settings.league_list)]
     odds_api_io.prefetch([r for _, r in fx.iterrows()])
     summaries = []
+    rankings.REGISTRY.clear()
     # both log the prediction and odds snapshot, like the API. Other sports first: they get the scarce Odds API
     # credits before football-data leagues, which already carry odds from six bookmakers in their CSVs.
     try:
@@ -94,6 +95,7 @@ def export(out: Path) -> dict:
     except Exception:  # the tables are an extra: never block the site
         log.exception("Falha nas classificações simuladas")
         _write(data / "tables.json", [])
+    _write(data / "rankings.json", rankings.all_rankings())
     page = (FRONTEND / "index.html").read_text(encoding="utf-8")
     page = page.replace("</head>", "<script>window.STATIC = true;</script>\n</head>", 1)
     (out / "index.html").write_text(page, encoding="utf-8")

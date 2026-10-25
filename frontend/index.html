@@ -263,7 +263,7 @@ function renderFilters() {
 function renderShell() {
   $app.innerHTML = `<section id="highlights"></section>
     <section id="jogos"><h2>Jogos de <span id="day-title"></span></h2><div class="filters" id="filters"></div><div id="list"></div></section>
-    <section id="classificacoes"><h2>Classificações e previsão do fim da época</h2><div class="panel" id="tables-body"><p class="muted small">A carregar…</p></div></section>
+    <section id="classificacoes"><h2>Classificações e rankings</h2><div class="panel" id="tables-body"><p class="muted small">A carregar…</p></div></section>
     <section id="como"><h2>Como funcionam as previsões</h2><div class="panel small" id="how-body"><p class="muted">A carregar…</p></div></section>`;
   document.querySelectorAll('[data-goto]').forEach(b => b.onclick = () => document.getElementById(b.dataset.goto).scrollIntoView());
   renderBars(); renderFilters(); renderHighlights(); renderList(); renderTables(); renderHow();
@@ -488,20 +488,40 @@ function bindDetail(box, key) {
 let tablesData = null;
 async function renderTables() {
   const box = document.getElementById('tables-body');
-  try { tablesData = tablesData || await api('/api/tables'); } catch (e) { box.innerHTML = err(e); return; }
+  try {
+    tablesData = tablesData || await Promise.all([api('/api/tables'), api('/api/rankings').catch(() => [])])
+      .then(([sims, ranks]) => [...sims.map(t => ({...t, kind: 'sim', sport: 'Futebol'})), ...ranks.map(t => ({...t, kind: 'rank'}))]);
+  } catch (e) { box.innerHTML = err(e); return; }
   if (!tablesData.length) { box.innerHTML = '<p class="muted small">Sem classificações disponíveis.</p>'; return; }
-  const sel = store.get('table-league') || tablesData[0].league;
-  box.innerHTML = `<select id="t-league" aria-label="Campeonato">${tablesData.map(t => `<option value="${esc(t.league)}" ${t.league === sel ? 'selected' : ''}>${esc(t.competition)}</option>`).join('')}</select><div id="t-body"></div>`;
-  const show = lg => {
-    const t = tablesData.find(x => x.league === lg) || tablesData[0], n = t.teams.length;
-    const bar = p => `${pct(p, 0)}<span class="bar" style="width:${Math.round(p * 50)}px"></span>`;
-    document.getElementById('t-body').innerHTML = `<div class="tbl"><table><tr><th>#</th><th>Equipa</th><th>J</th><th>Pts</th><th class="hide-sm">DG</th>
+  const sel = tablesData.some(t => t.league === store.get('table-league')) ? store.get('table-league') : tablesData[0].league;
+  // one menu, grouped by sport: football leagues with a real table first, then every league's strength ranking
+  const groups = [['Futebol — classificação e simulação', tablesData.filter(t => t.kind === 'sim')],
+    ...[...new Set(tablesData.filter(t => t.kind === 'rank').map(t => t.sport))].sort((x, y) => sportRank(x) - sportRank(y))
+      .map(sp => [`${icon(sp)} ${sp} — ranking de força`, tablesData.filter(t => t.kind === 'rank' && t.sport === sp)])].filter(([, l]) => l.length);
+  box.innerHTML = `<select id="t-league" aria-label="Competição">${groups.map(([label, list]) => `<optgroup label="${esc(label)}">${list.map(t =>
+      `<option value="${esc(t.league)}" ${t.league === sel ? 'selected' : ''}>${esc(t.competition)}</option>`).join('')}</optgroup>`).join('')}</select>
+    <span class="small muted"> ${tablesData.length} competições</span><div id="t-body"></div>`;
+  const showSim = t => {
+    const n = t.teams.length, bar = p => `${pct(p, 0)}<span class="bar" style="width:${Math.round(p * 50)}px"></span>`;
+    return `<div class="tbl"><table><tr><th>#</th><th>Equipa</th><th>J</th><th>Pts</th><th class="hide-sm">DG</th>
       <th>Pts previstos</th><th>Campeão</th><th class="hide-sm">Top 4</th><th>Descida</th></tr>
       ${t.teams.map((r, i) => `<tr class="${i < 4 ? 'zone-top' : i >= n - t.relegation_places ? 'zone-rel' : ''}"><td>${i + 1}</td><td><b>${esc(r.team)}</b></td><td>${r.played}</td><td>${r.points}</td>
       <td class="hide-sm">${r.gd > 0 ? '+' : ''}${r.gd}</td><td>${num(r.expected_points, 0)}</td><td>${bar(r.p_title)}</td><td class="hide-sm">${pct(r.p_top4, 0)}</td><td>${bar(r.p_relegation)}</td></tr>`).join('')}</table></div>
       <p class="small muted">Classificação atual (dados até ${esc(t.last_result)}) e o resto da época — ${t.remaining_games} jogos — simulado ${t.sims.toLocaleString('pt-PT')} vezes com o modelo de golos.
       «Descida» = acabar nos últimos ${t.relegation_places} lugares; as regras de cada liga (play-offs, liguilhas) podem ser diferentes.</p>`;
   };
+  const showRank = t => {
+    const d = t.unit === 'pontos' ? 1 : 2, max = Math.max(...t.teams.map(r => Math.abs(r.net))) || 1;
+    return `<div class="tbl"><table><tr><th>#</th><th>Equipa</th><th>Força por jogo</th><th class="hide-sm">${esc(t.unit)} marcados</th><th class="hide-sm">${esc(t.unit)} sofridos</th><th>Jogos</th></tr>
+      ${t.teams.map((r, i) => `<tr><td>${i + 1}</td><td><b>${esc(r.team)}</b>${r.current ? '' : ' <span class="small muted" title="Sem jogos registados nesta época">*</span>'}</td>
+      <td><b>${r.net > 0 ? '+' : ''}${num(r.net, d)}</b><span class="bar" style="width:${Math.round(Math.abs(r.net) / max * 50)}px;background:${r.net >= 0 ? 'var(--pitch)' : 'var(--p2)'}"></span></td>
+      <td class="hide-sm">${num(r.scored, d)}</td><td class="hide-sm">${num(r.conceded, d)}</td><td>${r.matches}</td></tr>`).join('')}</table></div>
+      <p class="small muted">Ranking de força do modelo: ${esc(t.unit)} marcados e sofridos por jogo contra uma equipa média, e a diferença («força»). Não é a classificação oficial:
+      as fontes grátis não dão a tabela desta época. Treinado em ${t.matches} jogos (época de 2024 e jogos registados desde 26/10/2026, até ${esc(t.last_result)}).
+      * = equipa sem jogos registados nesta época (pode já não estar nesta liga).</p>`;
+  };
+  const show = lg => { const t = tablesData.find(x => x.league === lg) || tablesData[0];
+    document.getElementById('t-body').innerHTML = t.kind === 'sim' ? showSim(t) : showRank(t); };
   document.getElementById('t-league').onchange = e => { store.set('table-league', e.target.value); show(e.target.value); };
   show(sel);
 }

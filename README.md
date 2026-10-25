@@ -301,6 +301,9 @@ frontend/index.html      interface de página única (HTML + JS, sem dependênci
 - **Classificações simuladas** (`/api/tables`, `tables.json`): tabela atual e o resto da época simulado 10 000 vezes
   com o modelo de golos — pontos previstos, probabilidade de ser campeão, top 4 e descida. Só ligas de calendário
   simples a duas voltas (fora: Escócia, Bélgica, Grécia e as ligas extra).
+- **Rankings de força** (`/api/rankings`, `rankings.json`): para todas as ligas com modelo, em todas as modalidades
+  (incluindo as ligas do mundo), as equipas ordenadas pela diferença entre o que marcam e sofrem por jogo contra uma
+  equipa média. Não são classificações oficiais: o plano grátis não dá a tabela desta época nem os jogos anteriores.
 - **Acerto público**: quantas vezes aconteceu o resultado mais provável, ao lado da probabilidade média prevista.
 - **Odd mínima** = odd justa × (1 + `EV_MARGIN`): abaixo dela a aposta não compensa a margem de segurança.
 - **Qualidade da evidência** (0–100, separada da probabilidade): 4 partes de 25 — n.º de casas com preço, histórico das

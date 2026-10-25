@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 import numpy as np
 import pandas as pd
 
-from app import analysis, markets as mk
+from app import analysis, markets as mk, rankings
 from app.config import settings
 from app.data import api_sports as aps
 from app.data.football_data import LOCAL_TZ
@@ -138,4 +138,11 @@ def reports(known: list[dict]) -> list[dict]:
                 out.append(report(sport, g, *models[lg]))
             except (KeyError, ValueError, TypeError, ZeroDivisionError):
                 log.exception("API-Sports %s: falha ao analisar %s – %s", sport, g.get("home"), g.get("away"))
+        for g in {g["league_id"]: g for g in found}.values():  # strength ranking of every league with a model
+            model, df = models[g["league_id"]]
+            current = set(df[df.Date >= pd.Timestamp("2026-07-01")][["HomeTeam", "AwayTeam"]].to_numpy().ravel())
+            current |= {x[s] for x in found if x["league_id"] == g["league_id"] for s in ("home", "away")}
+            comp = f"{g['country']} — {g['league']}" if g["country"] else g["league"]
+            rankings.register(model, CONFIG[sport][0], df, aps.SPORTS[sport][1], comp,
+                              f"aps_{sport}_{g['league_id']}", current)
     return out

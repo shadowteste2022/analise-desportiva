@@ -9,7 +9,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Query
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse
 
-from app import analysis, backtest, db, mma, multisport, sports, tables, world
+from app import analysis, backtest, db, mma, multisport, rankings, sports, tables, world
 from app.config import ROOT, settings
 from app.data import odds_api, odds_api_io
 
@@ -115,6 +115,14 @@ def performance():
 @app.get("/api/tables")
 def league_tables():
     return tables.all_tables()
+
+
+@app.get("/api/rankings")
+def strength_rankings():
+    rankings.REGISTRY.clear()
+    world.reports([])  # the report builders fill the registry with each league's model
+    multisport.reports([])
+    return rankings.all_rankings()
 
 
 @app.get("/api/alerts")

@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 import numpy as np
 import pandas as pd
 
-from app import analysis, markets as mk
+from app import analysis, markets as mk, rankings
 from app.config import settings
 from app.data import api_football as af
 from app.data.football_data import LOCAL_TZ
@@ -110,4 +110,9 @@ def reports(known: list[dict]) -> list[dict]:
             out.append(report(g, *models[lg]))
         except (KeyError, ValueError, TypeError):  # one malformed game must not hide the rest
             log.exception("API-Football: falha ao analisar %s – %s", g.get("home"), g.get("away"))
+    for g in {g["league_id"]: g for g in games}.values():  # strength ranking of every league with a model
+        model, df = models[g["league_id"]]
+        current = set(df[df.Date >= pd.Timestamp("2026-07-01")][["HomeTeam", "AwayTeam"]].to_numpy().ravel())
+        current |= {x[s] for x in games if x["league_id"] == g["league_id"] for s in ("home", "away")}
+        rankings.register(model, "goals", df, "Futebol", f"{g['country']} — {g['league']}", f"apif_{g['league_id']}", current)
     return out
