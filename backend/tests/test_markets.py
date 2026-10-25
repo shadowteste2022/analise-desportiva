@@ -64,15 +64,18 @@ def _row(market, sel, p, odds, ev, cat, reasons=("motivo",), market_p=0.5, evide
 
 def test_recommendation_only_with_value():
     from app.analysis import recommend
-    rows = [_row("1X2", "1", 0.62, 1.55, -0.04, mk.SEM_VALOR), _row("1X2", "X", 0.22, 4.6, 0.012, mk.INCONCLUSIVO,
-            ["EV estimado +1.2%", "abaixo da margem de segurança de 3%"]), _row("1X2", "2", 0.16, 5.5, -0.12, mk.SEM_VALOR)]
+    rows = [_row("1X2", "1", 0.62, 1.55, -0.04, mk.SEM_VALOR), _row("1X2", "X", 0.22, 4.9, 0.078, mk.INCONCLUSIVO,
+            ["EV estimado +7.8%", "liga sem validação — margem de segurança não garante vantagem"]), _row("1X2", "2", 0.16, 5.5, -0.12, mk.SEM_VALOR)]
+    tiny = recommend([_row("1X2", "X", 0.22, 4.6, 0.012, mk.INCONCLUSIVO)], "Benfica", "Porto")
+    assert tiny["kind"] == "sem_valor" and "label" not in tiny  # +1.2% does not reach the minimum odds
     r = recommend(rows, "Benfica", "Porto")
     assert r["kind"] == "melhor_opcao" and r["label"] == "Empate" and "margem de segurança" in r["text"]
     assert r["most_likely"] == {"label": "Vitória Benfica", "prob": 0.62}  # likely, but not the best bet
     suspicious = rows + [_row("1X2", "2", 0.30, 5.2, 0.56, mk.INCONCLUSIVO, [f"odd 56% {mk.OUTLIER_TEXT}"])]
     assert recommend(suspicious, "Benfica", "Porto")["label"] == "Empate"  # a +56% data error is never the pick
     only_negative = [_row("1X2", "1", 0.62, 1.55, -0.04, mk.SEM_VALOR)]
-    assert recommend(only_negative, "Benfica", "Porto")["kind"] == "sem_valor"
+    neg = recommend(only_negative, "Benfica", "Porto")
+    assert neg["kind"] == "sem_valor" and "label" not in neg and "não apostar" in neg["text"]  # no long shot shown as the bet
     rows.append(_row("OU2.5", "Mais", 0.58, 1.9, 0.10, mk.INCONCLUSIVO))  # higher EV but not valid value
     rows.append(_row("BTTS", "Sim", 0.55, 1.95, 0.0725, mk.VALOR))
     r = recommend(rows, "Benfica", "Porto")
@@ -87,11 +90,11 @@ def test_opportunities_skip_negative_ev_and_bad_data():
             _row("OU2.5", "Mais", 0.55, 1.95, 0.0725, mk.INCONCLUSIVO), _row("BTTS", "Sim", 0.5, 2.05, 0.025, mk.INCONCLUSIVO)]
     r = {"identification": {"home": "Benfica", "away": "Porto", "sport": "Futebol"}, "markets": rows}
     opps = opportunities(r)
-    assert [o["label"] for o in opps] == ["Mais de 2.5 golos", "Ambas marcam"]  # outlier and negative EV left out
+    assert [o["label"] for o in opps] == ["Mais de 2.5 golos"]  # outlier, negative EV and +2.5% (< 3% margin) left out
     assert opps[0]["licensed_pt"] is False and opps[0]["odds"] == 1.95
     rows += [_row("OU3.5", "Menos", 0.8, 1.83, 0.46, mk.INCONCLUSIVO, market_p=None),  # nothing to check it against
              _row("OU1.5", "Mais", 0.9, 1.4, 0.26, mk.INCONCLUSIVO, ["EV", f"modelo diverge 20% {mk.DIVERGENCE_TEXT}"])]
-    assert [o["label"] for o in opportunities(r)] == ["Mais de 2.5 golos", "Ambas marcam"]
+    assert [o["label"] for o in opportunities(r)] == ["Mais de 2.5 golos"]
 
 
 def test_market_reference_from_bookmaker_consensus():

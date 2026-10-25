@@ -3,7 +3,7 @@
 Plataforma de análise estatística pré-jogo para futebol: recolhe dados reais, estima probabilidades com um modelo
 Dixon-Coles, compara com as odds de vários operadores, calcula o valor esperado (EV) e classifica cada mercado.
 Inclui backtesting walk-forward e um registo de todas as previsões. A interface é uma página única: a lista de
-jogos, a análise de cada jogo aberta lá dentro e uma seleção pessoal dos jogos a acompanhar.
+jogos com a previsão mais provável, e a análise de cada jogo aberta lá dentro.
 
 > **Não garante resultados nem lucros.** É uma ferramenta de análise e simulação; não faz apostas.
 > O próprio backtest (8 épocas, abaixo) mostra que nem o modelo nem a combinação modelo + mercado **superam as odds
@@ -48,7 +48,7 @@ Em Linux/macOS use `.venv/bin/python` em vez de `.venv/Scripts/python`.
 
 O site publicado é estático: de hora a hora, um GitHub Action corre a mesma análise da API, grava o resultado em
 ficheiros JSON e publica-os com a página. Não há servidor nem chaves expostas. A página verifica dados novos a
-cada 5 minutos e a seleção de cada visitante fica guardada no próprio browser.
+cada 5 minutos.
 
 ```
 .github/workflows/daily.yml   de hora a hora (e a pedido): análises → Pages

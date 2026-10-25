@@ -269,8 +269,8 @@ def pick_label(market: str, sel: str, home: str, away: str, sport: str = "Futebo
 
 
 def recommend(rows: list[dict], home: str, away: str, sport: str = "Futebol") -> dict:
-    """The answer to "what should I bet on here?": a pick only when the value rules are met; otherwise an explicit
-    no-bet with the option closest to value and why it falls short. The most likely outcome is shown apart, because a
+    """The answer to "what should I bet on here?": a pick only when the price pays more than the probability (validated
+    value, or positive conservative EV marked as not validated); otherwise an explicit no-bet. The most likely outcome is shown apart, because a
     likely outcome is not a good bet unless the price pays more than its probability."""
     def label(r):
         return pick_label(r["market"], r["selection"], home, away, sport)
@@ -291,7 +291,7 @@ def recommend(rows: list[dict], home: str, away: str, sport: str = "Futebol") ->
                 "text": f"Aposta com valor potencial: {label(b)} @ {b['best_odds']} ({b['bookmaker']}), EV estimado "
                         f"{pick['ev']:+.1%}. É uma estimativa, não uma garantia: use stakes pequenas."}
     out["verdict"] = NO_OPPORTUNITY
-    if pick["ev"] > 0:
+    if pick["ev"] >= settings.ev_margin:  # the price reaches the minimum odds (fair odds + safety margin)
         # the classification reason, not the EV figure itself or the licensing note appended after it
         main_reasons = [x for x in b["reasons"] if not x.startswith("EV estimado") and "SRIJ" not in x]
         why = (main_reasons or b["reasons"] or [""])[0]
@@ -299,9 +299,11 @@ def recommend(rows: list[dict], home: str, away: str, sport: str = "Futebol") ->
                 "text": f"Melhor opção: {label(b)} @ {b['best_odds']} ({b['bookmaker']}), EV conservador {pick['ev']:+.1%}, "
                         f"evidência {b['evidence']['label']} ({b['evidence']['score']}/100). "
                         f"Não validada ({why}): é a aposta mais favorável deste jogo, não uma aposta garantida."}
-    return {**out, **pick, "kind": "sem_valor",
-            "text": f"Nenhuma opção com EV positivo neste jogo: a menos desfavorável é {label(b)} @ {b['best_odds']} "
-                    f"({b['bookmaker']}), EV conservador {pick['ev']:+.1%}. A margem das casas come o valor: melhor não apostar."}
+    # no pick at all: the "least bad" option is usually a long shot, and showing it as the game's bet misleads
+    likely_txt = f" Resultado mais provável: {out['most_likely']['label']} ({out['most_likely']['prob']:.0%})." if likely else ""
+    return {**out, "kind": "sem_valor",
+            "text": "Nenhuma aposta com valor: nenhuma odd disponível chega à odd mínima (odd justa + "
+                    f"{settings.ev_margin:.0%} de margem de segurança).{likely_txt} Recomendação: não apostar."}
 
 
 def checkable(rows: list[dict]) -> list[dict]:
@@ -448,7 +450,7 @@ def opportunities(r: dict, n: int = 3) -> list[dict]:
     (a no-vig market reference exists) and pass both checks: not a probable data error or stale price, and not a
     model estimate far from the market. Those would top the ranking with value that is not really there."""
     ident = r["identification"]
-    rows = [x for x in checkable(r["markets"]) if x["ev_conservative"] > 0]
+    rows = [x for x in checkable(r["markets"]) if x["ev_conservative"] >= settings.ev_margin]
     rows.sort(key=rank_score, reverse=True)
     return [{"label": pick_label(x["market"], x["selection"], ident["home"], ident["away"], ident["sport"]),
              "odds": x["best_odds"], "bookmaker": x["bookmaker"], "licensed_pt": x.get("licensed_pt", False),
