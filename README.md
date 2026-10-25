@@ -277,7 +277,7 @@ frontend/index.html      interface de página única (HTML + JS, sem dependênci
   casa sem a margem; confiança «muito baixa» com uma só casa). Equipas sem histórico na liga (recém-promovidas) usam o
   mercado sem margem em vez do modelo. Nas outras modalidades a The Odds API só pede o resultado (1 crédito) e as odds
   são reutilizadas durante `ODDS_TTL_HOURS` (12 h), para os 500 créditos grátis chegarem a mais modalidades.
-  Jogos sem nenhum preço aparecem na lista como «sem previsão».
+  Jogos sem previsão não aparecem na lista.
 - **Ligas do mundo (API-Football, `API_FOOTBALL_KEY`)**: o plano grátis (100 pedidos/dia) dá os jogos de ontem a
   amanhã de ~1000 competições (1 pedido por data) e épocas inteiras só de 2022–2024. Cada liga que aparece recebe a
   época de 2024 (6 ligas por execução, guardando 15 pedidos/dia para as listas de jogos) e todos os jogos terminados
