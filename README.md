@@ -291,6 +291,11 @@ frontend/index.html      interface de página única (HTML + JS, sem dependênci
   margem e total normais. Validação walk-forward nas épocas de 2024 (log loss modelo vs frequência da vitória em
   casa): basquetebol 0,603 vs 0,690 (1514 jogos), hóquei 0,624 vs 0,688 (3563), futebol americano 0,652 vs 0,692
   (196), andebol 0,801 vs 0,917 (409), voleibol 0,480 vs 0,692 (452), basebol 0,692 vs 0,695 (1366 — quase igual).
+- **AFL e MMA (API-Sports)**: a AFL usa o modelo de pontos (validação 2024: log loss 0,657 vs 0,729, 130 jogos);
+  o MMA usa um rating Elo por lutador (K=40) com as épocas 2022–2024 e os combates registados, só para lutadores com
+  2+ combates (validação 2024: 0,679 vs 0,696, acerto 61% em 303 combates). Fórmula 1 fica de fora: o plano grátis não
+  dá a época atual e prever corridas de 2026 com dados de 2024 não seria honesto. Ténis, críquete, dardos, golfe e
+  boxe não existem na família API-Sports.
 - **«Porquê?»**: cada previsão traz frases simples tiradas dos próprios números (ataque e defesa face à média, casa,
   forma, golos esperados, e se o mercado concorda com o modelo).
 - **Classificações simuladas** (`/api/tables`, `tables.json`): tabela atual e o resto da época simulado 10 000 vezes

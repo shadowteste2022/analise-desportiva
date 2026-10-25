@@ -25,7 +25,7 @@ MIN_GAMES = 50
 # sport -> (model, draws possible, totals shown)
 CONFIG = {"basketball": ("points", False, True), "american-football": ("points", False, True),
           "rugby": ("points", True, True), "handball": ("points", True, True), "volleyball": ("points", False, False),
-          "hockey": ("goals", False, True), "baseball": ("goals", False, True)}
+          "hockey": ("goals", False, True), "baseball": ("goals", False, True), "afl": ("points", True, True)}
 NOTES = ["Histórico da liga: época de 2024 mais os jogos registados desde 26/10/2026 — as equipas mudaram desde 2024, "
          "por isso a confiança fica no máximo «baixa» até haver jogos recentes suficientes.",
          "Lesões, ausências e calendário (jogos seguidos, viagens) não entram na previsão."]
@@ -113,7 +113,7 @@ def reports(known: list[dict]) -> list[dict]:
     if not aps.enabled():
         return []
     out = []
-    for sport in aps.SPORTS:
+    for sport in CONFIG:  # MMA (fighters, not teams) has its own module
         try:
             found = aps.upcoming(sport)
         except Exception:  # one sport failing must not stop the others

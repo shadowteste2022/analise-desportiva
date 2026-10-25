@@ -19,7 +19,8 @@ log = logging.getLogger(__name__)
 SPORTS = {"basketball": ("v1.basketball", "Basquetebol"), "hockey": ("v1.hockey", "Hóquei no gelo"),
           "american-football": ("v1.american-football", "Futebol americano"), "baseball": ("v1.baseball", "Basebol"),
           "handball": ("v1.handball", "Andebol"), "volleyball": ("v1.volleyball", "Voleibol"),
-          "rugby": ("v1.rugby", "Râguebi")}
+          "rugby": ("v1.rugby", "Râguebi"), "afl": ("v1.afl", "Futebol australiano"), "mma": ("v1.mma", "MMA")}
+DEFAULT_LEAGUE = {"afl": ("AFL", "Austrália")}  # the AFL API leaves the league name and country out
 RESERVE = 10
 GAMES_TTL_H = 6
 HISTORY_PER_RUN = 6
@@ -55,23 +56,28 @@ def can_spend(sport: str, n: int = 1) -> bool:
 
 
 def _total(score) -> int | None:
-    """Scores are a number (hockey, handball...) or a breakdown with a total (basketball, baseball, NFL)."""
+    """Scores are a number (hockey, handball...) or a breakdown with a total (basketball, baseball, NFL) or a score
+    (AFL)."""
     if isinstance(score, dict):
-        score = score.get("total")
+        score = score.get("total", score.get("score"))
     return int(score) if isinstance(score, (int, float)) else None
 
 
-def normalize(raw: list[dict]) -> list[dict]:
-    """One dict per game in the same shape for every sport (NFL nests id/date/status under "game")."""
+def normalize(raw: list[dict], sport: str | None = None) -> list[dict]:
+    """One dict per game in the same shape for every sport (NFL nests id/date/status under "game"; AFL only the
+    id)."""
     out = []
+    default_league, default_country = DEFAULT_LEAGUE.get(sport, ("", ""))
     for g in raw:
         try:
             core = g.get("game") or g
-            ts = core.get("timestamp") or (core.get("date") or {}).get("timestamp")
+            date_obj = core.get("date") if isinstance(core.get("date"), dict) else {}
+            ts = core.get("timestamp") or g.get("timestamp") or date_obj.get("timestamp")
             league = g["league"]
-            country = (g.get("country") or league.get("country") or {}).get("name") or ""
+            country = (g.get("country") or league.get("country") or {}).get("name") or default_country
             out.append({"id": core["id"], "kickoff": datetime.fromtimestamp(int(ts), timezone.utc).isoformat(),
-                        "status": core["status"]["short"], "league_id": league["id"], "league": league["name"],
+                        "status": (core.get("status") or g["status"])["short"], "league_id": league["id"],
+                        "league": league.get("name") or default_league,
                         "country": country, "season": league.get("season"),
                         "home": g["teams"]["home"]["name"], "away": g["teams"]["away"]["name"],
                         "hs": _total(g["scores"]["home"]), "as": _total(g["scores"]["away"])})
@@ -105,7 +111,7 @@ def games(sport: str, day: date) -> list[dict]:
         return hit["games"] if hit else []
     state[sport]["used"] += 1  # a refused call counts too
     try:
-        found = normalize(_get(sport, "games", date=day.isoformat())["response"])
+        found = normalize(_get(sport, "games", date=day.isoformat())["response"], sport)
     except (httpx.HTTPError, ValueError, KeyError) as e:
         log.warning("API-Sports %s: jogos de %s indisponíveis (%s)", sport, day, e)
         return hit["games"] if hit else []
@@ -130,7 +136,7 @@ def backfill(sport: str, leagues: list[tuple[int, object]]) -> None:
             return
         state[sport]["used"] += 1
         try:
-            found = [g for g in normalize(_get(sport, "games", league=lg, season=season)["response"])
+            found = [g for g in normalize(_get(sport, "games", league=lg, season=season)["response"], sport)
                      if g["status"] in FINISHED and g["hs"] is not None and g["as"] is not None]
         except ValueError as e:  # not covered: remember it
             found = []

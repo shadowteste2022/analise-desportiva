@@ -697,7 +697,8 @@ def explain(r: dict) -> list[str]:
     if not pr:
         return []
     home, away, sport = ident["home"], ident["away"], ident["sport"]
-    unit = {"Basquetebol": "pontos", "Futebol americano": "pontos", "Râguebi": "pontos", "Basebol": "corridas",
+    unit = {"Basquetebol": "pontos", "Futebol americano": "pontos", "Râguebi": "pontos", "Futebol australiano": "pontos",
+            "Basebol": "corridas",
             "Voleibol": "sets"}.get(sport, "golos")
     probs = pr["probabilities"]
     res = probs.get("1X2") or probs.get("Vencedor")
