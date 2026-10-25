@@ -284,6 +284,13 @@ frontend/index.html      interface de página única (HTML + JS, sem dependênci
   ficam registados em `DATA_DIR/api_football`, que o job diário guarda. O modelo Dixon-Coles é treinado com esse
   histórico; sem odds, a confiança fica no máximo «baixa» enquanto o histórico for sobretudo de 2024. Jogos que outra
   fonte já cobre não se repetem.
+- **Outras modalidades (API-Sports, mesma chave)**: basquetebol, hóquei, futebol americano, basebol, andebol, voleibol e
+  râguebi, cada um com a sua quota grátis de 100 pedidos/dia e o mesmo esquema da API-Football (jogos de ontem a
+  amanhã, época de 2024 por liga, resultados guardados em `DATA_DIR/api_sports`). Hóquei e basebol: Dixon-Coles com o
+  empate repartido (os jogos acabam sempre com vencedor); os restantes: modelo de pontos (`models/points.py`) com
+  margem e total normais. Validação walk-forward nas épocas de 2024 (log loss modelo vs frequência da vitória em
+  casa): basquetebol 0,603 vs 0,690 (1514 jogos), hóquei 0,624 vs 0,688 (3563), futebol americano 0,652 vs 0,692
+  (196), andebol 0,801 vs 0,917 (409), voleibol 0,480 vs 0,692 (452), basebol 0,692 vs 0,695 (1366 — quase igual).
 - **«Porquê?»**: cada previsão traz frases simples tiradas dos próprios números (ataque e defesa face à média, casa,
   forma, golos esperados, e se o mercado concorda com o modelo).
 - **Classificações simuladas** (`/api/tables`, `tables.json`): tabela atual e o resto da época simulado 10 000 vezes

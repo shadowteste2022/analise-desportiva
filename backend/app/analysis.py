@@ -697,22 +697,28 @@ def explain(r: dict) -> list[str]:
     if not pr:
         return []
     home, away, sport = ident["home"], ident["away"], ident["sport"]
+    unit = {"Basquetebol": "pontos", "Futebol americano": "pontos", "Râguebi": "pontos", "Basebol": "corridas",
+            "Voleibol": "sets"}.get(sport, "golos")
     probs = pr["probabilities"]
     res = probs.get("1X2") or probs.get("Vencedor")
     if not res:
         return []
     def label(s):
         return pick_label("1X2", s, home, away, sport)
+    def size(x):  # high-scoring sports differ by a few percent: keep a decimal there
+        d = abs(x - 1)
+        return f"{d:.0%}" if d >= 0.1 else f"{d:.1%}".replace(".", ",")
     def attack(x):
-        return "na média da liga" if abs(x - 1) < 0.03 else f"{abs(x - 1):.0%} {'acima' if x > 1 else 'abaixo'} da média da liga"
+        return "na média da liga" if abs(x - 1) < 0.005 else f"{size(x)} {'acima' if x > 1 else 'abaixo'} da média da liga"
     def conceded(x):  # defence rating above 1 = concedes more
-        return "golos na média da liga" if abs(x - 1) < 0.03 else f"{abs(x - 1):.0%} {'mais' if x > 1 else 'menos'} golos do que a média"
+        return (f"{unit} na média da liga" if abs(x - 1) < 0.005
+                else f"{size(x)} {'mais' if x > 1 else 'menos'} {unit} do que a média")
     out = []
     if st and st.get("ratings"):
         ra, rb = st["ratings"][home], st["ratings"][away]
         out.append(f"Ataque: o do {home} está {attack(ra['attack'])}; o do {away}, {attack(rb['attack'])}.")
         out.append(f"Defesa: o {home} sofre {conceded(ra['defence'])}; o {away}, {conceded(rb['defence'])}.")
-        out.append(f"Jogar em casa vale cerca de +{st['home_advantage'] - 1:.0%} de golos nesta liga.")
+        out.append(f"Jogar em casa vale cerca de {st['home_advantage'] - 1:+.0%} de {unit} nesta liga.")
     if st and st.get("form"):
         f1, f2 = st["form"].get(home, {}), st["form"].get(away, {})
         if f1.get("matches") and f2.get("matches"):
@@ -721,7 +727,7 @@ def explain(r: dict) -> list[str]:
     k = max(res, key=res.get)
     if pr.get("expected_goals"):
         lam, mu = pr["expected_goals"].values()
-        out.append(f"Golos esperados {lam:.2f} – {mu:.2f}: o resultado mais provável é {label(k)} ({res[k]:.0%}).")
+        out.append(f"{unit.capitalize()} esperados {lam:.2f} – {mu:.2f}: o resultado mais provável é {label(k)} ({res[k]:.0%}).")
     model = (pr.get("model_probabilities") or {}).get("1X2")
     if model and pr.get("blend"):
         s = max(res, key=lambda x: abs(res[x] - model[x]))

@@ -52,6 +52,7 @@ jobs:
             state/odds_api
             state/oddspapi
             state/api_football
+            state/api_sports
             state/cache
           key: state-${{ github.run_id }}
           restore-keys: state-
@@ -80,6 +81,7 @@ jobs:
             state/odds_api
             state/oddspapi
             state/api_football
+            state/api_sports
             state/cache
           key: state-${{ github.run_id }}
 

@@ -9,7 +9,7 @@ import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 
-from app import analysis, backtest, db, sports, tables, world
+from app import analysis, backtest, db, multisport, sports, tables, world
 from app.config import ROOT, settings
 from app.data import api_football, football_data as fd, odds_api, odds_api_io, oddspapi
 
@@ -60,7 +60,13 @@ def export(out: Path) -> dict:
     except Exception:
         log.exception("Falha ao analisar os jogos da API-Football")
         rest = []
-    for report in others + football + portuguese + rest:
+    try:  # the other sports with their own models; games the odds feeds already forecast are kept from those
+        forecast = [r["identification"] for r in others + football + portuguese + rest if r.get("predictions")]
+        more = multisport.reports(forecast)
+    except Exception:
+        log.exception("Falha ao analisar as outras modalidades (API-Sports)")
+        more = []
+    for report in others + football + portuguese + rest + more:
         report["alerts"] = analysis.public_alerts(db.odds_moves(report["key"]))
         report["odds_history"] = analysis.odds_timeline(report["key"])
         _write(data / "match" / f"{slug(report['key'])}.json", report)

@@ -335,7 +335,7 @@ function detailHtml(r) {
       <div class="small muted">${['1', 'X', '2'].filter(s => res[s] != null).map(s => `${esc(selLabel('1X2', s, id.home, id.away))} ${pct(res[s])}`).join(' · ')}</div>
       ${r.explanation?.length ? `<div class="small" style="margin-top:8px"><b>Porquê?</b></div><ul class="why">${r.explanation.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}</div>
     <div class="facts">
-      ${pr.expected_goals ? `<div class="fact"><span>Golos esperados</span><b>${Object.values(pr.expected_goals).map(g => num(g)).join(' – ')}</b></div>` : ''}
+      ${pr.expected_goals ? `<div class="fact"><span>${esc(id.sport === 'Voleibol' ? 'Sets' : (UNIT[id.sport] || 'golos').replace(/^./, c => c.toUpperCase()))} esperados</span><b>${Object.values(pr.expected_goals).map(g => num(g, id.sport === 'Futebol' ? 2 : 1)).join(' – ')}</b></div>` : ''}
       ${pr.top_scores?.length ? `<div class="fact"><span>Resultado exato mais provável</span><b>${esc(pr.top_scores[0].score)}</b> <span class="small muted">${pct(pr.top_scores[0].prob)}</span></div>` : ''}
       ${P['OU2.5'] && id.sport === 'Futebol' ? `<div class="fact"><span>Mais de 2.5 golos</span><b>${pct(P['OU2.5'].Mais)}</b></div>` : ''}
       ${P.BTTS ? `<div class="fact"><span>Ambas marcam</span><b>${pct(P.BTTS.Sim)}</b></div>` : ''}
@@ -469,7 +469,8 @@ async function renderHow() {
         A probabilidade final combina este modelo com o consenso do mercado, com pesos testados em 8 épocas e 21 ligas.</li>
       <li>Os golos esperados são ajustados a essas probabilidades finais; daí sai a grelha de resultados exatos, de onde vêm golos por equipa, intervalo, margem de vitória e handicap — tudo coerente entre si.</li>
       <li><b>Remates e cartões</b>: médias recentes de cada equipa, puxadas para a média da liga. <b>Cantos</b>: frequência da liga no último ano.</li>
-      <li><b>Outras modalidades</b>: consenso do mercado; ainda sem modelo próprio.</li>
+      <li><b>Outras modalidades</b>: hóquei e basebol com o modelo de golos (Poisson); basquetebol, futebol americano, râguebi, andebol e voleibol com um modelo de força de ataque e defesa em pontos.
+        Testados nas épocas de 2024: melhores do que a simples vantagem de casa em todas (no basebol a diferença é pequena). Onde há odds de várias casas, usa-se o consenso do mercado.</li>
       <li><b>Confiança dos dados</b>: quantos jogos de histórico têm as equipas. Não é a probabilidade do resultado.</li></ul>
     <h3>Limitações</h3><ul><li>Sem lesões, suspensões, onzes nem meteorologia.</li><li>Só jogos do campeonato contam para a força das equipas.</li>
       <li>Os dados são atualizados de hora a hora (o GitHub pode atrasar algumas atualizações). Esta página verifica dados novos a cada 5 minutos.</li></ul>`;
