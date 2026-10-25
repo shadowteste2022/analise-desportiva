@@ -234,8 +234,8 @@ def fixtures() -> list[dict]:
             kickoff = pd.Timestamp(g["start"])
         except (TypeError, ValueError):
             continue
-        # same window as the other sources: from 2 h after kick-off back to 7 days ahead
-        if home and away and now - pd.Timedelta(hours=2) < kickoff < now + pd.Timedelta(days=7):
+        # same window as the other sources: from 2 h after kick-off to 8 days ahead (today to the next Sunday)
+        if home and away and now - pd.Timedelta(hours=2) < kickoff < now + pd.Timedelta(days=8):
             out.append({**g, "home": home, "away": away, "kickoff": kickoff,
                         "competition": TOURNAMENTS.get(g["tournament"], "Futebol")})
     _fixtures_cache = out

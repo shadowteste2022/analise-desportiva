@@ -41,7 +41,8 @@ h3{font-size:12px;margin:14px 0 6px;color:var(--muted);text-transform:uppercase;
 .hl .it em{font-style:normal;font-weight:700;white-space:nowrap}
 /* filters */
 .filters{position:sticky;top:53px;z-index:4;background:var(--bg);padding:8px 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.chips{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:3px}
+.chips{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:3px;max-width:100%;overflow-x:auto}
+.chip{white-space:nowrap}
 .chip{border:0;background:none;padding:5px 11px;border-radius:7px;cursor:pointer;color:var(--muted)}
 .chip.on{background:var(--accent);color:var(--onaccent);font-weight:600}
 .filters select,.filters input[type=search]{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:7px 10px;max-width:220px}
@@ -183,7 +184,7 @@ function predCell(x) {
 // ---------- state ----------
 const S = {data: null, reports: new Map(), open: new Set(), tab: {}, limit: 60,
   f: Object.assign({when: 'all', sport: '', league: '', q: ''}, JSON.parse(store.get('filters4') || '{}'))};
-if (!['all', '0', '1', '2'].includes(S.f.when)) S.f.when = 'all';
+if (S.f.when !== 'all' && !(+S.f.when >= 0 && +S.f.when < weekDays())) S.f.when = 'all';
 
 // ---------- page ----------
 async function load(first) {
@@ -201,9 +202,9 @@ function renderUpd() {
   document.getElementById('upd').innerHTML = g ? `<span class="dot"></span><span class="t">Dados de ${hm(g)} · </span>${mins < 1 ? 'agora' : `há ${mins} min`}` : '';
 }
 // games that have not kicked off over 2 h ago (hidden even if the hourly update is late)
-// only today and the next two days (visitor's time zone)
-const DAYS = 3;
-const live = fx => { const end = new Date(new Date().toDateString()).getTime() + DAYS * 864e5;
+// the week from today to the next Sunday, inclusive (on a Sunday: to the following Sunday), visitor's time zone
+const weekDays = () => { const d = new Date().getDay(); return ((7 - d) % 7 || 7) + 1; };
+const live = fx => { const end = new Date(new Date().toDateString()).getTime() + weekDays() * 864e5;
   return fx.filter(x => x.kickoff && Date.parse(x.kickoff) >= Date.now() - 2 * 3600e3 && Date.parse(x.kickoff) < end); };
 const forecast = fx => live(fx).filter(x => x.probs_1x2);
 function renderShell() {
@@ -215,7 +216,9 @@ function renderShell() {
     <details class="tables" id="tables"><summary>Classificações e previsão do fim da época</summary><div id="tables-body"><p class="muted small">A carregar…</p></div></details>
     <h2>Jogos</h2>
     <div class="filters">
-      <div class="chips" role="group" aria-label="Quando">${[['all', 'Todos'], ['0', 'Hoje'], ['1', 'Amanhã'], ['2', 'Depois de amanhã']].map(([v, l]) =>
+      <div class="chips" role="group" aria-label="Quando">${[['all', 'Semana'], ...Array.from({length: weekDays()}, (_, k) => {
+          const d = new Date(Date.now() + k * 864e5);
+          return [String(k), k === 0 ? 'Hoje' : k === 1 ? 'Amanhã' : d.toLocaleDateString('pt-PT', {weekday: 'short', day: 'numeric'}).replace('.', '')]; })].map(([v, l]) =>
         `<button class="chip ${S.f.when === v ? 'on' : ''}" data-when="${v}">${l}</button>`).join('')}</div>
       <select id="f-sport" aria-label="Modalidade"><option value="">Todas as modalidades</option>${sports.map(s => `<option>${esc(s)}</option>`).join('')}</select>
       <select id="f-league" aria-label="Competição"><option value="">Todas as competições</option>${comps.map(x => `<option value="${esc(x.league)}" data-sport="${esc(x.sport)}">${esc(x.competition)}</option>`).join('')}</select>
