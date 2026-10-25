@@ -183,6 +183,7 @@ function predCell(x) {
 // ---------- state ----------
 const S = {data: null, reports: new Map(), open: new Set(), tab: {}, limit: 60,
   f: Object.assign({when: 'all', sport: '', league: '', q: ''}, JSON.parse(store.get('filters4') || '{}'))};
+if (!['all', '0', '1', '2'].includes(S.f.when)) S.f.when = 'all';
 
 // ---------- page ----------
 async function load(first) {
@@ -200,7 +201,10 @@ function renderUpd() {
   document.getElementById('upd').innerHTML = g ? `<span class="dot"></span><span class="t">Dados de ${hm(g)} · </span>${mins < 1 ? 'agora' : `há ${mins} min`}` : '';
 }
 // games that have not kicked off over 2 h ago (hidden even if the hourly update is late)
-const live = fx => fx.filter(x => !(x.kickoff && Date.parse(x.kickoff) < Date.now() - 2 * 3600e3));
+// only today and the next two days (visitor's time zone)
+const DAYS = 3;
+const live = fx => { const end = new Date(new Date().toDateString()).getTime() + DAYS * 864e5;
+  return fx.filter(x => x.kickoff && Date.parse(x.kickoff) >= Date.now() - 2 * 3600e3 && Date.parse(x.kickoff) < end); };
 const forecast = fx => live(fx).filter(x => x.probs_1x2);
 function renderShell() {
   const fx = forecast(S.data.fixtures);
@@ -211,7 +215,7 @@ function renderShell() {
     <details class="tables" id="tables"><summary>Classificações e previsão do fim da época</summary><div id="tables-body"><p class="muted small">A carregar…</p></div></details>
     <h2>Jogos</h2>
     <div class="filters">
-      <div class="chips" role="group" aria-label="Quando">${[['all', 'Todos'], ['0', 'Hoje'], ['1', 'Amanhã'], ['7', '7 dias']].map(([v, l]) =>
+      <div class="chips" role="group" aria-label="Quando">${[['all', 'Todos'], ['0', 'Hoje'], ['1', 'Amanhã'], ['2', 'Depois de amanhã']].map(([v, l]) =>
         `<button class="chip ${S.f.when === v ? 'on' : ''}" data-when="${v}">${l}</button>`).join('')}</div>
       <select id="f-sport" aria-label="Modalidade"><option value="">Todas as modalidades</option>${sports.map(s => `<option>${esc(s)}</option>`).join('')}</select>
       <select id="f-league" aria-label="Competição"><option value="">Todas as competições</option>${comps.map(x => `<option value="${esc(x.league)}" data-sport="${esc(x.sport)}">${esc(x.competition)}</option>`).join('')}</select>
@@ -270,7 +274,7 @@ function goTo(key) {
 function filtered() {
   const f = S.f, day0 = new Date(new Date().toDateString()).getTime(), day = 864e5, q = f.q.toLowerCase();
   const inWhen = x => { if (f.when === 'all') return true; if (!x.kickoff) return false; const t = Date.parse(x.kickoff);
-    return f.when === '7' ? t < day0 + 7 * day : t >= day0 + +f.when * day && t < day0 + (+f.when + 1) * day; };
+    return t >= day0 + +f.when * day && t < day0 + (+f.when + 1) * day; };
   return forecast(S.data.fixtures).filter(x => inWhen(x) && (!f.sport || x.sport === f.sport) && (!f.league || x.league === f.league)
     && (!q || (x.home + ' ' + x.away + ' ' + x.competition).toLowerCase().includes(q)))
     .sort((a, b) => (a.kickoff || a.date).localeCompare(b.kickoff || b.date));
