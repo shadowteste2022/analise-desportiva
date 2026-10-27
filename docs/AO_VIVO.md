@@ -19,4 +19,6 @@ responde à página.
 4. No Worker → **Settings → Bindings → Add → KV namespace**: variável `LIVE`, namespace `LIVE`.
 5. No Worker → **Settings → Variables and Secrets → Add → Secret**: nome `API_FOOTBALL_KEY`, valor = a chave da
    API-Football (só o dono da conta a cola).
-6. O endereço do Worker (`https://analise-live.<conta>.workers.dev`) vai para `LIVE_URL` em `frontend/index.html`.
+6. O endereço do Worker (`https://analise-live.shadowteste2022.workers.dev`) está em `LIVE_URL` em `frontend/index.html`.
+
+Atualizar o código do Worker: `cd worker && npx wrangler deploy` (configuração em `worker/wrangler.toml`).

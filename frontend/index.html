@@ -235,7 +235,7 @@ function renderUpd() {
 const forecast = fx => fx.filter(x => x.probs_1x2 && x.kickoff && (Date.parse(x.kickoff) >= Date.now() - 2 * 3600e3 || liveOf(x)));
 
 // ---------- live scores (football), through the Cloudflare Worker in worker/live.js ----------
-const LIVE_URL = '';  // the Worker's address (docs/AO_VIVO.md); empty = no live scores
+const LIVE_URL = 'https://analise-live.shadowteste2022.workers.dev';  // the Worker (docs/AO_VIVO.md)
 let LIVE = {games: [], at: null};
 const COMMON = new Set(['real', 'united', 'city', 'sporting', 'athletic', 'club', 'deportivo', 'atletico', 'racing', 'union']);
 // football-data.co.uk abbreviations (same idea as odds_api.ALIASES in the backend)
