@@ -200,8 +200,8 @@ function predCell(x) {
 // ---------- state ----------
 const S = {data: null, reports: new Map(), open: new Set(), tab: {}, limit: 80,
   f: Object.assign({when: '0', sport: '', league: '', q: ''}, JSON.parse(store.get('filters5') || '{}'))};
-// one day at a time: today up to the next Sunday (on a Sunday, the following Sunday), visitor's time zone
-const weekDays = () => { const d = new Date().getDay(); return ((7 - d) % 7 || 7) + 1; };
+// one day at a time, over a rolling week: today and the next 6 days (visitor's time zone)
+const weekDays = () => 7;
 if (!(+S.f.when >= 0 && +S.f.when < weekDays())) S.f.when = '0';
 const ICON = {Futebol: '⚽', Basquetebol: '🏀', 'Hóquei no gelo': '🏒', 'Futebol americano': '🏈', Basebol: '⚾', Andebol: '🤾',
   Voleibol: '🏐', 'Râguebi': '🏉', 'Futebol australiano': '🏉', 'Ténis': '🎾', MMA: '🥊', Boxe: '🥊', 'Críquete': '🏏'};

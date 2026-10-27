@@ -25,7 +25,7 @@ NOTES = ["Probabilidades = consenso das casas sem margem (Shin); ainda não há 
          "Sem backtest: nenhuma seleção é classificada como VALOR POTENCIAL.",
          "Odds de casas internacionais (The Odds API): confirme se a casa tem licença do SRIJ antes de apostar a "
          "partir de Portugal."]
-HORIZON_DAYS = 8  # today to the next Sunday, inclusive
+HORIZON_DAYS = 8  # covers the site's rolling week (today and the next 6 days)
 
 
 def is_other_sport(key: str) -> bool:
