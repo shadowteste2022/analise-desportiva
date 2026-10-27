@@ -74,6 +74,7 @@ section{scroll-margin-top:140px}
 .row:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 .time{font-weight:800;font-variant-numeric:tabular-nums;color:var(--pitch)}
 .teams{min-width:0} .teams b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.teams .comp{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pbar{display:flex;height:8px;border-radius:4px;overflow:hidden;background:var(--line)}
 .pbar span{display:block}
 .plab{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:3px;font-variant-numeric:tabular-nums}
@@ -312,28 +313,24 @@ function filtered(allComps) {
   const f = S.f, q = f.q.toLowerCase();
   return forecast(S.data.fixtures).filter(x => onDay(x, +f.when) && (!f.sport || x.sport === f.sport)
     && (allComps || ((!f.league || x.league === f.league) && (!q || (x.home + ' ' + x.away + ' ' + x.competition).toLowerCase().includes(q)))))
-    .sort((a, b) => sportRank(a.sport) - sportRank(b.sport) || compRank(a.competition) - compRank(b.competition)
-      || a.competition.localeCompare(b.competition) || a.kickoff.localeCompare(b.kickoff));
+    .sort((a, b) => Date.parse(a.kickoff) - Date.parse(b.kickoff) || sportRank(a.sport) - sportRank(b.sport)
+      || compRank(a.competition) - compRank(b.competition) || a.competition.localeCompare(b.competition));
 }
 function renderList() {
   const all = filtered(), rows = all.slice(0, S.limit), k = +S.f.when;
   document.getElementById('day-title').textContent = dayLong(k);
-  let html = '', comp = null;
+  // in kick-off order; the competition sits under the teams
+  let html = rows.length ? `<div class="group"><div class="comp-h"><b>${all.length} jogo${all.length === 1 ? '' : 's'} por ordem de início</b></div>` : '';
   for (const x of rows) {
-    if (x.league !== comp) {
-      const n = all.filter(y => y.league === x.league).length;
-      html += `${comp === null ? '' : '</div>'}<div class="group"><div class="comp-h"><span aria-hidden="true">${icon(x.sport)}</span><b>${esc(x.competition)}</b><span class="n">${n} jogo${n === 1 ? '' : 's'}</span></div>`;
-      comp = x.league;
-    }
     html += `<article class="game ${S.open.has(x.key) ? 'open' : ''}" data-key="${esc(x.key)}">
       <div class="row" role="button" tabindex="0" aria-expanded="${S.open.has(x.key)}">
         <div class="time">${hm(x.kickoff)}</div>
-        <div class="teams"><b>${esc(x.home)}</b><b>${esc(x.away)}</b></div>
+        <div class="teams"><b>${esc(x.home)}</b><b>${esc(x.away)}</b><span class="comp">${icon(x.sport)} ${esc(x.competition)}</span></div>
         <div class="probs">${probBar(x.probs_1x2)}</div>
         <div class="pred">${predCell(x)}</div>
       </div><div class="detail" ${S.open.has(x.key) ? '' : 'hidden'}></div></article>`;
   }
-  if (comp !== null) html += '</div>';
+  if (rows.length) html += '</div>';
   if (!rows.length) {
     const next = Array.from({length: weekDays()}, (_, d) => d).find(d => d > k && forecast(S.data.fixtures).some(x => onDay(x, d)));
     html = `<div class="empty"><p>Sem jogos com previsão ${esc(dayLong(k))}${S.f.sport ? ` em ${esc(S.f.sport)}` : ''}${S.f.league || S.f.q ? ' para estes filtros' : ''}.</p>
