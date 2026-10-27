@@ -40,7 +40,8 @@ jobs:
 
       - id: daily
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$(date -u +%H)" = "07" ]; then
+          # once a day, whoever triggers the run: the hourly runs now come from cron-job.org as workflow_dispatch
+          if [ "$(date -u +%H)" = "07" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           fi
 
@@ -87,12 +88,13 @@ jobs:
 
       - name: Gravar histórico no repositório (uma vez por dia)
         if: steps.daily.outputs.run == 'true'
+        continue-on-error: true    # two runs in the same hour may race; the site must still be published
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add state
           git diff --cached --quiet || git commit -m "Atualização diária do histórico [skip ci]"
-          git push
+          git pull --rebase -X theirs origin main && git push
 
       - uses: actions/upload-pages-artifact@v3
         with:
