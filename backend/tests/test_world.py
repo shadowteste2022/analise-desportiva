@@ -29,10 +29,10 @@ def test_normalize_record_and_history(tmp_path, monkeypatch):
 
 
 def test_quota_keeps_a_reserve(monkeypatch):
-    monkeypatch.setattr(af, "state", {"used": 89, "limit": 100, "error": None, "skipped": 0})
+    monkeypatch.setattr(af, "state", {"used": 39, "limit": 100, "error": None, "skipped": 0})
     assert af.can_spend()
-    af.state["used"] = 90
-    assert not af.can_spend()  # 10 of the 100 daily requests are never spent
+    af.state["used"] = 40
+    assert not af.can_spend()  # 60 of the 100 daily requests are left for the live-scores Worker
     af.state["used"] = None
     assert not af.can_spend()  # usage unknown: never spend
 

@@ -73,6 +73,8 @@ section{scroll-margin-top:140px}
 .row:hover{background:var(--soft)}
 .row:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 .time{font-weight:800;font-variant-numeric:tabular-nums;color:var(--pitch)}
+.time.live{color:#e11d48} .time.live small{display:block;font-size:15px;color:var(--fg)}
+.livebar{font-size:12px;color:#e11d48;font-weight:700}
 .teams{min-width:0} .teams b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
 .teams .comp{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pbar{display:flex;height:8px;border-radius:4px;overflow:hidden;background:var(--line)}
@@ -230,7 +232,48 @@ function renderUpd() {
   document.getElementById('upd').innerHTML = g ? `<span class="dot"></span><span class="t">Dados de ${hm(g)} · </span>${mins < 1 ? 'agora' : `há ${mins} min`}` : '';
 }
 // games with a forecast that have not kicked off over 2 h ago (hidden even if the hourly update is late)
-const forecast = fx => fx.filter(x => x.probs_1x2 && x.kickoff && Date.parse(x.kickoff) >= Date.now() - 2 * 3600e3);
+const forecast = fx => fx.filter(x => x.probs_1x2 && x.kickoff && (Date.parse(x.kickoff) >= Date.now() - 2 * 3600e3 || liveOf(x)));
+
+// ---------- live scores (football), through the Cloudflare Worker in worker/live.js ----------
+const LIVE_URL = '';  // the Worker's address (docs/AO_VIVO.md); empty = no live scores
+let LIVE = {games: [], at: null};
+const COMMON = new Set(['real', 'united', 'city', 'sporting', 'athletic', 'club', 'deportivo', 'atletico', 'racing', 'union']);
+// football-data.co.uk abbreviations (same idea as odds_api.ALIASES in the backend)
+const ALIAS = {'man united': 'manchester united', 'man city': 'manchester city', "nott'm forest": 'nottingham forest',
+  'sp lisbon': 'sporting cp', 'sheffield weds': 'sheffield wednesday', 'ath madrid': 'atletico madrid', 'ath bilbao': 'athletic bilbao',
+  "m'gladbach": 'monchengladbach', 'ein frankfurt': 'eintracht frankfurt', 'paris sg': 'paris saint germain', 'wolves': 'wolverhampton'};
+function words(s) {
+  s = s.toLowerCase(); s = ALIAS[s] || s;
+  const all = s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9 ]/g, ' ').split(' ').filter(w => w.length >= 4);
+  const distinct = all.filter(w => !COMMON.has(w));
+  return distinct.length ? distinct : all;
+}
+// team names differ between sources ("Man United" / "Manchester United"): a shared distinctive word is enough
+const sameTeam = (a, b) => { const wa = words(a), wb = new Set(words(b)); return a.toLowerCase() === b.toLowerCase() || wa.some(w => wb.has(w)); };
+function liveOf(x) {
+  if (x.sport !== 'Futebol' || !LIVE.games.length) return null;
+  const t = Date.parse(x.kickoff);
+  return LIVE.games.find(g => Math.abs(Date.parse(g.kickoff) - t) < 3 * 3600e3 && sameTeam(g.home, x.home) && sameTeam(g.away, x.away)) || null;
+}
+const liveMinute = g => g.status === 'HT' ? 'Intervalo' : g.status === 'P' ? 'Penáltis' : g.status === 'BT' ? 'Pausa'
+  : g.elapsed != null ? `${g.elapsed}${g.extra ? '+' + g.extra : ''}'` : 'Ao vivo';
+async function loadLive() {
+  if (!LIVE_URL) return;
+  try { LIVE = await (await fetch(LIVE_URL, {cache: 'no-cache'})).json(); } catch { return; }
+  paintLive();
+}
+// live minute and score in place of the kick-off time, without rebuilding the list
+function paintLive() {
+  let n = 0;
+  document.querySelectorAll('.game').forEach(el => {
+    const x = S.data?.fixtures.find(f => f.key === el.dataset.key), g = x && liveOf(x), cell = el.querySelector('.time');
+    if (!cell || !x) return;
+    if (g) { n++; cell.className = 'time live'; cell.innerHTML = `🔴 ${esc(liveMinute(g))}<small>${g.hg ?? 0}-${g.ag ?? 0}</small>`; }
+    else { cell.className = 'time'; cell.textContent = hm(x.kickoff); }
+  });
+  const bar = document.getElementById('livebar');
+  if (bar) bar.textContent = n ? `🔴 ${n} jogo${n === 1 ? '' : 's'} ao vivo · resultados de ${hm(new Date(LIVE.at).toISOString())}${LIVE.stale ? ' (atrasados)' : ''}` : '';
+}
 // calendar days, not 24 h steps: a day can last 23 or 25 hours when the clocks change
 const dayStart = k => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate() + k).getTime(); };
 const onDay = (x, k) => { const t = Date.parse(x.kickoff); return t >= dayStart(k) && t < dayStart(k + 1); };
@@ -263,7 +306,7 @@ function renderFilters() {
 }
 function renderShell() {
   $app.innerHTML = `<section id="highlights"></section>
-    <section id="jogos"><h2>Jogos de <span id="day-title"></span></h2><div class="filters" id="filters"></div><div id="list"></div></section>
+    <section id="jogos"><h2>Jogos de <span id="day-title"></span></h2><p class="livebar" id="livebar"></p><div class="filters" id="filters"></div><div id="list"></div></section>
     <section id="classificacoes"><h2>Classificações e rankings</h2><div class="panel" id="tables-body"><p class="muted small">A carregar…</p></div></section>
     <section id="como"><h2>Como funcionam as previsões</h2><div class="panel small" id="how-body"><p class="muted">A carregar…</p></div></section>`;
   document.querySelectorAll('[data-goto]').forEach(b => b.onclick = () => document.getElementById(b.dataset.goto).scrollIntoView());
@@ -347,6 +390,7 @@ function renderList() {
   });
   const more = document.getElementById('more');
   if (more) more.onclick = () => { S.limit += 80; renderList(); };
+  paintLive();
   const nd = document.getElementById('next-day');
   if (nd) nd.onclick = () => { const d = Array.from({length: weekDays()}, (_, i) => i).find(i => i > k && forecast(S.data.fixtures).some(x => onDay(x, i)));
     Object.assign(S.f, {when: String(d), league: '', q: ''}); store.set('filters5', JSON.stringify(S.f)); renderBars(); renderFilters(); renderHighlights(); renderList(); };
@@ -553,6 +597,8 @@ load(true).then(() => {
   if (h.startsWith('#/match/')) goTo(decodeURIComponent(h.slice(8)));
 }).catch(e => { $app.innerHTML = err(e); });
 setInterval(() => load(false).catch(() => {}), REFRESH_MS);
+loadLive();
+setInterval(loadLive, 60e3);  // the Worker refreshes its own copy every 20 min at most
 setInterval(renderUpd, 60e3);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) load(false).catch(() => {}); });
 </script>

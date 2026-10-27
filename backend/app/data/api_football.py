@@ -18,7 +18,7 @@ from app.config import settings
 
 log = logging.getLogger(__name__)
 BASE = "https://v3.football.api-sports.io"
-RESERVE = 10  # requests per day never spent
+RESERVE = 60  # requests per day left for the live-scores Worker (worker/live.js) and a margin
 FIXTURES_TTL_H = 6
 HISTORY_SEASON = 2024  # latest season the free plan serves by league
 HISTORY_PER_RUN = 6  # league seasons fetched per run: hourly runs spread the backfill over the day
