@@ -75,6 +75,8 @@ section{scroll-margin-top:140px}
 .time{font-weight:800;font-variant-numeric:tabular-nums;color:var(--pitch)}
 .time.live{color:#e11d48} .time.live small{display:block;font-size:15px;color:var(--fg)}
 .livebar{font-size:12px;color:#e11d48;font-weight:700}
+.livetag{color:#e11d48;font-weight:700}
+.livepanel{background:var(--card);border:1px solid #e11d48;border-left:4px solid #e11d48;border-radius:10px;padding:10px 14px;margin-bottom:10px}
 .teams{min-width:0} .teams b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
 .teams .comp{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pbar{display:flex;height:8px;border-radius:4px;overflow:hidden;background:var(--line)}
@@ -205,7 +207,7 @@ const S = {data: null, reports: new Map(), open: new Set(), tab: {}, limit: 80,
   f: Object.assign({when: '0', sport: '', league: '', q: ''}, JSON.parse(store.get('filters5') || '{}'))};
 // one day at a time, over a rolling week: today and the next 6 days (visitor's time zone)
 const weekDays = () => 7;
-if (!(+S.f.when >= 0 && +S.f.when < weekDays())) S.f.when = '0';
+if (S.f.when !== 'live' && !(+S.f.when >= 0 && +S.f.when < weekDays())) S.f.when = '0';
 const ICON = {Futebol: '⚽', Basquetebol: '🏀', 'Hóquei no gelo': '🏒', 'Futebol americano': '🏈', Basebol: '⚾', Andebol: '🤾',
   Voleibol: '🏐', 'Râguebi': '🏉', 'Futebol australiano': '🏉', 'Ténis': '🎾', MMA: '🥊', Boxe: '🥊', 'Críquete': '🏏'};
 const icon = s => ICON[s] || '🏅';
@@ -231,8 +233,14 @@ function renderUpd() {
   const mins = g ? Math.round((Date.now() - Date.parse(g)) / 60e3) : null;
   document.getElementById('upd').innerHTML = g ? `<span class="dot"></span><span class="t">Dados de ${hm(g)} · </span>${mins < 1 ? 'agora' : `há ${mins} min`}` : '';
 }
-// games with a forecast that have not kicked off over 2 h ago (hidden even if the hourly update is late)
-const forecast = fx => fx.filter(x => x.probs_1x2 && x.kickoff && (Date.parse(x.kickoff) >= Date.now() - 2 * 3600e3 || liveOf(x)));
+// games with a forecast still to play or being played: kicked off under 2 h ago (or live now), and not seen live
+// earlier and since gone from the live list (= finished)
+const forecast = fx => fx.filter(x => x.probs_1x2 && x.kickoff && !finished(x)
+  && (Date.parse(x.kickoff) >= Date.now() - 2 * 3600e3 || liveOf(x)));
+const SEEN_LIVE = new Set();
+const finished = x => SEEN_LIVE.has(x.key) && LIVE.games.length > 0 && !liveOf(x);
+// the view: one day, or the games being played now
+const inView = x => S.f.when === 'live' ? !!liveOf(x) : onDay(x, +S.f.when);
 
 // ---------- live scores (football), through the Cloudflare Worker in worker/live.js ----------
 const LIVE_URL = 'https://analise-live.shadowteste2022.workers.dev';  // the Worker (docs/AO_VIVO.md)
@@ -255,24 +263,80 @@ function liveOf(x) {
   const t = Date.parse(x.kickoff);
   return LIVE.games.find(g => Math.abs(Date.parse(g.kickoff) - t) < 3 * 3600e3 && sameTeam(g.home, x.home) && sameTeam(g.away, x.away)) || null;
 }
-const liveMinute = g => g.status === 'HT' ? 'Intervalo' : g.status === 'P' ? 'Penáltis' : g.status === 'BT' ? 'Pausa'
-  : g.elapsed != null ? `${g.elapsed}${g.extra ? '+' + g.extra : ''}'` : 'Ao vivo';
+// the minute moves on between Worker updates (every 20 min): elapsed + time since the data was fetched
+function liveClock(g) {
+  const fixed = {HT: 'Intervalo', P: 'Penáltis', BT: 'Pausa', INT: 'Interrompido', SUSP: 'Suspenso'};
+  if (fixed[g.status] || g.elapsed == null) return {min: g.status === 'HT' ? 45 : g.elapsed ?? 0, label: fixed[g.status] || 'Ao vivo'};
+  const cap = {'1H': 45, '2H': 90, ET: 120}[g.status] || 120;
+  const m = g.elapsed + Math.floor((Date.now() - LIVE.at) / 60e3);
+  return {min: Math.min(m, cap), label: m > cap ? `${cap}+'` : `${m}'`};
+}
+const fact = n => n < 2 ? 1 : n * fact(n - 1);
+const pois = (k, l) => Math.exp(-l) * l ** k / fact(k);
+// probabilities to the end of the game from the score, the time left and each side's expected goals (Poisson);
+// shortcut: regular time only (no extra time or penalties), scoring rate taken as even over the game
+function liveProbs(x, g) {
+  if (!x.xg || ['ET', 'P', 'BT'].includes(g.status)) return null;
+  // 95 minutes in all (about 5 of stoppage time), so a game at 90' still has a few minutes to play
+  const left = Math.max(1, 95 - liveClock(g).min) / 95, eh = x.xg[0] * left, ea = x.xg[1] * left;
+  const hg = g.hg ?? 0, ag = g.ag ?? 0, res = {'1': 0, X: 0, '2': 0};
+  let over = 0;
+  for (let i = 0; i <= 10; i++) for (let j = 0; j <= 10; j++) {
+    const p = pois(i, eh) * pois(j, ea), h = hg + i, w = ag + j;
+    res[h > w ? '1' : h === w ? 'X' : '2'] += p;
+    if (h + w > 2.5) over += p;
+  }
+  return {res, over, more: 1 - Math.exp(-(eh + ea)), nextHome: eh + ea > 0 ? eh / (eh + ea) : 0.5, left};
+}
 async function loadLive() {
   if (!LIVE_URL) return;
   try { LIVE = await (await fetch(LIVE_URL, {cache: 'no-cache'})).json(); } catch { return; }
-  paintLive();
+  const fx = S.data?.fixtures || [], before = SEEN_LIVE.size, ended = fx.filter(finished).length;
+  fx.forEach(x => { if (liveOf(x)) SEEN_LIVE.add(x.key); });
+  // games that just went live or just finished: rebuild bars and list; otherwise only repaint
+  if (S.data && (SEEN_LIVE.size !== before || fx.filter(finished).length !== ended || S.f.when === 'live')) {
+    renderBars(); renderHighlights(); renderList();
+  } else paintLive();
 }
-// live minute and score in place of the kick-off time, without rebuilding the list
+function livePanel(x, g) {
+  const c = liveClock(g), lp = liveProbs(x, g), lab = k => selLabel('1X2', k, x.home, x.away);
+  return `<div class="livepanel"><div><b>🔴 Ao vivo · ${esc(c.label)}</b> · resultado <b>${g.hg ?? 0}-${g.ag ?? 0}</b></div>
+    ${lp ? `<div class="facts">${['1', 'X', '2'].map(k => `<div class="fact"><span>${esc(lab(k))}</span><b>${pct(lp.res[k], 0)}</b>
+      <span class="small muted">antes do jogo ${pct(x.probs_1x2[k], 0)}</span></div>`).join('')}
+      <div class="fact"><span>Mais golos até ao fim</span><b>${pct(lp.more, 0)}</b><span class="small muted">próximo golo: ${esc(lp.nextHome >= .5 ? x.home : x.away)} ${pct(Math.max(lp.nextHome, 1 - lp.nextHome), 0)}</span></div>
+      <div class="fact"><span>Mais de 2.5 golos no final</span><b>${pct(lp.over, 0)}</b></div></div>
+      <div class="small muted">Recalculado ao segundo com o resultado, o tempo que falta (cerca de ${Math.round(lp.left * 95)} min, com descontos) e os golos esperados de cada equipa.
+      O resultado chega de 20 em 20 minutos; o minuto avança sozinho entretanto.</div>` : '<div class="small muted">Sem probabilidades ao vivo neste período (prolongamento ou penáltis).</div>'}</div>`;
+}
+// live minute, score and probabilities without rebuilding the list; runs every second while games are live
 function paintLive() {
   let n = 0;
+  const byKey = new Map((S.data?.fixtures || []).map(f => [f.key, f]));
   document.querySelectorAll('.game').forEach(el => {
-    const x = S.data?.fixtures.find(f => f.key === el.dataset.key), g = x && liveOf(x), cell = el.querySelector('.time');
+    const x = byKey.get(el.dataset.key), g = x && liveOf(x), cell = el.querySelector('.time');
     if (!cell || !x) return;
-    if (g) { n++; cell.className = 'time live'; cell.innerHTML = `🔴 ${esc(liveMinute(g))}<small>${g.hg ?? 0}-${g.ag ?? 0}</small>`; }
-    else { cell.className = 'time'; cell.textContent = hm(x.kickoff); }
+    const probs = el.querySelector('.probs'), pred = el.querySelector('.pred'), panel = el.querySelector('.livepanel-slot');
+    if (g) {
+      n++;
+      const lp = liveProbs(x, g);
+      cell.className = 'time live'; cell.innerHTML = `🔴 ${esc(liveClock(g).label)}<small>${g.hg ?? 0}-${g.ag ?? 0}</small>`;
+      if (lp) {
+        const k = likelyOf(lp.res);
+        probs.innerHTML = probBar(lp.res) + '<div class="plab"><span class="livetag">ao vivo</span></div>';
+        pred.innerHTML = `<span class="lk">${esc(selLabel('1X2', k, x.home, x.away))} <span>${pct(lp.res[k], 0)}</span></span>
+          <span class="gl">Mais golos até ao fim ${pct(lp.more, 0)}</span>`;
+      }
+      if (panel) panel.innerHTML = livePanel(x, g);
+      el.dataset.live = '1';
+    } else if (el.dataset.live) {  // was live: back to the pre-match view
+      delete el.dataset.live;
+      cell.className = 'time'; cell.textContent = hm(x.kickoff);
+      probs.innerHTML = probBar(x.probs_1x2); pred.innerHTML = predCell(x);
+      if (panel) panel.innerHTML = '';
+    }
   });
   const bar = document.getElementById('livebar');
-  if (bar) bar.textContent = n ? `🔴 ${n} jogo${n === 1 ? '' : 's'} ao vivo · resultados de ${hm(new Date(LIVE.at).toISOString())}${LIVE.stale ? ' (atrasados)' : ''}` : '';
+  if (bar) bar.textContent = n ? `🔴 ${n} jogo${n === 1 ? '' : 's'} ao vivo · resultados de ${hm(new Date(LIVE.at).toISOString())}${LIVE.stale ? ' (atrasados)' : ''} · probabilidades ao segundo` : '';
 }
 // calendar days, not 24 h steps: a day can last 23 or 25 hours when the clocks change
 const dayStart = k => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate() + k).getTime(); };
@@ -282,10 +346,12 @@ const dayLong = k => k === 0 ? 'hoje' : k === 1 ? 'amanhã' : new Date(dayStart(
 
 // day and sport chips live in the sticky header
 function renderBars() {
-  const fx = forecast(S.data.fixtures), k = +S.f.when, dayGames = fx.filter(x => onDay(x, k));
+  const fx = forecast(S.data.fixtures), nLive = fx.filter(liveOf).length;
+  if (S.f.when === 'live' && !nLive) S.f.when = '0';
+  const k = +S.f.when, dayGames = fx.filter(inView);
   const sports = [...new Set(dayGames.map(x => x.sport))].sort((a, b) => sportRank(a) - sportRank(b));
   if (S.f.sport && !sports.includes(S.f.sport)) S.f.sport = '';
-  document.getElementById('bars').innerHTML = `<div class="chips" role="group" aria-label="Dia">${Array.from({length: weekDays()}, (_, d) =>
+  document.getElementById('bars').innerHTML = `<div class="chips" role="group" aria-label="Dia">${nLive ? `<button class="chip ${S.f.when === 'live' ? 'on' : ''}" data-day="live">🔴 Ao vivo<span class="n">${nLive}</span></button>` : ''}${Array.from({length: weekDays()}, (_, d) =>
       `<button class="chip ${d === k ? 'on' : ''}" data-day="${d}">${dayName(d)}<span class="n">${fx.filter(x => onDay(x, d)).length}</span></button>`).join('')}</div>
     <div class="chips sport" role="group" aria-label="Modalidade"><button class="chip ${!S.f.sport ? 'on' : ''}" data-sport="">Todas<span class="n">${dayGames.length}</span></button>
       ${sports.map(s => `<button class="chip ${S.f.sport === s ? 'on' : ''}" data-sport="${esc(s)}">${icon(s)} ${esc(s)}<span class="n">${dayGames.filter(x => x.sport === s).length}</span></button>`).join('')}</div>`;
@@ -315,7 +381,7 @@ function renderShell() {
 
 // "Destaques": the games of the chosen day that stand out in the forecasts
 function renderHighlights() {
-  const k = +S.f.when, fx = forecast(S.data.fixtures).filter(x => onDay(x, k) && (!S.f.sport || x.sport === S.f.sport));
+  const k = +S.f.when, fx = S.f.when === 'live' ? [] : forecast(S.data.fixtures).filter(x => onDay(x, k) && (!S.f.sport || x.sport === S.f.sport));
   const top = p => p[likelyOf(p)];
   const goals = fx.filter(x => x.over25 != null && x.sport === 'Futebol');
   const groups = [
@@ -354,14 +420,14 @@ function goTo(key) {
 // games of the chosen day and sport (allComps: ignore the competition and search filters, for the competition list)
 function filtered(allComps) {
   const f = S.f, q = f.q.toLowerCase();
-  return forecast(S.data.fixtures).filter(x => onDay(x, +f.when) && (!f.sport || x.sport === f.sport)
+  return forecast(S.data.fixtures).filter(x => inView(x) && (!f.sport || x.sport === f.sport)
     && (allComps || ((!f.league || x.league === f.league) && (!q || (x.home + ' ' + x.away + ' ' + x.competition).toLowerCase().includes(q)))))
     .sort((a, b) => Date.parse(a.kickoff) - Date.parse(b.kickoff) || sportRank(a.sport) - sportRank(b.sport)
       || compRank(a.competition) - compRank(b.competition) || a.competition.localeCompare(b.competition));
 }
 function renderList() {
   const all = filtered(), rows = all.slice(0, S.limit), k = +S.f.when;
-  document.getElementById('day-title').textContent = dayLong(k);
+  document.getElementById('day-title').textContent = S.f.when === 'live' ? 'agora, ao vivo' : dayLong(k);
   // in kick-off order; the competition sits under the teams
   let html = rows.length ? `<div class="group"><div class="comp-h"><b>${all.length} jogo${all.length === 1 ? '' : 's'} por ordem de início</b></div>` : '';
   for (const x of rows) {
@@ -422,7 +488,7 @@ function detailHtml(r) {
   const P = pr.probabilities, res = P['1X2'] || P.Vencedor, k = likelyOf(res);
   const tab = S.tab[r.key] || 'probs';
   const tabs = [['probs', 'Probabilidades'], ...(r.statistics ? [['stats', 'Estatísticas']] : []), ['detalhes', 'Dados e incertezas']];
-  return `<div class="verdict"><div class="small muted">Resultado mais provável</div>
+  return `<div class="livepanel-slot"></div><div class="verdict"><div class="small muted">Resultado mais provável</div>
       <div class="big">${esc(selLabel('1X2', k, id.home, id.away))} · ${pct(res[k])}</div>
       <div class="small muted">${['1', 'X', '2'].filter(s => res[s] != null).map(s => `${esc(selLabel('1X2', s, id.home, id.away))} ${pct(res[s])}`).join(' · ')}</div>
       ${r.explanation?.length ? `<div class="small" style="margin-top:8px"><b>Porquê?</b></div><ul class="why">${r.explanation.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}</div>
@@ -599,6 +665,7 @@ load(true).then(() => {
 setInterval(() => load(false).catch(() => {}), REFRESH_MS);
 loadLive();
 setInterval(loadLive, 60e3);  // the Worker refreshes its own copy every 20 min at most
+setInterval(() => { if (document.querySelector('.game[data-live]')) paintLive(); }, 1000);
 setInterval(renderUpd, 60e3);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) load(false).catch(() => {}); });
 </script>

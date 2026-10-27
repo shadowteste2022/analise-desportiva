@@ -576,6 +576,7 @@ def summarize(r: dict) -> dict:
     cats = [x["category"] for x in r["markets"]]
     top = next((c for c in (mk.VALOR, mk.INCONCLUSIVO, mk.SEM_VALOR) if c in cats), mk.SEM_DADOS)
     rec = r.get("recommendation") or {}
+    eg = (r["predictions"] or {}).get("expected_goals")
     return {"key": r["key"], **r["identification"], "category": top,
             "pick": {k: rec.get(k) for k in ("kind", "label", "odds", "ev", "bookmaker", "licensed_pt", "score")}
             if rec.get("label") else None,
@@ -584,6 +585,8 @@ def summarize(r: dict) -> dict:
                           or (r["predictions"] or {}).get("probabilities", {}).get("Vencedor")),
             "over25": (r["predictions"] or {}).get("probabilities", {}).get("OU2.5", {}).get("Mais"),
             "btts": (r["predictions"] or {}).get("probabilities", {}).get("BTTS", {}).get("Sim"),
+            # expected goals (football): the page turns them into live probabilities from the score and the minute
+            "xg": list(eg.values()) if eg and r["identification"]["sport"] == "Futebol" else None,
             "best": best and {k: best[k] for k in ("market", "selection", "best_odds", "ev", "category")},
             "value_count": cats.count(mk.VALOR), "opps": opportunities(r)}
 
